@@ -3,24 +3,24 @@
     "path": "/mnt/9A8C6DB98C6D9115/gregoire/GWR_rzine/gwr_rzine.Rmd",
     "project_path": "gwr_rzine.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "86851062",
     "contents": "",
-    "dirty": true,
+    "dirty": false,
     "created": 1664476853754.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "17,23",
-        "scrollLine": "12"
+        "cursorPosition": "527,93",
+        "scrollLine": "525"
     },
     "folds": "",
-    "lastKnownWriteTime": 1663684626,
+    "lastKnownWriteTime": 1664483752,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1664479920991,
+    "last_content_update": 1664483752908,
     "read_only": false,
     "read_only_alternatives": []
 }

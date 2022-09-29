@@ -525,7 +525,7 @@ mod.lm %>%
 
 
 <div class="alert alert-danger" role="alert">
-Je n'ai pas trouvé de table de la loi indiquant le seuil absolu de VIF à ne pas dépasser. Les sources en SHS varient en fonction des disciplines certaines proposent 5 et d'autres même 10. Malgré tout, en géographie le consensus est autour d'une valeur critique de 4. Un VIF supérieur à 4 devrait entrainer la supprésion de la variable du modèle car implique une forte colinéarité et donc un risque élevé de biaiser le modèle. A partir de 3 il convient de s'interroger sur la présence de la variable.
+Sur le seuil de VIF à ne pas dépasser les sources en SHS varient en fonction des disciplines, certaines proposent 5 et d'autres même 10. Malgré tout, en géographie le consensus est autour d'une valeur critique de 4. Un VIF supérieur à 4 devrait entrainer la supprésion de la variable du modèle car implique une forte colinéarité et donc un risque élevé de biaiser le modèle. A partir de 3 il convient de s'interroger sur la présence de la variable.
 
 Au delà de la suppression ou non des variables concernées, il est aussi très important de pouvoir identifier les variables à VIF élevés.
 </div>
