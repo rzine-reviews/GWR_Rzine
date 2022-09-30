@@ -6,7 +6,7 @@ author:
  - name: Frédéric Audard
    affiliation: UMR LETG, Université Bretagne occidentale
  - name: Grégoire Le Campion
-   affiliation: UNM Passages, CNRS
+   affiliation: UMR Passages, CNRS
  - name: Julie Pierson
    affiliation: UMR LETG, CNRS
 image: "figures/gwr.png"   
