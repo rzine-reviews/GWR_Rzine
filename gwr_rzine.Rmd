@@ -4,7 +4,7 @@ subtitle: "Comment prendre en compte l'effet local du spatial en statistique"
 date: "`r Sys.Date()`"
 author: 
  - name: Frédéric Audard
-   affiliation: UMR LETG, Université Bretagne occidentale
+   affiliation: UMR LETG, Université Bretagne Occidentale
  - name: Grégoire Le Campion
    affiliation: UMR Passages, CNRS
  - name: Julie Pierson
@@ -59,7 +59,7 @@ Cette analyse sera reproductible, les données spatiales utilisées proviennent 
 </ul>
 
 
-# Pourquoi la GWR {-}
+# Pourquoi la GWR ? {-}
 
 En statistique la méthode reine pour étudier, analyser la nature des relations et des effets entre des variables est le modèle de **régression linéaire**.
 
