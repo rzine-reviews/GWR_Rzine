@@ -29,10 +29,11 @@ licence: "by-sa"
 # 5 possible choices : "by-nd", "by", "by-nc-sa", "by-nc","by-sa"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, eval=FALSE}
 
 ## Global options
 knitr::opts_chunk$set(echo=TRUE,
+                      eval = FALSE,
         	            cache=FALSE,
                       prompt=FALSE,
                       comment=NA,
@@ -46,47 +47,54 @@ library(rzine)
 
 
 <p style="background-color: #dcdcdc ; border-color:navajowhite3; padding: 1em; font-size:115% ; color: CCCCCC">
-Cette fiche présente la réalisation d'une analyse de données à l'aide de la **régression géographique pondérée ou GWR**.
-La modélisation statistique "classique" a beaucoup de mal à gérer le spatial. Et pour cause la dimension spatiale va à l'encontre d'une règle fondamentale de la statistique : l'indépendance. Or lors d'une analyse d'un phénomène social il est souvent mauvais de considérer la dimension spatiale d'une données comme un simple aléa dans le meilleur des cas ou pire de l'ignorer complètement.
+Cette fiche présente la réalisation d'une analyse de données à l'aide de la **régression géographique pondérée ou GWR**. La modélisation statistique dite “classique” présente des risques élevés lorsqu’on souhaite traiter des données spatiales. Des phénomènes de dépendance spatiale, des problèmes d’échelles d’application, des effets de contexte, ainsi qu’une forme d’hétérogénéité spatiale peuvent apparaître et compromettre les analyses effectuées, et engendrer des interprétations tronquées voire inexactes. Souvent ignorées, ces dimensions spatiales ne peuvent pas être considérées comme un simple aléa.
 
-L'objectif de cette fiche est de vous présenter une méthode qui vous permettra d'étudier concrètement l'effet du spatial dans un modèle de régression. C'est à dire de mesurer statistiquement l'effet de l'information spatiale sur une variable à expliquer.
+L’objectif de cette fiche est de vous présenter des méthodes et leurs applications qui vous permettront d’étudier concrètement les effets des dimensions spatiales des données. Il s’agira de pouvoir d’une part caractériser la structure spatiale de données attributaires liées à des entités spatiales ; et d’autre part de mesurer l’effet statistique de l’information spatiale dans un modèle de régression visant à déterminer les facteurs explicatifs d’un phénomène.
 
-Cette analyse sera reproductible, les données spatiales utilisées proviennent de la base ADMIN-EPXRESS de l'IGN. Les données statistiques elles ont été construites à partir de la base des notaires de France, il s'agit de données de recherches mises à disposition. *+ données insee revenu médian etc. ?*</p>
+L’analyse présentée ici a pour objectif d’être reproductible : les données spatiales utilisées proviennent de la base ADMIN-EPXRESS de l’IGN ; les données statistiques, quant à elles, ont été construites à partir de la base des notaires de France, complétées par des données de l’INSEE pour les variables explicatives.</p>
 
 
 <ul style="background-color: #dcdcdc ; border-color:navajowhite3; padding: 0.8em; font-size:115% ; color: CCCCCC">
-**Prérequis** : connaissance de base en analyse de données statistiques, avec au moins une compréhension de ce qu'est une corrélation et une régression?.
+**Prérequis** : connaissance de base en analyse de données statistiques, avec au moins une compréhension de ce qu'est une corrélation et une régression.
 </ul>
 
 
 # Pourquoi la GWR ? {-}
 
-En statistique la méthode reine pour étudier, analyser la nature des relations et des effets entre des variables est le modèle de **régression linéaire**.
+Lorsque l’on souhaite dépasser la simple caractérisation d’attributs liés à des individus statistiques, on fait appel à des méthodes de modélisation explicitant des relations statistiques. La méthode la plus employée, principalement en sciences sociales, pour mesurer et analyser la nature des relations et des effets entre deux ou plusieurs variables, est le modèle de **régression linéaire**.
 
-Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appeler variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI).
+Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appeler variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social avec une emprise sur un espace, la régression linéaire pose plusieurs problèmes :
 
-Cette fonction linéaire nous permets d'obtenir des coefficients (appelés betas) et des résidus (noté epsilon). Ces betas représentent l'effet de nos VI sur notre VD. Ces betas sont considérés comme globaux, autrement dit sans variation.
+Le premier est empirique. La régression linéaire nous permet d’obtenir des coefficients (appelés betas **β**) et des résidus (noté epsilon **ε**). Ces **β** représentent l’effet de nos VI sur notre VD. Ces β sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaires considèrent que les VI interviennent de la même manière et avec la même importance sur l’ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n’est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l’unicité de chaque lieu) impliquent que l’effet constaté en un lieu n’est pas forcément valable en un autre lieu de l’espace.
 
-Or lorsque l'on s'intéresse à un phénomène social avec une emprise sur un espace, un territoire donnée cette méthode pose deux problèmes majeurs :
+Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnant en certains points de l’espace, ne joue absolument aucun rôle dans d’autres lieux. De même, certaines caractérisations du monde rural n’interviennent plus lorsqu’on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l’effet de nos VI va varier en fonction de l’espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l’article de Brundson et al. (1996).**Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
 
-1. Le premier est empirique, Les recherches en sciences sociales et notamment en géographie montrent qu'il est très rare qu'un phénomène social soit constant dans l'espace. C'est le concept d'hétérogénéité spatiale, l'effet de nos VI va varier en fonction de l'espace. Ainsi, un coefficient qui serait global et uniforme pour mesurer un effet est tentant mais pas tenable, sur ce point nous pouvons nous référer à l'article de Brundson et al. (1996). **Ce concept d'hétérogénéité dans l'espace ce traduit en statistique par celui de non stationnarité**.
+Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Trois conditions doivent être validées pour qu’une régression linéaire puisse être effectuée sans que l’interprétation des résultats conduisent à des raisonnements fallacieux :
 
-2. Le deuxième est statistique : les tests statistiques doivent répondre à un certain nombre de conditions et particulièrement une régression linéaire. Ainsi, pour que la régression soit valide certains critères doivent être validés. On pense notamment à la notion d'indépendance et d'autocorrélation des résidus. Or de par leur nature les données spatiales ne peuvent pas remplir ces conditions fondamentales pour une régression classique. C'est la première loi de la géographie de Tobler : *"everything is related to everything else, but near things are more related than distant things"*  
+- Les individus statistiques doivent être indépendants
+- Les résidus doivent suivre une distribution normale
+- Il ne peut pas y avoir plus de VI que d’individus statistiques
 
-La GWR va nous permettre ainsi de résoudre ces deux problèmes en intégrant la dimension spatiale de nos données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
+Si les deux dernières conditions ne trouvent pas de matérialisation spécifique sur des données spatiales, la première quant à elle concrétise un problème récurrent sur les données en géographie. Par leur nature même, les données spatiales ne peuvent pas remplir cette condition fondamentale pour une régression classique. La première loi de la géographie de Tobler : *"everything is related to everything else, but near things are more related than distant things"* en est une traduction tout à fait parlante. 
+
+3. Le troisième problème est lié aux effets de contexte : on ne peut pas étudier des données spatiales sans considérer que les individus statistiques (les objets spatiaux) appartiennent eux-mêmes à des agrégats qui ont une influence sur la variable à expliquer. Ainsi, certains attributs de l’agrégat vont avoir une influence sur l’entité spatiale de cet agrégat.
+
+4. Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d’échelle d’application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s’avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés (Mathian, Piron, 2001). Certaines agrégations peuvent également varier et cacher des relations entre individus (Bailey, Gatrell, 1995).
+
+La GWR ne répond pas à l’ensemble de ces problèmes mais va nous permettre de résoudre les deux problèmes 1) et 2) en intégrant la dimension spatiale de nos données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
 
 # Les packages {-}
 
 Voici les packages que nous utiliserons :
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, results=FALSE}
 
 # Chargement, visualisation et manipulation de la données
 library(here)
 library(DT)
 library(dplyr)
 
-# Analyse et réprésentation statistique
+# Analyse et représentation statistique
 library(car)
 library(correlation)
 library(corrplot)
@@ -101,17 +109,14 @@ library(mapsf)
 library(rgeoda)
 library(RColorBrewer)
 
-
 # Calcul du voisinage et réalisation de la GWR
 library(spdep)
 library(GWmodel)
-
-
 ```
 
 Vous pouvez vérifier l'installation des différents packages à l'aide des lignes de codes suivantes.
 
-```{r packages_rmd, echo=TRUE, eval=FALSE, results=FALSE}
+```{r packages_rmd, echo=TRUE, results=FALSE}
 
 #  Packages nécessaires
 my_packages <- c("here", "DT", "dplyr", "car", "correlation", "corrplot", "ggplot2", "gtsummary", "GGally", 
@@ -129,18 +134,15 @@ lapply(my_packages, library, character.only = TRUE)
 
 ```
 
-
-
 # Présentation et préparation des données
+
+Nous avons cherché à traiter ici une variable présentant des caractéristiques spatiales fortes et qui rencontrent les deux problèmes exposés précédemment d’indépendance statistique et de non-stationnarité. Les prix de l’immobilier en France sont effectivement soumis à ces problèmes et peuvent être expliqués, au moins partiellement, par des variables quantitatives issues de données de l’INSEE. Nous avons traité l’information liée au prix de l’immobilier à l’échelle de Etablissements Publics de Coopération Intercommunale (EPCI) pour nous assurer un nombre d’observation suffisant dans chaque entité spatiale. Les données sont issues des ventes observées sur l’année 2018, extraites depuis la base de données des notaires de France par Frédéric Audard et Alice Ferrari. Ce fichier a été simplifié pour ne conserver que les variables d’intérêts parmi une cinquantaine.
 
 Pour réaliser cette fiche nous aurons à la fois besoin de données statistiques et de données spatiales.
 
 Comme indiqué en introduction les données spatiales proviennent de la base [ADMIN-EXPRESS de l'IGN](https://geoservices.ign.fr/adminexpress) en accès libre. La couche est utilisée est celle des EPCI de la base ADMIN-EXPRESS-COG édition 2022 par territoire pour la France métropolitaine.
 
-Nos données statistiques seront sous le format CSV. Il s'agit de données construites par Frédéric Audard et Alice Ferrari depuis la base de données des [notaires de France](https://www.immobilier.notaires.fr/fr/prix-immobilier){target="_blank"}. Ce fichier a été simplifié pour ne conserver que les variables d'intérêts parmi une cinquantaine.
-
-*Il faudrait aussi qu'on précise d'où viennent les données sur le niveau de vie etc., INSEE je crois bien ?*
-
+Nos données statistiques seront sous le format CSV. Il s'agit de données construites par Frédéric Audard et Alice Ferrari depuis la base de données des [notaires de France](https://www.immobilier.notaires.fr/fr/prix-immobilier){target="_blank"} **en XXXX (année)**. Ce fichier a été simplifié pour ne conserver que les variables d'intérêts parmi une cinquantaine.
 
 ## Chargement des données sur le prix de l'immobilier par EPCI
 
@@ -208,6 +210,7 @@ nrow(epci_sf)
 ```
 
 On constate que nos deux jeux de données n'ont pas exactement le même nombre de lignes. En effet, le jeu de données `immo_df` possède moins de lignes que notre objet sf `epci_sf`. Cela indique simplement que nous n'avons pas l'indication du prix médian de l'immobilier pour tous les EPCI de France métropolitaine.
+
 Il peut être intéressant d'identifier et visualiser les EPCI qui n'ont pas de correspondance dans le tableau de données `immo_df`, pour ce faire on réalise la jointure on conservant toutes les lignes de `epci_sf` :
 
 ```{r}
@@ -228,15 +231,29 @@ data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN"
 nrow(data_immo)
 datatable(head(data_immo, 10))
 ```
- 
+
+<div class="alert alert-warning" role="alert">
+Pourquoi certains EPCI n'ont-ils pas de correspondance dans notre tableau de données ? Il s'agit notamment des EPCI de la petite couronne de Paris, qui se superposent à l'EPCI de la métropole du grand Paris (les données sont donc bien présentes pour cette zone).
+</div>
+
+
+On peut maintenant représenter les données du prix médian de l'immobilier par EPCI sous forme de carte :
+
+```{r}
+# carte des prix de l'immo
+```
+
+Ainsi que les autres données issues de l'INSEE :
+
+```{r}
+# vignettes avec toutes les variables
+```
 
 <div class="alert alert-success" role="alert">
  Dans le cas où vous préféreriez manipuler vos données sous un format sp (package sp), ou dans le cas où ce format serait requis pour utiliser certains packages ou certaines formules, vous pouvez convertir votre objet sf en sp à l'aide de la ligne de commande suivante :
- 
 
-```{r}
-data_immo_sp <- as(data_immo, "Spatial")
-```
+`data_immo_sp <- as(data_immo, "Spatial")`
+
 Les packages [sf (Simple Features for R)](https://r-spatial.github.io/sf/) et [sp (Classes and methods for spatial data)](https://www.rdocumentation.org/packages/sp/versions/1.5-0) proposent tous deux des fonctions pour manipuler des données spatiales. Le package sf est plus récent et plus performant, mais beaucoup de packages R ne fonctionnent encore qu'avec le format sp.
 </div>
 
