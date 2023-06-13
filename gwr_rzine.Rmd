@@ -236,17 +236,45 @@ datatable(head(data_immo, 10))
 Pourquoi certains EPCI n'ont-ils pas de correspondance dans notre tableau de données ? Il s'agit notamment des EPCI de la petite couronne de Paris, qui se superposent à l'EPCI de la métropole du grand Paris (les données sont donc bien présentes pour cette zone).
 </div>
 
-
 On peut maintenant représenter les données du prix médian de l'immobilier par EPCI sous forme de carte :
 
 ```{r}
-# carte des prix de l'immo
+mf_map(x = data_immo, 
+       var = "prix_med", 
+       type = "choro",
+       breaks = "quantile",
+       nbreaks = 7,
+       pal = "Mint",
+       lwd = 0.01,
+       leg_title = "Discrétisation par quantile",
+       leg_val_rnd = 0)
+mf_layout(
+  title = "Prix médian de l'immobilier au m² par EPCI",
+  credits = "Sources: Notaires de France, IGN Admin Express",
+  arrow = FALSE,
+  scale = FALSE
+)
 ```
 
-Ainsi que les autres données issues de l'INSEE :
+Et avoir un aperçu rapide des autres données issues de l'INSEE :
 
 ```{r}
-# vignettes avec toutes les variables
+par(mfrow = c(3,3))
+for (var in colnames(data_immo)[6:13]) {
+mf_map(x = data_immo,
+       var = var,
+       type = "choro",
+       breaks = "quantile",
+       nbreaks = 7,
+       pal = "Purples",
+       lwd = 0.01,
+       leg_pos = NA)
+mf_layout(
+  title = var,
+  credits = '',
+  arrow = FALSE,
+  scale = FALSE)
+}
 ```
 
 <div class="alert alert-success" role="alert">
@@ -266,9 +294,9 @@ En effet, cette notion de voisinage est centrale en statistique spatiale, le pri
 
 ## Voisinage
 
-Nous ne développerons pas ici tout ce qu'est et ce qu'implique la définition d'un voisinage. Pour cela, nous vous renvoyons vers les travaux de XXXX ou l'ouvrage XXXXX.
+Nous ne développerons pas ici tout ce qu'est et ce qu'implique la définition d'un voisinage. Pour cela, nous vous renvoyons vers les travaux de Sébastien Oliveau (2011).
 
-Ici, il est impirtant de savoir qu'un voisinage peut être de 3 types : 
+Ici, il est important de savoir qu'un voisinage peut être de 3 types : 
 
 - Basé sur la contiguïté,
 - Basé sur la distance
@@ -510,7 +538,15 @@ Pour interpréter les résultats, plusieurs éléments fournis par la commande `
 
 D'abord l'information fournie par `Adjusted R-squared`, il s'agit du $R^2$ qui est le coefficient de détermination. Il est ici de $0.77$ ce qui veut dire que 77% de la variation du prix médian est expliqué par notre modèle. Juste en dessous, on a le p-value associé à notre modèle. S'il est inférieur à $0.05$ on peut considérer qu'il est statistiquement significatif. Voici pour les infos associées globalement au modèle.
 
-Ensuite, on peut regarder ce qu'il se passe au niveau des variables explicatives. La première colonne appelée `estimate` est le coefficient de régression associé à la variable explicative. Le signe va être très important car il va donner la direction de la relation (exactement comme pour les corrélations). Ici pour le pourcentage de logements vacants il est de $-287$, ce qui veut dire que lorsque ce pourcentage augmente de $1\%$ alors le prix médian baisse de $287€$. La colonne $Pr(>|t|)$ correspond à la p-value associée à ce résultat. Une fois encore s'il est inférieur à $0.05$ alors on peut considérer le résultat comme statistiquement significatif. Dans notre cas on peut dire que la part d'agriculteurs, de cadres et professions intellectuelles dans le nombre d'emplois n'ont pas un effet significatif sur le prix médian du logement.
+Ensuite, on peut regarder ce qu'il se passe au niveau des variables explicatives. La première colonne appelée `estimate` est le coefficient de régression associé à la variable explicative. Le signe va être très important car il va donner la direction de la relation (exactement comme pour les corrélations). Ici pour le pourcentage de logements vacants il est de $-287$, ce qui veut dire que lorsque ce pourcentage augmente de $1\%$ alors le prix médian baisse de $287€$.
+
+<div class = "alert alert-danger">
+Commentaire de Fred : Tu es sûr ? On est pas sur des variables standardisées ici ?
+</div>
+
+La colonne $Pr(>|t|)$ correspond à la p-value associée à ce résultat. Une fois encore s'il est inférieur à $0.05$ alors on peut considérer le résultat comme statistiquement significatif. Dans notre cas on peut dire que la part d'agriculteurs, de cadres et professions intellectuelles dans le nombre d'emplois n'ont pas un effet significatif sur le prix médian du logement.
+
+Nous allons tout de même conserver ces variables qui pourtant devraient être considérées comme non significatives ; les modèles de GWR utilisés par la suite montreront l’utilité de telles variables, dont l’intérêt aurait pu être rejeté *a priori*.
 
 <div class="alert alert-success" role="alert">
 La $t-value$ est le coefficient divisé par son erreur standard. Plus ce quotient est proche de $0$ et plus on peut considérer qu'il n'y a pas d'effet de notre VI sur notre VD. En revanche, dans le cas où on aurait plus de 200 individus, si $t-value > |1.96| $ alors on peut considérer qu'il y a $95\%$ de chance qu'il y ait un effet significatif de la VI sur la VD.
@@ -774,13 +810,13 @@ Sur cette carte on voit très clairement une spatialisation des résidus, sans m
 
 # Analyse de l'autocorrélation spatiale
 
-La question de l'autocorrélation est centrale, c'est en effet elle qui rend notre modèle linéaire inopérant. 
+La question de l’autocorrélation est centrale. Elle rend notre modèle linéaire inopérant.
 
-A ce stade, nous pouvons nous demander ce qu'est l'autocorrélation spatiale ? **Il s'agit tout simplement de la corrélation, positive ou négative, d'une variable avec elle même du fait de la localisation spatiale des observations.**
+A ce stade, nous pouvons nous demander ce que traduit - au-delà d’un problème statistique - l’autocorrélation spatiale ? **Elle traduit statistiquement la dépendance spatiale, identifiée comme condition de validité précédemment.** Si une autocorrélation spatiale est constatée sur la VI, alors les conditions de validités minimales à l’application d’une régression linéaire ne sont pas remplies. L’autocorrélation spatiale mesure, dans les faits, mesure l’intensité de la relation entre la proximité des lieux et leur degré de ressemblance.
 
-Si l'autocorrélation spatiale est positive mes données seront semblables à celles de mes voisins et dissemblables de celles des individus éloignés. A l'inverse si l'autocorrélation spatiale est négative mes données seront différentes de celles de mes voisins et ressembleront davantage à celles des individus éloignés.
+Si l'autocorrélation spatiale est positive, mes données seront semblables à celles de mes voisins et dissemblables de celles des individus éloignés. A l'inverse si l'autocorrélation spatiale est négative, mes données seront différentes de celles de mes voisins et ressembleront davantage à celles des individus éloignés.
 
-L'étude de l'autocorrélation spatiale est particulièrement intéressante car elle permet de mieux comprendre l'éventuelle structure spatiale du phénomène observé. C'est d'autant plus important que lorsque qu'il y a effectivement une structure spatiale sous-jacente on ne peut généralement pas faire appel à la plupart des statistiques classiques qui reposent sur l'hypothèse d'indépendance, qui du fait de cette dimension spatiale n'est plus respectée.
+L'étude de l'autocorrélation spatiale est particulièrement intéressante car elle permet de mieux comprendre l'éventuelle structure spatiale du phénomène observé. C’est d’autant plus important que lorsqu’on constate une structure spatiale sous-jacente, la plupart des méthodes des statistiques classiques deviennent inadaptées.
 
 L'analyse de l'autocorrélation spatiale se fait à deux niveaux :
 
@@ -791,18 +827,22 @@ L'analyse de l'autocorrélation spatiale se fait à deux niveaux :
 
 Pour mesure l'autocorrélation comme nous l'avons vue précédemment les deux outils les plus utilisés sont les test de **Moran** et de **Geary**.
 
-L'indice de Moran va considérer les variances et covariances en prenant compte de la différence entre chaque et la moyenne de toutes les observations. L'indice de Geary de son côté prend en compte la différence entre les observations voisines.
+L’indice de Moran va considérer les variances et covariances en prenant compte de la différence entre chaque et la moyenne de toutes les observations. L’indice de Geary de son côté prend en compte la différence entre les observations voisines.
 
-Pourquoi l'un plutôt que l'autre ? Il semblerait que Moran soit jugé plus stable et revienne plus souvent dans les articles scientifiques.
+Plus concrètement, l’indice de Moran est une retranscription directe du coefficient de corrélation qu’on peut avoir entre une VI et une VP ; on opère simplement un remplacement de la VP par la valeur moyenne des voisins de la VI. Il s’interprète donc comme un coefficient de corrélation.
 
-Ceci dit le coût de réalisation n'est pas très élevé et rien n'empêche de faire l'un et l'autre pour voir si les résultats sont cohérents entre eux.
+Concernant l’indice de Geary, il met en rapport d’une part l’écart entre la VI et la moyenne des voisins et d’autre part l’écart entre la VI et la moyenne de l’ensemble des observations. Un indice proche de zéro traduit ainsi une autocorrélation positive, un score proche de deux une autocorrélation négative. Un score de 1 signifie qu’aucune autocorrélation n’est constatée.
 
-Commençons par représenter sur une carte notre variable du prix médian des logements par EPCI :
+Pourquoi utiliser un indice plutôt qu’un autre ? Ils traduisent sensiblement la même chose, mais diffèrent dans leur construction : Moran est une agrégation de logique locale quand Geary se rapporte à des écarts au global. Cela dit le coût de réalisation n’est pas très élevé et rien n’empêche de faire l’un et l’autre pour voir si les résultats sont cohérents entre eux.
+
+Commençons par représenter sur une carte notre variable du prix médian des logements par EPCI :
 
 ```{r}
-
+# Je me demande si ça n'est pas plus simple en utilisant une palette divergeante standard ?
 # La palette de couleur:
-cols_v1 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
+# cols_v1 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
+
+# pal = mf_get_pal(11, "Blue- Red 2", rev = TRUE)
 
 # Carte du prix médian 
 mf_map(x = data_immo, 
@@ -810,16 +850,15 @@ mf_map(x = data_immo,
        type = "choro", 
        border = "#ebebeb", 
        lwd = 0.1, 
-       breaks=quantile(data_immo$prix_med,seq(0,1, by=1/11)), 
-       pal=cols_v1, 
-       leg_title = "Prix médian", 
-       leg_val_rnd = 1)
-mf_title("Prix Médian du logement par EPCI France Métropolitaine") #titre
+       breaks = quantile(data_immo$prix_med, seq(0,1, by=1/11)), 
+       pal = "Red-Green", 
+       leg_title = "Discrétisation par quantile", 
+       leg_val_rnd = 0)
+mf_title("Prix médian du logement par m² par EPCI en France Métropolitaine") #titre
 
 ```
-A l’œil, on voit assez nettement qu'une structure spatiale semble exister.
 
-Vérifions le statistiquement !
+Une structure spatiale apparaît de manière assez prégnante, ce qui est vérifié par les indicateurs statistiques :
 
 ```{r}
 
@@ -847,14 +886,13 @@ moran.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomis
 
 Qu'est ce qu'implique l'existence de cette autocorrélation ?
 
-Comme il l'a été mentionné, on pourrait définir l'autocorrélation spatiale comme la corrélation, positive ou
-négative, d'une variable avec elle-même du fait de la localisation spatiale des observations.
+Comme nous l’avons mentionné, l’autocorrélation spatiale, positive ou négative, décrit la relation d’une variable avec elle-même du fait de la localisation spatiale des observations.
 
 Cette autocorrélation spatiale peut donc être :
 
-- D'une part, le résultat d'un phénomène inobservé (un aléa) ou qu'on ne peut mesurer qui intervient dans l'espace et qui de fait crée une structure spatiale. Il existe différents phénomènes sociaux de la sorte comme par exemple des phénomènes d'interaction ou de diffusion (comme les phénomènes de diffusion technologique). Ces phénomènes peuvent produire de l'autocorrélation spatiale.
-- Dautre part, dans la définition du modèle statistique, la mesure de l'autocorrélation spatiale peut
-être envisagée comme un outil de diagnostic et de détection d'un "mauvais" (du point de vue statistique) modèle (variables non intégrées spatialement corrélées, erreurs sur le choix de l'échelle à laquelle le phénomène spatial est analysé, etc.)
+- Structurelle : Les valeurs s’influencent dans l’espace et créent ainsi une structure spatiale sous-jacente. On contrevient ainsi à l’hypothèse d’indépendance statistique des individus. Cette autocorrélation peut être constatée autant sur une VI que sur des VP.
+- Contextuelle : Le résultat d’un phénomène inobservé (un aléa) ou qu’on ne peut mesurer efficacement. Ce phénomène s’inscrit dans l’espace et de ce fait crée une structure spatiale. Les phénomènes de diffusion par exemple : Il existe différents phénomènes sociaux de la sorte comme par exemple des phénomènes d’interaction ou de diffusion (comme les phénomènes de diffusion technologique). Ces phénomènes peuvent produire de l’autocorrélation spatiale.
+- Symptomatique : Dans la définition du modèle statistique, la mesure de l’autocorrélation spatiale peut être envisagée comme un outil de diagnostic et de détection d’un “mauvais” (du point de vue statistique) modèle (variables non intégrées spatialement corrélées, erreurs sur le choix de l’échelle à laquelle le phénomène spatial est analysé, etc.)
 
 <div class="alert alert-success" role="alert">
 En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et mettre au jour un phénomène spatial non mesuré ou de vérifier la qualité et la fiabilité de votre modèle.
@@ -863,15 +901,15 @@ En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et met
 Pour visualiser rapidement la structure spatiale on peut aussi réaliser un diagramme de Moran qui est complémentaire au test statistique.
 
 ```{r}
-moran.plot(data_immo$prix_med_z,neighbours_epci_w, labels = TRUE, xlab="prix medians par epci" , ylab="moyenne du prix médians par epci des voisins")
+moran.plot(data_immo$prix_med_z,neighbours_epci_w, labels = TRUE, xlab="prix medians centrés réduits par epci" , ylab="moyenne du prix médian centré réduit par epci des voisins")
 
 ```
 
-Comment lire ce diagramme ?
+Comment lire ce diagramme ?
 
-Si nos individus sont répartis complètement aléatoirement dans l'espace alors c'est le signe d'une absence d'autocorrélation, la pente de la droite de régression sera donc de 0. Si on contraire la pente est non nulle, comme c'est le cas ici, c'est bien le signe de la présence d'une autocorrélation spatiale.
+Ce nuage de points présente le nuage de point entre les valeurs d’une variable et les valeurs moyennes des voisins de chaque valeur de la variable initiale. Si nos individus sont répartis complètement aléatoirement dans l’espace alors c’est le signe d’une absence d’autocorrélation, la pente de la droite de régression sera donc de 0. Si on contraire la pente est non nulle, comme c’est le cas ici, c’est le signe de la présence d’une autocorrélation spatiale.
 
-Un aspect important de ce diagramme est qu'il permet d'ores et déjà de caractériser nos coefficients d'autocorrélation spatiale. Comme ce graphique est centré sur la moyenne qui est de 0, tous les points à droite de l'axe des ordonnées auront une moyenne > 0 et ceux à gauche < 0. Cette réflexion s'applique également à l'axe des abscisses. Par convention on désigne les individus avec une moyenne > 0 par le terme high et ceux avec une moyenne < 0 par le terme low, au sens de supérieur ou inférieur à la moyenne.
+Un aspect important de ce diagramme est qu’il permet d’ores et déjà de caractériser nos coefficients d’autocorrélation spatiale. Comme ce graphique présente des valeurs centrées-réduites, les valeurs sont centrées sur la moyenne qui est de 0. De ce fait, tous les points à droite de l’axe des ordonnées pour x=0 auront une moyenne > 0 et ceux à gauche < 0. Cette réflexion s’applique également à l’axe des abscisses. Par convention on désigne les individus avec une moyenne > 0 par le terme high et ceux avec une moyenne < 0 par le terme low, au sens de supérieur ou inférieur à la moyenne.
 
 Ainsi on peut découper ce diagramme en 4 quadrants. Les quadrants en haut à droite et en-bas à gauche correspondent aux individus ayant une autocorrélation spatiale positive, c'est-à-dire une valeur proche de celle de leurs voisins.
 
@@ -885,19 +923,19 @@ Ainsi on peut découper ce diagramme en 4 quadrants. Les quadrants en haut à dr
 
 ## Niveau local
 
-Les indice de Geary et Moran ont une limite assez importante. Ils partent du principe que le processus spatial étudié serait stationnaire, autrement dit global. Cela veux dire que l'effet de la dimension serait le même dans tout notre espace. Ce qui pose sérieusement question et ce d'autant plus que l'emprise géographique augmente. La compréhension et la réalisation d'autocorrélation au niveau local permet d'avancer par la suite vers la GWR.
+Les indices de Geary et Moran présentent une limite importante : ils partent du principe d’un processus spatial stationnaire, autrement dit global. Ainsi, l’effet de dépendance serait le même dans tout notre espace et la mesure fournie ne permet pas de différencier les contextes spatiaux locaux. De plus, l’effet de la dimension serait le même dans tout notre espace ; ce qui pose question et ce d’autant plus que l’emprise géographique augmente.
 
-C'est Luc Anselin qui va développer cette idée et définir le concept d'indicateur d'autocorrélation spatiale locale. Il parlera de **LISA (Local Indicators of Spatial Association)**.
+La compréhension de ces contextes locaux passe par la réalisation d’autocorrélation au niveau local, étape nécessaire pour continuer vers la GWR. Luc Anselin va développer le concept d’indicateur d’autocorrélation spatiale locale avec les **LISA (Local Indicators of Spatial Association)**.
 
-D'après Luc Anselin, le LISA de chaque individu statistique indique l'intensité du regroupement spatial de valeurs similaires autour de cette individu. Dit légèrement autrement un individu avec un LISA élevé va avoir une concentration autour de lui de voisins avec des valeurs similaires( pour nous par exemple un regroupement d'individus avec un prix particulièrement élevé ou à l'inverse particulièrement bas).
+D'après Luc Anselin, le LISA de chaque individu statistique indique l'intensité du regroupement spatial de valeurs similaires autour de cette individu. Autrement dit, un individu avec un LISA élevé va avoir une concentration autour de lui de voisins avec des valeurs similaires( pour nous par exemple un regroupement d'individus avec un prix particulièrement élevé ou à l'inverse particulièrement bas).
 
 Le LISA le plus utilisé est le **I de Moran Local**.
 
-L'idée est de faire appel ici au LISA et de compléter le niveau global par une approche locale. On va chercher à la fois à détecter des clusters qui correspondent à un regroupement significatif de valeurs identiques dans une zone particulière, et à repérer des zones de non stationnarité, c'est-à-dire qui ne suivent pas le processus global.
+L'idée est de faire appel ici au LISA pour compléter la compréhension du niveau global par une approche locale. On cherche à la fois à détecter des clusters qui correspondent à un regroupement significatif de valeurs identiques dans une zone particulière, et à repérer des zones de non stationnarité, c'est-à-dire qui ne suivent pas le processus global.
 
 
 <div class="alert alert-success" role="alert">
-Le logiciel [GeoDa](http://geodacenter.github.io/) a été développé par Luc Anselin et son équipe notamment pour étudier l'autocorrélation spatiale et les LISA. C'est un très bon logiciel en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html) riche.
+Le logiciel [GeoDa](http://geodacenter.github.io/), développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html) riche.
 </div>
 
 Calcul de LISA sur R avec le I de Moran Local
@@ -931,7 +969,7 @@ Pour illustrer les Moran locaux on peut réaliser une carte :
 
 ## Carte de Moran locaux
 
-data_immo$moranlocalvalue<- lisa_values(lisa)
+data_immo$moranlocalvalue <- lisa_values(lisa)
 
 cols_v2 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
 
@@ -941,7 +979,7 @@ mf_map(x = data_immo,
        type = "choro", 
        border = "#ebebeb", 
        lwd = 0.1, 
-       pal=cols_v2, 
+       pal = cols_v2, 
        leg_title = "Local Moran", 
        leg_val_rnd = 1)
 mf_title("Carte des LISA du prix médian du logement")
