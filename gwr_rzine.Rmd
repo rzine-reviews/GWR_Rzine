@@ -280,7 +280,9 @@ mf_layout(
 <div class="alert alert-success" role="alert">
  Dans le cas où vous préféreriez manipuler vos données sous un format sp (package sp), ou dans le cas où ce format serait requis pour utiliser certains packages ou certaines formules, vous pouvez convertir votre objet sf en sp à l'aide de la ligne de commande suivante :
 
-`data_immo_sp <- as(data_immo, "Spatial")`
+```{r}
+data_immo_sp <- as(data_immo, "Spatial")
+```
 
 Les packages [sf (Simple Features for R)](https://r-spatial.github.io/sf/) et [sp (Classes and methods for spatial data)](https://www.rdocumentation.org/packages/sp/versions/1.5-0) proposent tous deux des fonctions pour manipuler des données spatiales. Le package sf est plus récent et plus performant, mais beaucoup de packages R ne fonctionnent encore qu'avec le format sp.
 </div>
@@ -966,20 +968,21 @@ lisa_pvalue<- lisa_pvalues(lisa)
 Pour illustrer les Moran locaux on peut réaliser une carte :
 
 ```{r}
-
-## Carte de Moran locaux
+# Carte de Moran locaux
 
 data_immo$moranlocalvalue <- lisa_values(lisa)
 
 cols_v2 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
 
-
 mf_map(x = data_immo, 
        var = "moranlocalvalue", 
-       type = "choro", 
+       type = "choro",
+       breaks = "em",
+       nbreaks = 8,
        border = "#ebebeb", 
        lwd = 0.1, 
-       pal = cols_v2, 
+       # pal = cols_v2, 
+       pal = "Red-Green", 
        leg_title = "Local Moran", 
        leg_val_rnd = 1)
 mf_title("Carte des LISA du prix médian du logement")
@@ -987,7 +990,7 @@ mf_title("Carte des LISA du prix médian du logement")
 
 Si le score du Moran local est  > 0 cela implique que l'on a un regroupement de valeurs similaires, plus faibles ou plus élevées que la moyenne. En revanche si le score est < 0 alors on a un regroupement de valeurs dissimilaires, par exemple des valeurs plus faibles entourés de valeur plus fortes (centre de la Corse).
 
-L'étude des p-value associés est également importante car des LISA significatifs (p-value < 0.05) renvoient à des clusters de valeurs (similaires ou dissimilaires) qui seraient plus marqués que ce l'on peut observer si la répartition spatiale du phénomène était aléatoire.
+L’étude des p-value associées est également importante pour l’interprétation : une p-value < 0.05 des LISA apparaît comme significative et renvoie à des clusters de valeurs (similaires ou dissimilaires) qui sont plus marqués que ce l’on pourrait observer si la répartition spatiale du phénomène était considérée comme aléatoire.
 
 ```{r}
 
@@ -1017,10 +1020,9 @@ mf_map(x = data_immo,
 mf_title("Carte des significativité des LISA")
 ```
 
-Les regroupements que l'on observe vont pouvoir se rapprocher des 4 types de regroupements que nous avions sur le diagramme de Moran.
+Les regroupements que l'on observe vont pouvoir se rapprocher des 4 types de regroupements que nous avions sur le diagramme de Moran (High-High, Low-Low, High-Low et Low-High).
 
-Cette carte des clusters est représentée selon une convention particulière.
-
+Cette carte nous apporte donc une information supplémentaire sur les LISA en différenciant, parmi les clusters, les valeurs plus faibles ou plus fortes que la moyenne. On voit, sur cette carte, se dégager la diagonale du vide qui présente un cluster important des prix médians de l’immobilier faibles, qui se différencie des la Région parisienne, de la Côte d’Azur, de la Corse ou des Alpes du nord qui présentent des clusters de prix médians élevés..
 
 ```{r}
 
@@ -1045,19 +1047,23 @@ mf_title("LISA clusters")
 
 Si on est en présence d'une autocorrélation spatiale au niveau global, les LISA pourront aussi servir d'indicateur d'instabilité locale. Ils indiquent à la fois des clusters locaux qui vont avoir un impact fort sur le processus spatial global (un score d'autocorrélation locale plus marqué que l'autocorrélation globale) ou à l'inverse des zones que se démarquent du processus global (plus faible autocorrélation).
 
-En revanche, s'il n'y a pas d'autocorrélation spatiale au niveau global les LISA vont nous permettre de détecter des zones où des valeurs semblables se regroupent de façon significative. Ils font émerger des structures au niveau local au sein desquelles les liens entre voisins seront particulièrement importants.
+En revanche, s'il n'y a pas d'autocorrélation spatiale au niveau global les LISA vont nous permettre de détecter des zones où des valeurs semblables se regroupent de façon significative. Ils font émerger des structures au niveau local au sein desquelles les liens entre voisins seront particulièrement importants. On peut imaginer certaines configurations où l’autocorrélation spatiale globale ne paraisse pas significative, mais que ce score masque localement des clusters marqués qui restreignent la qualité des modèles de régression classique.
 
 
 # Régression géographiquement pondérée (GWR)
 
-Bien que l'analyse d'autocorrélation spatiale soit riche en "enseignements" sur nos données, il reste cependant une étape qui est celle de la modélisation. Un des intérêts de la régression spatiale au même titre qu'une régression classique va être de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée. En effet, si avec le LISA on a pu éventuellement mettre en évidence un effet local du spatial à l'échelle des EPCI de France métropolitaine nous avons pas encore étudié les effets (et leur variabilité) de nos VI sur notre VD.
+Bien que l'analyse d'autocorrélation spatiale soit riche en enseignements sur nos données, il reste l’étape de la modélisation pour prendre en compte les différents effets constatés. Comme nous l’avons vu, les données, lorsqu’elles sont spatialisées, sont souvent soumises aux phénomènes de dépendance et d’hétérogénéité spatiale.
 
-Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser ? Ce choix va dépendre de la nature des phénomènes spatiaux étudiés.
+Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d’une part ; et d’autre part de traiter la relation de notre VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
 
-Pour bien comprendre, un peu de théorie est nécessaire. Luc Anselin va distinguer d'un côté ce qui relève de l'autocorrélation spatiale. Il y a autocorrélation spatiale positive lorsque qu'il y a une similarité entre les valeurs d'une même zone spatiale. Dans ce cas de figure on utilisera des modèle SEM, SDEM, SAR... De l'autre côté il y a l'hétérogénéité, qui renvoie à une instabilité, on aurait une variabilité spatiale de nos paramètres. L'idée c'est que nos VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous opterons pour la **régression géographiquement pondérée (GWR)**.
+Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser ? Ce choix va dépendre de la nature des phénomènes spatiaux étudiés. Pour être clair, on peut considérer que la VD peut être expliquée par une VI (modèle linéaire simple), la valeur des voisins de cette VI (modèle SLX), la valeur des voisins de la VD elle-même (modèle SAR), ou une combinaison des trois (modèle SDM). A cela, on peut ajouter un effet corrélé considérant que l’explication de notre VD est liée à un phénomène spatial non identifié ou non quantifiable qui a un impact à la fois sur le lieu de l’observation et son voisinage. Dans ce cas, on explique les résidus par le voisinage des résidus eux-mêmes (modèle SEM). Ce modèle n’explique pas le phénomène en soi mais permet de vérifier que la partie non expliquée n’est pas uniquement liée à une question de structure spatiale sous-jacente. On peut ensuite combiner ces différents effets et les cumuler tous jusqu’au modèle général d’imbrication spatial (GNS).
+
+![Modèles](figures/modeles.png)
+
+Par ailleurs, l’hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L’idée est que nos VI peuvent avoir un effet qui n’est pas le même partout dans l’espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
 <div class="alert alert-danger" role="alert">
-Ainsi, si on s'intéresse au lien entre les voisins on est dans l'autocorrélation spatiale et les modèle SEM, SAR & cie mais si on s'intéresse à l'hétérogénéité de nos variable c'est à dire à leur variabilité selon leur localisation on est dans la GWR.
+Ainsi, si on s'intéresse au lien entre les voisins on est dans l'autocorrélation spatiale et les modèle SEM, SAR & cie mais si on s'intéresse à l'hétérogénéité de nos variables c'est-à-dire à leur variabilité selon leur localisation on est dans la GWR.
 </div>
 
 <div class="alert alert-success" role="alert">
@@ -1166,7 +1172,7 @@ Best_gwr <- cbind(
 Best_gwr
 ```
 
-Le modèle avec une forme qui a été définie au format gaussien explique un meilleur $R^2$ et le score d'$AIC$ est plus faible. Ce modèle est donc plus performant et dans notre situation c'est plutôt sur ce modèle qu'il faut partir.
+Le modèle avec une forme qui a été définie au format gaussien explique un meilleur $R^2$ et le score d'$AIC$ est plus faible. Ce modèle est donc plus performant et dans notre situation c'est plutôt ce modèle qu'il faut privilégier.
 
 
 ## Interprétation des premiers résultats
@@ -1181,16 +1187,17 @@ summary(mod.gwr_g)
 mod.gwr_g
 ```
 
-Au niveau des résultats, on a d'abord un rappel complet du modèle linéaire classique. Puis vient ensuite les informations concernant notre GWR.
+Cette visualisation des résultats nous propose d’abord un rappel complet du modèle linéaire classique. Puis vient ensuite les informations concernant notre GWR. Le premier indicateur à analyser est le $R^2 ajusté$ ajusté de la GWR, qui est nettement meilleur que celui de la régression linéaire multiple. On passe de $77\%$ de variance expliqué à $91\%$ avec la GWR. Ce $R^2$, pour la GWR, est en fait une moyenne calculée des $R^2$ de toutes les régressions locales réalisées par la GWR.
 
-Ce que l'on peut relever immédiatement c'est que le $R^2 ajusté$ de la GWR est nettement meilleur que celui de la régression linéaire multiple. On passe de $77\%$ de variance expliqué à $91\%$ avec la GWR.
+La seconde information qui nous intéresse particulièrement est les coefficient associés à nos VI. Nous voyons qu'ils ne sont pas présentés de la même manière que ceux de la régression linéaire. En effet, chaque VI va avoir des coefficients en fonction du minimum, maximum et des quartiles. Cela permet de rendre compte de la stationnarité de l'effet ou non. Dans notre cas on voit qu'il y a bien une variation et même dans certains cas une inversion des signes. Cela laisse supposer une non stationnarité des effets : un effet local peut être présent qui ne suivrait pas l'effet global.
 
-La seconde information qui nous intéresse particulièrement sont les coefficient associés à nos VI. On voit immédiatement qu'ils ne sont pas présentés de la même manière que ceux de la régression linéaire. En effet, chaque VI va avoir des coefficients en fonction du minimum, maximum et des quartiles. Cela permet de rendre compte de la stationnarité de l'effet ou non. Dans notre cas on voit qu'il y a bien une variation et même dans certain cas une inversion des signes. Cela laisse supposer une non stationnarité des effets, c'est-à-dire qu'il y aurait un effet local qui ne suivrait pas l'effet global.
+Par exemple, pour le pourcentage de logement vacant avec un coefficient global (modèle linéaire) de $-287$, quand ce pourcentage augmente le prix médian baisse. En simplifiant le pourcentage baisse d'$1\%$ le prix médian (en variable centrée réduite) augmente de $287$. Dans le cas de la densité de population on a un coefficient global positif donc une relation positive. La densité augmente donc le prix médian augmente. Ici, au global la densité augmente de $1$ le prix médian centré-réduit augmente de $173$.
 
-Par exemple, pour le pourcentage de logement vacant avec un coefficient global (modèle linéaire) de $-287$, quand ce pourcentage augmente le prix médian baisse. En simplifiant le pourcentage baisse d'1% le prix médian augmente de $287€$ (si l'unité du prix médian est l'€). Dans le cas de la densité de population on a un coefficient global positif donc une relation positive. La densité augmente donc le prix médian augmente. Ici, au global la densité augmente de 1 le prix médian augmente de $173€$.
+Les résultats de la GWR peuvent donc être lus à une échelle globale pour mesurer la pertinence du modèle ; mais également à des échelles locales : les résultats illustrent ainsi comment les coefficients varient en fonction des unités spatiales. Gardons l'exemple de la densité de population. Dans les lieux où le prix médian est à son minimum le coefficient est de $-411$ ; on a donc une relation négative. Dans ces espaces la densité augmente de $1$ le prix médian centré-réduit baisse de $411$.
 
-Les résultats de la GWR illustrent comment les coefficients varient en fonction des unités spatiales, on est bien sur une approche locale. Gardons l'exemple de la densité de population. Dans les lieux où le prix médian est à son minimum le coefficient est de $-411$ ; On a donc une relation négative. Dans ces espaces la densité augmente de 1 le prix médian baisse de $411$. Ensuite on va constater une inversion du signe du coefficient. Ainsi dans les EPCI dans le dernier quartile où le prix médian du logement est le plus élevé (par ex. Paris) le coefficient est positif. A son maximum une augmentation d'1 unité entraîne une augmentation du prix de $659€$. On a donc très clairement un effet de la densité qui ne sera pas du tout le même en fonction du lieu.
-Ce qui est aussi très intéressant c'est qu'on peut étudier l'intervalle interquartile. Ainsi, toujours pour la densité, ça implique que pour 50% de nos unités spatiales (EPCI entre quartile 1 et 3) une augmentation d'une unité de la densité va impliquer une augmentation du prix médian entre $72€$ et $268€$.
+Ensuite nous pouvons constater une inversion du signe du coefficient. Ainsi dans les EPCI du dernier quartile où le prix médian du logement est le plus élevé (par ex. Paris) le coefficient est positif. À son maximum une augmentation d'1 unité entraîne une augmentation du prix de $659$. On a donc très clairement un effet de la densité qui ne sera pas du tout le même en fonction du lieu.
+
+Nous pouvons également étudier l'intervalle interquartile. Ainsi, toujours pour la densité, ce résultat implique que pour 50% de nos unités spatiales (EPCI entre quartile 1 et 3), une augmentation d'une unité de la densité va impliquer une augmentation du prix médian entre $72$ et $268$.
 
 <div class="alert alert-danger" role="alert">
 Au travers de ces résultats on voit parfaitement comment une même variable peut avoir un effet différent, voire opposé en fonction des unités de lieu.
@@ -1241,14 +1248,15 @@ mf_map(x = data_immo,
        border = "#ebebeb", 
        lwd = 0.1, 
        breaks = quantile(data_immo$res_gwr, seq(0,1, by=1/11)), 
-       pal = cols_v2, 
+       # pal = cols_v2, 
+       pal = "Red-Green", 
        leg_title = "Résidus GWR", 
        leg_val_rnd = 1)
 mf_title("Résidus GWR")
 
 ```
 
-Il semble qu'il y ait bien une répartition aléatoire des résidus.
+Cette carte ne présente pas de structure spatiale marquée et nous amène à penser que nous avons expliqué l’ensemble des phénomènes spatiaux liés aux questions de prix de l’immobilier.
 
 ### Étude des coefficients
 
@@ -1258,14 +1266,14 @@ Pour visualiser la non stationnarité des effets de nos VI la solution la plus e
 
 # On ajoute à data_immo les coefficients
 
-data_immo$agri.coef=mod.gwr_g$SDF$part_agri_nb_emploi
+data_immo$agri.coef <- mod.gwr_g$SDF$part_agri_nb_emploi
 data_immo$perc_maison.coef <- mod.gwr_g$SDF$perc_maison
-data_immo$dens_pop.coef=mod.gwr_g$SDF$dens_pop
-data_immo$med_vie.coef=mod.gwr_g$SDF$med_niveau_vis
-data_immo$logvac.coef=mod.gwr_g$SDF$perc_log_vac
-data_immo$tinylog.coef=mod.gwr_g$SDF$perc_tiny_log
-data_immo$suroccup.coef=mod.gwr_g$SDF$part_log_suroccup
-data_immo$cadre.coef=mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
+data_immo$dens_pop.coef <- mod.gwr_g$SDF$dens_pop
+data_immo$med_vie.coef <- mod.gwr_g$SDF$med_niveau_vis
+data_immo$logvac.coef <- mod.gwr_g$SDF$perc_log_vac
+data_immo$tinylog.coef <- mod.gwr_g$SDF$perc_tiny_log
+data_immo$suroccup.coef <- mod.gwr_g$SDF$part_log_suroccup
+data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
 
 # Réaliser la collection des cartes
 
@@ -1297,9 +1305,9 @@ mf_title("Coefficients de Cadre")
 
 ```
 
-Les cartes des betas vont ainsi illustrer la variation des effets en fonctions des entités spatiales. Dans notre cas on verra quelles sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif, c'est-à-dire dans quel EPCI notre VI va entraîner une augmentation du prix médian dans quel autre au contraire une diminution. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
+Les cartes des betas vont illustrer la variation des effets en fonctions des entités spatiales et de leur voisinage. Dans notre cas on verra quelles sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif, c'est-à-dire dans quel EPCI notre VI va entraîner une augmentation du prix médian et dans quel autre au contraire une diminution, toutes choses égales par ailleurs. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
 
-Par contre, ici on va étudier VI par VI, il peut être intéressant de savoir par EPCI quelle variable va le plus expliquer la variation de notre VD, laquelle a l'impact le plus important. C'est la carte des contributions max par EPCI. Pour la réaliser on va se baser sur le t-value.
+Au-delà de cette visualisation VI par VI, il peut être intéressant de savoir par EPCI quelle variable sera la plus explicative dans la relation à notre VD, laquelle a l’impact le plus important. Nous avons donc réalisé une carte des contributions max par EPCI. Pour la réaliser nous nous sommes basés sur le T-value.
 
 ```{r}
 
@@ -1325,9 +1333,9 @@ mf_map(x = data_immo, var = "contribmax", type = "typo", pal= "Zissou 1")
 mf_title("Carte des variables contribuant le plus par epci")
 ```
 
-On note donc ici que dans le grand bassin parisien c'est la variable densité de population qui a l'effet le plus important sur le prix médian
+Au-delà de la non-stationnarité de nos VI, cette carte met en évidence un autre phénomène : Dans un modèle linéaire classique, la sélection des VI se fait de manière itérative (ascendante, descendante, ou mixte). L’inclusion d’une VI a pour conséquence d’en exclure d’autres qui présenteraient trop de multi-colinéarité. Le phénomène mis en évidence ici repose sur le fait qu’en fonction du lieu, la hiérarchie des VI, et donc leur pertinence au sein du modèle, n’est pas constante. Cette visualisation des données ouvre donc une perspective intéressante pour la suite. Il serait tout à fait pertinent de développer une méthode permettant d’effectuer un stepwise préalable à toute GWR valable pour chaque lieu individuellement. Un tel modèle traiterait dans sa totalité le problème de non-stationnarité.
 
-On peut également cartographier les $R^2$ locaux, ce qui donnera une indication sur les zones où la variabilité est la mieux expliquée.
+Nous pouvons également cartographier les $R^2$ locaux, ce qui fournit une indication sur les zones où la variabilité est la mieux expliquée.
 
 ```{r}
 data_immo$r2local=mod.gwr_g$SDF$Local_R2
@@ -1336,12 +1344,11 @@ mf_map(x = data_immo, var = "r2local", type = "choro", pal= "Reds")
 mf_title("R2 Locaux")
 ```
 
-A partir des t-value on peut aussi étudier la significativité des effets sur le territoire. On peut ainsi calculer et cartographier un indicateur qui représenterait le nombre de VI dont l'effet est significatif sur chaque unité spatiale. Cela donne une bonne idée de la complexité du phénomène sur un espace donné (en effet sur un EPCI on peut avoir toutes les variables significatives, elle jouent donc sur cet espace toutes un rôles) et souligne l'importance d'avoir une carte par coefficient.
+À partir des t-value on peut aussi étudier la significativité des effets sur le territoire. On peut ainsi calculer et cartographier un indicateur qui représenterait le nombre de VI dont l'effet est significatif sur chaque unité spatiale. Cela donne une bonne idée de la complexité du phénomène sur un espace donné (en effet sur un EPCI on peut avoir toutes les variables significatives, elle jouent donc sur cet espace toutes un rôles) et souligne l'importance d'avoir une carte par coefficient. Cette carte montre également qu’un modèle parfaitement adaptatif gagnerait en sobriété et donnerait un AIC plus satisfaisant en ne sélectionnant localement que les variables réellement significatives dans la relation.
 
-
+Dans ce cadre, il est possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. L’intérêt est de voir où l’effet de la VI est significatif et où il ne l’est pas.
 
 ```{r}
-
 # Pour rappel si on a plus de 200 individus et le t-value > |1.96| on pourra considérer le coefficient comme significatif au seuil de 0.05 (95% chances que ce ne soit pas dû au hasard)
 
 data_immo$nbsignif_t<- rowSums(abs(df[, c(30:37)]) > 1.96)
@@ -1439,9 +1446,17 @@ Ces cartes des p-value sont particulièrement importantes car elles nous donnent
 
 Nous avons donc réalisé une analyse du prix médian de l'immobilier en France métropolitaine. LA GWR nous semble être une méthode particulièrement intéressante, à la croisée de la statistique et de la géographie, et qui peut s'avérer très utile globalement en SHS pour essayer d'appréhender la complexité des phénomènes qui sont étudiés.
 
-En effet, nous avons vu la limite des statistique dites "classiques" pour appréhender des phénomènes avec un ancrage spatial, la GWR nous permet non seulement de dépasser cette limite de l'indépendance tout en s'intéressant à la variabilité des effets des variables en fonction de l'espace.
+En effet, nous avons vu la limite des statistique dites "classiques" pour appréhender des phénomènes avec une structure spatiale. Dans ce cadre, la GWR nous permet de dépasser cette limite de l’indépendance tout en s’intéressant à la variabilité des effets des variables en fonction de l’espace. C’est là son principal intérêt : elle permet à la fois de visualiser l’hétérogénéité spatiale tout en prenant en compte dans le modèle des effets de structure. Elle ne doit, par contre, qu’être utilisée après une régression classique et une analyse d’autocorrélation spatiale permettant d’identifier l’existence d’une dépendance statistique.
 
-La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"} qui peuvent également s'avérer extrêmement intéressante et riche.
+Cette méthode présente également certaines faiblesses, qui constituent souvent des pistes d’amélioration pour l’avenir :
+
+- La non-stationnarité n’est prise en compte que partiellement pour l’instant par les méthodes existantes ou les packages déjà élaborés. Une méthode redéfinissant pour chaque point de l’espace un groupe de variables explicatives différent garantirait certainement à la fois une meilleure explication (un R² plus élevé) et une meilleure sobriété du modèle (un AIC plus faible).
+- La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l’espace présente une structure de la dépendance différente et qu’il soit pertinent de redéfinir, pour chaque point de l’espace, une forme de noyau et une bande passante différente.
+
+Les solutions qui permettraient de limiter les faiblesses de cette méthode nécessitent certainement de grosses capacités de calcul qui alourdiraient fortement la mise en œuvre des traitements statistiques.
+
+La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"} qui peuvent également s'avérer extrêmement intéressantes et riches.
+
 # Bibliographie {-}
 
 <div id="refs"></div>
