@@ -34,7 +34,6 @@ licence: "by-sa"
 ## Global options
 knitr::opts_chunk$set(echo=TRUE,
                       # eval = FALSE,
-                      collapse = TRUE,
         	            cache=FALSE,
                       prompt=FALSE,
                       comment=NA,
@@ -80,7 +79,7 @@ Si les deux dernières conditions ne trouvent pas de matérialisation spécifiqu
 
 Le troisième problème est lié aux effets de contexte : on ne peut pas étudier des données spatiales sans considérer que les individus statistiques (les objets spatiaux) appartiennent eux-mêmes à des agrégats qui ont une influence sur la variable à expliquer. Ainsi, certains attributs de l'agrégat vont avoir une influence sur l'entité spatiale de cet agrégat.
 
-Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d'échelle d'application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s'avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés ([@Mathian_2001]). Certaines agrégations peuvent également varier et cacher des relations entre individus ([Bailey_1995]).
+Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d'échelle d'application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s'avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés [@Mathian_2001]. Certaines agrégations peuvent également varier et cacher des relations entre individus [Bailey_1995].
 
 La GWR ne répond pas à l'ensemble de ces problèmes mais va nous permettre de résoudre les deux premiers en intégrant la dimension spatiale de nos données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
 
@@ -154,7 +153,7 @@ Les données spatiales (géométrie des EPCI) sont au format [shapefile](https:/
 csv_path <- here("data", "donnees_standr.csv")
 # lecture du CSV dans un dataframe
 immo_df <- read.csv2(csv_path)
-#Pour visualiser les 1ères lignes
+# Pour visualiser les 10 1ères lignes
 datatable(head(immo_df, 10))
 ```
 
@@ -229,7 +228,7 @@ data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN"
 nrow(data_immo)
 ```
 
-<div class="alert alert-warning" role="alert">
+<div class="alert alert-success" role="alert">
 Pourquoi certains EPCI n'ont-ils pas de correspondance dans notre tableau de données ? Il s'agit notamment des EPCI de la petite couronne de Paris, qui se superposent à l'EPCI de la métropole du grand Paris (les données sont donc bien présentes pour cette zone). Pour le reste, il s'agit de nouveaux EPCI ou bien d'EPCI ayant évolué et donc changé d'identifiant.
 </div>
 
@@ -293,7 +292,7 @@ En effet, cette notion de voisinage est centrale en statistique spatiale, le pri
 
 ## Voisinage
 
-Nous ne développerons pas ici tout ce qu'est et ce qu'implique la définition d'un voisinage. Pour cela, nous vous renvoyons vers [@Oliveau_2011].
+Nous ne développerons pas ici tout ce qu'est et ce qu'implique la définition d'un voisinage. Pour cela, nous vous renvoyons vers les travaux de Sébastien Oliveau [@Oliveau_2011].
 
 Ici, il est important de savoir qu'un voisinage peut être de 3 types : 
 
@@ -303,13 +302,13 @@ Ici, il est important de savoir qu'un voisinage peut être de 3 types :
 
 Lorsque nous travaillons avec des polygones (comme c'est le cas ici), le plus souvent on va se baser sur une matrice de contiguïté. Il faut encore savoir qu'il existe plusieurs types de voisinages basé sur la contiguïté. Dans un cas classique nous utiliserons celui de type **queen**. Queen est une référence à la reine des échecs, qui peut se déplacer dans toutes les directions ; ici on va considérer les voisins contigus à notre polygone de tous côtés. Il s'oppose au type **rook** qui fait référence à la tour, les voisins seront donc définis à partir des mouvements de cette pièce sur l'échiquier (dans toutes les directions sauf en diagonale).
 
-```{r, echo=FALSE, fig.cap="Figure 2.8 du manuel INSEE [Codifier la structure de voisinage](https://www.insee.fr/fr/statistiques/fichier/3635442/imet131-f-chapitre-2.pdf) [@insee_2018]", out.width = '100%', fig.align = 'center'}
+```{r, echo=FALSE, fig.cap="Figure 2.8 du manuel INSEE [Codifier la structure de voisinage](https://www.insee.fr/fr/statistiques/fichier/3635442/imet131-f-chapitre-2.pdf) [@insee_2018]", out.width = '80%', fig.align = 'center'}
 knitr::include_graphics(here("figures", "voisinage_insee.png"))
 ```
 
 Heureusement R permet assez simplement de définir notre voisinage.
 
-```{r}
+```{r warning=FALSE}
 
 library(spdep)
 
@@ -321,7 +320,7 @@ neighbours_epci <- poly2nb(data_immo, queen = TRUE)
 coord <- st_coordinates(st_centroid(data_immo))
 ``` 
 
-Voici la représentation graphique de notre voisinage.
+Voici la représentation graphique de notre voisinage :
 
 ```{r}
 # Faire un graphe de voisinage
@@ -340,7 +339,7 @@ mf_map(x = neighbours1)
 mf_label(x = neighbours1, var = "index")
 ```
 
-Nous précisons qu'un voisinage peut aussi tout à fait se calculer lorsque l'on a pas de polygones mais simplement des coordonnées (des points). Les matrices de distances sont alors souvent plus adaptées. Pour définir le voisinage il faut utiliser les fonctions `knearneigh()` et `knn2nb()`
+Nous précisons qu'un voisinage peut aussi tout à fait se calculer lorsque l'on n'a pas de polygones mais simplement des coordonnées (des points). Les matrices de distances sont alors souvent plus adaptées. Pour définir le voisinage il faut utiliser les fonctions `knearneigh()` et `knn2nb()`
 
 ## Création de la matrice de voisinage 
 
@@ -394,7 +393,7 @@ add_histogram(plot_ly(data_immo, x = ~prix_med))
 
 Il est important de réaliser également pour nos VI cet histogramme que nous venons de faire pour notre VD :
 
-```{r}
+```{r warning=FALSE}
 # Distribution des variables indépendantes :
 a <- add_histogram(plot_ly(data_immo, x = ~log(perc_log_vac), name = "perc_log_vac"))
 b <- add_histogram(plot_ly(data_immo, x = ~log(perc_maison), name = "perc_maison"))
@@ -411,7 +410,7 @@ fig
 ## Etude des corrélations
 
 <div class="alert alert-success" role="alert">
-Pour un point plus complet sur les corrélations et leur mise en oeuvre sur R, vous pouvez vous rendre sur [Rzine](https://rzine.fr/){target="_blank"} et la fiche [@lecampion_2021].
+Pour un point plus complet sur les corrélations et leur mise en oeuvre sur R, vous pouvez vous rendre sur [Rzine](https://rzine.fr/){target="_blank"} et la fiche *Analyse des corrélations avec easystats* [@lecampion_2021].
 </div>
 
 Très rapidement, la **corrélation** permet d'étudier le lien, la relation entre deux variables. La corrélation repose sur la **covariance** entre les variables.
@@ -480,6 +479,8 @@ Elle met aussi à jour de très fortes multicolinéarités, ce qui va nous poser
 
 ## Régression linéaire ou Méthode des moindre carrés ordinaire (MCO).
 
+### Principe et réalisation de la régression linéaire
+
 La régression linéaire est un des modèles les plus utilisés en SHS, elle peut être simple (une seule variable explicative) ou multiple (plusieurs VI). Le principe n'est en réalité pas si complexe. **La régression linéaire consiste à modéliser la covariation entre une variable à expliquer et une ou des variables explicatives.**
 
 Pour ce faire le modèle de régression va chercher à estimer les termes de l'équation de la droite de régression entre la variable à expliquer et la variable explicative. Cette équation va prendre la forme $f(x)= ax + b + e_i$. Équation qui ressemble à la fonction affine $f(x)= ax + b$, qui est étudiée en général au collège.
@@ -516,7 +517,7 @@ On peut également visualiser graphiquement les coefficients des variables expli
 GGally::ggcoef_model(mod.lm)
 ```
 
-### Interpréter les résultats
+### Interprétation des résultats
 
 Pour interpréter les résultats, plusieurs éléments fournis par la commande `summary(mod.lm)` sont importants.
 
@@ -540,7 +541,7 @@ La $t-value$ est le coefficient divisé par son erreur standard. Plus ce quotien
 
 <div class="alert alert-danger" role="alert">
 Nous sommes ici dans le cas d'une régression linéaire multiple avec donc plusieurs prédicteurs. Or dans la régression linéaire les effets des variables explicatives sont considérés comme "purs", la lecture des effets de chaque VI doit se faire selon un principe de "toutes choses égales par ailleurs".
-<br>
+
 Ainsi, le pourcentage de logements vacant a un effet sur le prix médian toutes choses égales quant aux autres variables explicatives.
 <hr>
 Pour aller au delà de ce raisonnement il faut intégrer des effets d'interaction au modèle.
@@ -568,19 +569,22 @@ mod.lm %>%
   tbl_regression(intercept = TRUE) %>% add_vif()
 ```
 
-s<div class="alert alert-danger" role="alert">
+<div class="alert alert-danger" role="alert">
 Sur le seuil de VIF à ne pas dépasser, les sources en SHS varient en fonction des disciplines, certaines proposent 5 et d'autres même 10. Malgré tout, en géographie le consensus est autour d'une valeur critique de 4. Un VIF supérieur à 4 devrait entraîner la suppression de la variable du modèle car implique une forte colinéarité et donc un risque élevé de biaiser le modèle. À partir de 3 il convient de s'interroger sur la présence de la variable.
 
 Au delà de la suppression ou non des variables concernées, il est aussi très important de pouvoir identifier les variables à VIF élevés.
 </div>
 
-On peut facilement représenter graphiquement les scores de VIF ;
+On peut facilement représenter graphiquement les scores de VIF :
 
 ```{r}
 library(car)
 score_vif <- vif(mod.lm)
+score_vif
 # création du graphique
-barplot(score_vif, main = "VIF Values", horiz = TRUE, col = "steelblue", las=2)
+par(mar=c(3, 12, 3, 1), mgp=c(1, 0.4, 0)) # pour pouvoir lire les noms des variables
+x = barplot(height = score_vif, main = "VIF Values", horiz = TRUE, col = "steelblue", las = 1)
+#axis(2, x, names(score_vif), las=1, tick=FALSE, mgp=c(10, 0.1, 0))
 #ajout du seuil de 4
 abline(v = 4, lwd = 3, lty = 2)
 # et de la limite de 3
@@ -638,7 +642,7 @@ mod.lm3 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + med_n
 L'analyse des résidus est très importante car les conditions de validité d'un modèle linéaire au delà des résultats reposent grandement sur les résidus. Ils permettent en outre d'identifier les individus extrêmes (ou outliers).
 
 <div class="alert alert-danger" role="alert">
-Pour rappel, les résidus correspondent à l'écart au modèle. Ainsi, un résidu > 0 implique que notre individu a été sous-estimé par le modèle (il est au dessus de la droite de régression), un résidu < 0 que l'individu a été sur-estimé par le modèle (il est sous la droite de régression).
+Pour rappel, les résidus correspondent à l'écart au modèle. Ainsi, un résidu > 0 implique que notre individu a été sous-estimé par le modèle (il est au-dessus de la droite de régression), un résidu < 0 que l'individu a été sur-estimé par le modèle (il est sous la droite de régression).
 </div>
 
 Les 3 conditions qui concernent les résidus sont :
@@ -694,7 +698,8 @@ Le qqplot nous indique deux individus extrêmes, ici ceux ayant pour identifiant
 # Pour visualiser les individus concernés
 datatable(data_immo[c(36, 266),])
 
-# Pour relancer un nouveau modèle sans l'individu le plus extrême. Notez que l'on peut en supprimer plusieurs d'un coup avec subset=-c(36,266)
+# Pour relancer un nouveau modèle sans l'individu le plus extrême
+# Notez que l'on peut en supprimer plusieurs d'un coup avec subset=-c(36,266)
 mod.lmx <- update(mod.lm, subset=-266)
 
 # Etudier le nouveau modèle
@@ -721,7 +726,7 @@ Les deux outils connus au moins de nom par tous les géographes sont les tests d
 
 Dans la littérature le test de Moran semble être préféré à celui de Geary en raison d'une stabilité plus grande.
 
-Test de Moran des résidus de la régression (H0 : pas d'autocorrélation spatiale) :
+**Test de Moran des résidus de la régression** (H0 : pas d'autocorrélation spatiale) :
 
 ```{r}
 library(spdep)
@@ -729,7 +734,7 @@ lm.morantest(model = mod.lm,
              listw = neighbours_epci_w)
 ```
 
-Test de Geary (H0 pas d'autocorrélation) :
+**Test de Geary** (H0 pas d'autocorrélation) :
 
 ```{r}
 #  Attention : Pour avoir le  coefficient il faut faire 1-"Résultat test de Geary" (soit ici le coefficient est 0.67)
@@ -749,7 +754,7 @@ Cela implique deux choses très importantes :
 - La dimension spatiale joue un rôle, nous pouvons justifier d'étudier de manière plus approfondie l'autocorrélation spatiale et l'usage de la GWR.
 
 
-#### Cartographie des résidus de la régression
+### Cartographie des résidus de la régression
 
 On intègre les résidus à la table attributaire de notre objet sf. A priori, comme on a utilisé nos données spatiales (sf) pour la régression les données sont classées dans le bon ordre.
 
@@ -757,27 +762,136 @@ On intègre les résidus à la table attributaire de notre objet sf. A priori, c
 data_immo$res_reg <- mod.lm$residuals
 ```
 
-La carte des résidus :
+Pour cartographier les résidus, nous allons utiliser une discrétisation centrée sur 0, où l'intervalle de classe correspondra à l'écart-type/2. De plus, nous allons regrouper les classes extrêmes qui ne contiennent que peu d'individus.
+
+Et comme nous allons réutiliser cette méthode de discrétisation par la suite, centrée sur 0 ou bien sur la moyenne, nous en faisons une fonction `discr` qui renvoie en sortie les limites de classes :
 
 ```{r}
+# fonction pour créer des limites de classes à partir de :
+# values : une liste de valeurs à discrétiser
+# interval : la taille de chaque classe
+# center : valeur centrale de la discrétisation
+# pos_center : la position de la valeur centrale, "class_center" ou "class_break"
+# (une classe sera créée autour de cette valeur, de taille 2*interval)
+# min_nb : aucune classe ne contiendra moins de valeurs que min_nb
+# (en regroupant les classes ayant un effectif trop faible)
+discr <- function(values, center, pos_center, interval, min_nb) {
+  # calcul des limites de classes :
+  if (pos_center == "class_break") {
+    breaks <- c(center)
+    centermax <- center
+    centermin <- center
+  } else {
+    breaks <- c(center - interval/2, center + interval/2)
+    centermax <- center + interval/2
+    centermin <- center - interval/2
+  }
+  # ...pour les limites > centre
+  x <- 1
+  while (center + x * interval < max(values)) {
+    # breaks <- append(breaks, center + x * interval)
+    breaks <- append(breaks, centermax + x * interval)
+    x <- x + 1
+  }
+  # ...pour les limites < centre
+  x <- 1
+  while (center - x * interval > min(values)) {
+    # breaks = append(breaks, center - x * interval)
+    breaks = append(breaks, centermin - x * interval)
+    x <- x + 1
+  }
+  # ajout des min et max
+  breaks = append(breaks, min(values))
+  breaks = append(breaks, max(values))
+  # et tri
+  breaks = sort(breaks)
+  # calcul des effectifs pour chaque classe
+  nb_classes = length(breaks) - 1
+  sizes = c()
+  for (x in 1:nb_classes) {
+    min_cl <- breaks[x]
+    max_cl <- breaks[x+1]
+    current_size <- 0
+    for (value in values) {
+      if (value >= min_cl & value < max_cl) {
+        current_size <- current_size + 1
+      } 
+    }
+    sizes = append(sizes, current_size)
+  }
+  # suppression des classes ayant un effectif trop faible :
+  # ...en partant de la classe du bas
+  x <- 1
+  while (sizes[x] < min_nb) {
+    # fusionne les 2 1ères classes en supprimant la limite qui les sépare
+    breaks <- breaks[! breaks %in% c(breaks[x + 1])]
+    # recalcule la 2ème valeur des effectifs
+    sizes[2] = sizes[1] + sizes[2]
+    # et supprime la 1ère valeur d'effectifs
+    sizes = sizes[-1]
+  }
+  # ...en partant de la classe du haut
+  x <- length(breaks)
+  while (sizes[x - 1] < min_nb) {
+    # fusionne les 2 dernières classes en supprimant la limite qui les sépare
+    breaks <- breaks[! breaks %in% c(breaks[x-1])]
+    # recalcule l'avant dernière valeur des effectifs
+    sizes[length(sizes)-1] = sizes[length(sizes)] + sizes[length(sizes)-1]
+    # et supprime la dernière valeur d'effectifs
+    sizes = sizes[-length(sizes)]
+    # réaffecte x
+    x <- length(breaks)
+  }
+  if (pos_center == "class_break") {
+    nb_cl_sup0 <- length(breaks[breaks > center])
+    nb_cl_inf0 <- length(breaks[breaks < center])
+  } else {
+    nb_cl_sup0 <- length(breaks[breaks > center]) - 1
+    nb_cl_inf0 <- length(breaks[breaks < center]) - 1
+  }
+  resultats <- list(breaks, nb_cl_sup0, nb_cl_inf0)
+  return (resultats)
+}
+```
 
-# Définition d'une palette de couleur
-cols_v1 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
+<div class="alert alert-success">
+Vous pouvez également utiliser le logiciel de cartographie en ligne [Magrit](http://magrit.cnrs.fr/) pour calculer les limites de classe !
+</div>
 
-# Réalisation de la carte
+Nous pouvons maintenant appeler cette fonction sur nos résidus, avec comme valeur centrale 0, et comme intervalle un demi écart-type. Les classes extrêmes seront regroupées afin de ne pas avoir de classes d'effectif < 5.
+
+```{r}
+res_residus <- discr(data_immo$res_reg, 0, "class_center", sd(data_immo$res_reg)*0.5, 10)
+breaks_residus <- res_residus[[1]]
+nb_cl_sup0_res <- res_residus[[2]]
+nb_cl_inf0_res <- res_residus[[3]]
+```
+
+On peut maintenant faire la carte des résidus :
+
+```{r}
+# # Définition d'une palette de couleur
+# cols_v1 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
+
+# on fonce légèrement la couleur de fond pour mieux voir la classe centrale
+mf_theme("default", bg = "#dedede")
+# création d'une palette divergente avec une couleur neutre centrale
+palette = mf_get_pal(n = c(nb_cl_inf0_res, nb_cl_sup0_res), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+# la carte :
 mf_map(x = data_immo, 
        var = "res_reg", 
        type = "choro", 
-       border = "#ebebeb", 
-       lwd = 0.1, 
-       breaks = quantile(data_immo$res_reg,seq(0,1, by=1/11)), 
-       # pal=cols_v1,
-       pal = hcl.colors(11, "Tropic", rev = FALSE),
-       # pal = mf_get_pal(n = c(5, 5), pal = c("Blues 3", "Peach"), neutral = "#ffffce"),
-       leg_title = "Résidus de régression\nlinéaire 'classique'", 
+       border = NA,
+       lwd = 0.1,
+       # breaks = quantile(data_immo$res_reg,seq(0,1, by=1/11)),
+       breaks = breaks_residus,
+       # pal = cols_v1,
+       pal = palette,
+       leg_title = "Valeur centrale =  0\nIntervalle = σ / 2", 
        leg_val_rnd = 1)
-mf_title("Résidus modèle lm") #titre
-
+mf_title("Résidus de régression linéaire classique") #titre
+# réinitialisation du thème
+mf_theme("default")
 ```
 
 Sur cette carte on voit très clairement une spatialisation des résidus, sans même faire les tests nous aurions pu voir que la dimension spatiale jouait bien un rôle. Sans autocorrelation nous aurions eu une répartition aléatoire des résidus.
@@ -812,20 +926,19 @@ Pourquoi utiliser un indice plutôt qu'un autre ? Ils traduisent sensiblement l
 Commençons par représenter sur une carte notre variable du prix médian des logements par EPCI :
 
 ```{r}
-# Je me demande si ça n'est pas plus simple en utilisant une palette divergeante standard ?
 # La palette de couleur:
 # cols_v1 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
-
-# pal = mf_get_pal(11, "Blue- Red 2", rev = TRUE)
 
 # Carte du prix médian 
 mf_map(x = data_immo, 
        var = "prix_med", 
        type = "choro", 
-       border = "#ebebeb", 
-       lwd = 0.1, 
-       breaks = quantile(data_immo$prix_med, seq(0,1, by=1/11)), 
-       pal = "Red-Green", 
+       border = NA, 
+       # breaks = quantile(data_immo$prix_med, seq(0,1, by=1/11)),
+       breaks = "quantile",
+       nbreaks = 7,
+       # pal = cols_v1,
+       pal = "Mint",
        leg_title = "Discrétisation par quantile", 
        leg_val_rnd = 0)
 mf_title("Prix médian du logement par m² par EPCI en France Métropolitaine") #titre
@@ -872,8 +985,8 @@ Cette autocorrélation spatiale peut donc être :
 - Contextuelle : Le résultat d'un phénomène inobservé (un aléa) ou qu'on ne peut mesurer efficacement. Ce phénomène s'inscrit dans l'espace et de ce fait crée une structure spatiale. Les phénomènes de diffusion par exemple : Il existe différents phénomènes sociaux de la sorte comme par exemple des phénomènes d'interaction ou de diffusion (comme les phénomènes de diffusion technologique). Ces phénomènes peuvent produire de l'autocorrélation spatiale.
 - Symptomatique : Dans la définition du modèle statistique, la mesure de l'autocorrélation spatiale peut être envisagée comme un outil de diagnostic et de détection d'un “mauvais” (du point de vue statistique) modèle (variables non intégrées spatialement corrélées, erreurs sur le choix de l'échelle à laquelle le phénomène spatial est analysé, etc.)
 
-<div class="alert alert-success" role="alert">
-En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et mettre au jour un phénomène spatial non mesuré ou de vérifier la qualité et la fiabilité de votre modèle.
+<div class="alert alert-danger" role="alert">
+En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et mettre au jour un phénomène spatial non mesuré, soit de vérifier la qualité et la fiabilité de votre modèle.
 </div>
 
 Pour visualiser rapidement la structure spatiale on peut aussi réaliser un diagramme de Moran qui est complémentaire au test statistique.
@@ -913,10 +1026,10 @@ L'idée est de faire appel ici au LISA pour compléter la compréhension du nive
 
 
 <div class="alert alert-success" role="alert">
-Le logiciel [GeoDa](http://geodacenter.github.io/), développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html) riche.
+Le logiciel [GeoDa](http://geodacenter.github.io/), développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html) riche [@geoda].
 </div>
 
-Calcul de LISA sur R avec le I de Moran Local
+Calcul de LISA sur R avec le I de Moran Local :
 
 ```{r}
 # Pour ce faire on va utiliser le package rgeoda développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa
@@ -945,23 +1058,30 @@ Pour illustrer les Moran locaux on peut réaliser une carte :
 
 ```{r}
 # Carte de Moran locaux
-
 data_immo$moranlocalvalue <- lisa_values(lisa)
 
-cols_v2 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
+# discrétisation standardisée avec des classes de un demi-écart-type
+res_moranloc <- discr(data_immo$moranlocalvalue, 0, "class_break", sd(data_immo$moranlocalvalue)/2, 10)
+breaks_moranloc <- res_moranloc[[1]]
+nb_cl_sup0_moranloc <- res_moranloc[[2]]
+nb_cl_inf0_moranloc <- res_moranloc[[3]]
+
+palette = mf_get_pal(n = c(nb_cl_inf0_moranloc, nb_cl_sup0_moranloc), pal = c("Teal", "Reds"))
+
+# cols_v2 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
 
 mf_map(x = data_immo, 
        var = "moranlocalvalue", 
        type = "choro",
-       breaks = "em",
-       nbreaks = 8,
-       border = "#ebebeb", 
-       lwd = 0.1, 
-       # pal = cols_v2, 
-       pal = "Red-Green", 
-       leg_title = "Local Moran", 
+       breaks = breaks_moranloc,
+       # nbreaks = 8,
+       border = "gray",
+       lwd = 0.2,
+       # pal = cols_v2,
+       pal = palette,
+       leg_title = "Discrétisation standardisée\nvaleur centrale = 0\nintervalle = σ / 2", 
        leg_val_rnd = 1)
-mf_title("Carte des LISA du prix médian du logement")
+mf_title("Carte des LISA du prix médian du logement (Moran local")
 ```
 
 Si le score du Moran local est  > 0 cela implique que l'on a un regroupement de valeurs similaires, plus faibles ou plus élevées que la moyenne. En revanche si le score est < 0 alors on a un regroupement de valeurs dissimilaires, par exemple des valeurs plus faibles entourés de valeur plus fortes (centre de la Corse).
@@ -974,7 +1094,7 @@ L'étude des p-value associées est également importante pour l'interprétation
 data_immo$moranlocalpvalue<- lisa_pvalues(lisa)
 
 # Pour plus de lisibilité dans la carte on va faire des classes des p-value
-data_immo<- data_immo %>%  mutate(lisapvalue_fac = case_when(moranlocalpvalue <= 0.002 ~ "[0.001;0.002[",
+data_immo <- data_immo %>%  mutate(lisapvalue_fac = case_when(moranlocalpvalue <= 0.002 ~ "[0.001;0.002[",
                            moranlocalpvalue <= 0.01 ~ "[0.002;0.01[",
                            moranlocalpvalue <= 0.05 ~ "[0.01;0.05[",
                            TRUE ~ "[0.05;0.5]")) %>%
@@ -983,15 +1103,14 @@ data_immo<- data_immo %>%  mutate(lisapvalue_fac = case_when(moranlocalpvalue <=
                                    "[0.01;0.05[",
                                   "[0.05;0.5]")))
 
-
 mypal <- mf_get_pal(n = 4, palette = "Reds")
 
 mf_map(x = data_immo, 
        var = "lisapvalue_fac", 
        type = "typo", 
        border = "grey3", 
-       lwd = 0.1, 
-       pal=mypal, 
+       lwd = 0.08, 
+       pal = mypal, 
        leg_title = "P-value Local Moran")
 mf_title("Carte des significativité des LISA")
 ```
@@ -1001,9 +1120,7 @@ Les regroupements que l'on observe vont pouvoir se rapprocher des 4 types de reg
 Cette carte nous apporte donc une information supplémentaire sur les LISA en différenciant, parmi les clusters, les valeurs plus faibles ou plus fortes que la moyenne. On voit, sur cette carte, se dégager la diagonale du vide qui présente un cluster important des prix médians de l'immobilier faibles, qui se différencie des la Région parisienne, de la Côte d'Azur, de la Corse ou des Alpes du nord qui présentent des clusters de prix médians élevés..
 
 ```{r}
-
 # En utilisant le package mapsf
-
 data_immo$testmoran <- sapply(lisa_clusters, function(x){return(lisa_labels[[x+1]])})
 
 colors <- c("white","blue",rgb(0,0,1,alpha=0.4),rgb(1,0,0,alpha=0.4),"red")
@@ -1057,7 +1174,8 @@ La première étape est de calculer la distance entre toutes nos observations. P
 ```{r}
 library(GWmodel)
 
-# Le package GWmodel n'est pas compatible avec le format sf il a besoin d'un shape (contrairement à spgwr qui peut travailler avec un format sf)
+# Le package GWmodel n'est pas compatible avec le format sf il a besoin d'un objet sp
+# (contrairement à spgwr qui peut travailler avec un format sf)
 
 # Pour construire la matrice de distances entre centroïdes des EPCI :
 dm.calib <- gw.dist(dp.locat = coordinates(data_immo_sp))
@@ -1081,10 +1199,12 @@ Concernant la forme des noyaux :
 - Les noyaux bisquare et tricube (dont les forme sont très proches) accordent également aux observations un poids décroissant avec la distance, mais par contre ce poids est nul au delà de la distance définie par la bande passante.
 - Le noyau Box-Car traite un phénomène continu de façon discontinue.
 
-<p class="center"><img src="figures/formatnoyau.png" width="500"/> </p>
-  
-  <figcaption style="font-size:13px;">Manuel de géographie quantitative ([@feuillet_2019])</figcaption>
+<p class="center">
+<figure>
+  <img src="figures/formatnoyau.png" width="500"/>
+  <figcaption style="font-size:13px;">Manuel de géographie quantitative [@feuillet_2019]</figcaption>
 </figure>
+</p>
 
 Sachant que sur la forme du noyau, il est tout à fait possible de comparer deux pondérations et deux modèles de GWR.
 
@@ -1136,14 +1256,12 @@ mod.gwr_tri <- gwr.robust(data = data_immo_sp,
                    adaptive = TRUE,
                    formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
 
-
 Best_gwr <- cbind(
   rbind(bw_g, bw_tri),
   rbind(mod.gwr_g$GW.diagnostic$gw.R2,mod.gwr_tri$GW.diagnostic$gw.R2),
   rbind(mod.gwr_g$GW.diagnostic$AIC,mod.gwr_tri$GW.diagnostic$AIC)) %>% 
   `colnames<-`(c("Nb Voisins","R2","AIC")) %>% 
   `rownames<-`(c("GAUSSIAN","TRICUBE"))
-
 
 Best_gwr
 ```
@@ -1217,16 +1335,24 @@ Commençons par une étude des résidus afin de vérifier que cette fois ils n'o
 res_gwr <- mod.gwr_g$SDF$Stud_residual
 data_immo$res_gwr <- res_gwr
 
+res_resgwr <- discr(data_immo$res_gwr, 0, "class_center", sd(data_immo$res_gwr)*0.5, 10)
+breaks_gwr <- res_resgwr[[1]]
+nb_cl_sup0_gwr <- res_resgwr[[2]]
+nb_cl_inf0_gwr <- res_resgwr[[3]]
+
+palette = mf_get_pal(n = c(nb_cl_inf0_gwr, nb_cl_sup0_gwr), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+
 # carto résidus v2
 mf_map(x = data_immo, 
        var = "res_gwr", 
        type = "choro", 
-       border = "#ebebeb", 
-       lwd = 0.1, 
-       breaks = quantile(data_immo$res_gwr, seq(0,1, by=1/11)), 
+       border = "gray", 
+       lwd = 0.2, 
+       # breaks = quantile(data_immo$res_gwr, seq(0,1, by=1/11)),
+       breaks = breaks_gwr,
        # pal = cols_v2, 
-       pal = "Red-Green", 
-       leg_title = "Résidus GWR", 
+       pal = palette, 
+       leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2", 
        leg_val_rnd = 1)
 mf_title("Résidus GWR")
 
@@ -1239,9 +1365,7 @@ Cette carte ne présente pas de structure spatiale marquée et nous amène à pe
 Pour visualiser la non stationnarité des effets de nos VI la solution la plus efficace est la carte.
 
 ```{r}
-
 # On ajoute à data_immo les coefficients
-
 data_immo$agri.coef <- mod.gwr_g$SDF$part_agri_nb_emploi
 data_immo$perc_maison.coef <- mod.gwr_g$SDF$perc_maison
 data_immo$dens_pop.coef <- mod.gwr_g$SDF$dens_pop
@@ -1250,35 +1374,31 @@ data_immo$logvac.coef <- mod.gwr_g$SDF$perc_log_vac
 data_immo$tinylog.coef <- mod.gwr_g$SDF$perc_tiny_log
 data_immo$suroccup.coef <- mod.gwr_g$SDF$part_log_suroccup
 data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
+```
 
-# Réaliser la collection des cartes
+Pour réaliser les cartes, avec une discrétisation standardisée centrée sur la moyenne :
 
-#par(mfrow = c(2, 4))
-
-mf_map(x = data_immo, var = "agri.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients Agriculteurs")
-
-mf_map(x = data_immo, var = "perc_maison.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de Maison")
-
-mf_map(x = data_immo, var = "dens_pop.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de dens pop")
-
-mf_map(x = data_immo, var = "med_vie.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de Médiane niveau de vie")
-
-mf_map(x = data_immo, var = "logvac.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de Logements vacants")
-
-mf_map(x = data_immo, var = "tinylog.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de Petits logements")
-
-mf_map(x = data_immo, var = "suroccup.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de logement suroccupés")
-
-mf_map(x = data_immo, var = "cadre.coef", type = "choro", pal= "Earth")
-mf_title("Coefficients de Cadre")
-
+```{r}
+par(mfrow = c(3,3))
+for (var in colnames(data_immo)[22:29]) {
+  # calcul des limites de classe
+  res <- discr(data.frame(data_immo)[, var], mean(data.frame(data_immo)[, var]), "class_center", sd(data.frame(data_immo)[, var])*0.5, 10)
+  breaks <- res[[1]]
+  # palette de couleurs
+  nb_cl_sup0 <- res[[2]]
+  nb_cl_inf0 <- res[[3]]
+  palette = mf_get_pal(n = c(nb_cl_inf0, nb_cl_sup0), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+  # la carte
+  mf_map(x = data_immo,
+         var = var,
+         type = "choro",
+         border = "gray",
+         lwd = 0.1,
+         breaks = breaks,
+         pal = palette,
+         leg_val_rnd = 0)
+  mf_title(var)
+}
 ```
 
 Les cartes des betas vont illustrer la variation des effets en fonctions des entités spatiales et de leur voisinage. Dans notre cas on verra quelles sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif, c'est-à-dire dans quel EPCI notre VI va entraîner une augmentation du prix médian et dans quel autre au contraire une diminution, toutes choses égales par ailleurs. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
@@ -1286,7 +1406,6 @@ Les cartes des betas vont illustrer la variation des effets en fonctions des ent
 Au-delà de cette visualisation VI par VI, il peut être intéressant de savoir par EPCI quelle variable sera la plus explicative dans la relation à notre VD, laquelle a l'impact le plus important. Nous avons donc réalisé une carte des contributions max par EPCI. Pour la réaliser nous nous sommes basés sur le T-value.
 
 ```{r}
-
 data_immo$agri.t <- mod.gwr_g$SDF$part_agri_nb_emploi_TV
 data_immo$maison.t <- mod.gwr_g$SDF$perc_maison_TV
 data_immo$dens.t <- mod.gwr_g$SDF$dens_pop_TV
@@ -1297,15 +1416,20 @@ data_immo$suroccup.t <- mod.gwr_g$SDF$part_log_suroccup_TV
 data_immo$cadre.t <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi_TV     
 
 #Définir contrib max
-df<- as.data.frame(data_immo)
+df <- as.data.frame(data_immo)
 # On passe les t-values en valeurs absolues pour voir la plus grande contribution dans un sens sens ou dans l'autre
 data_immo$contribmax<- colnames(df[, c(30:37)])[max.col(abs(df[, c(30:37)]),ties.method="first")]
+```
 
-
+```{r}
 par(mfrow = c(1, 1))
-
 # Carte
-mf_map(x = data_immo, var = "contribmax", type = "typo", pal= "Zissou 1")
+mf_map(x = data_immo, 
+       var = "contribmax", 
+       type = "typo", 
+       pal = brewer.pal(6,'Set2'),
+       border = "white",
+       lwd = 0.2)
 mf_title("Carte des variables contribuant le plus par epci")
 ```
 
@@ -1316,8 +1440,16 @@ Nous pouvons également cartographier les $R^2$ locaux, ce qui fournit une indic
 ```{r}
 data_immo$r2local=mod.gwr_g$SDF$Local_R2
 
-mf_map(x = data_immo, var = "r2local", type = "choro", pal= "Reds")
-mf_title("R2 Locaux")
+mf_map(x = data_immo, 
+       var = "r2local", 
+       type = "choro",
+       breaks = "quantile",
+       nbreaks = 11,
+       pal= "Reds",
+       border = "gray",
+       lwd = 0.2,
+       leg_title = "Discrétisation par quantile")
+mf_title("R² locaux")
 ```
 
 À partir des t-value on peut aussi étudier la significativité des effets sur le territoire. On peut ainsi calculer et cartographier un indicateur qui représenterait le nombre de VI dont l'effet est significatif sur chaque unité spatiale. Cela donne une bonne idée de la complexité du phénomène sur un espace donné (en effet sur un EPCI on peut avoir toutes les variables significatives, elle jouent donc sur cet espace toutes un rôles) et souligne l'importance d'avoir une carte par coefficient. Cette carte montre également qu'un modèle parfaitement adaptatif gagnerait en sobriété et donnerait un AIC plus satisfaisant en ne sélectionnant localement que les variables réellement significatives dans la relation.
@@ -1327,20 +1459,23 @@ Dans ce cadre, il est possible de réaliser une collection de cartes des p-value
 ```{r}
 # Pour rappel si on a plus de 200 individus et le t-value > |1.96| on pourra considérer le coefficient comme significatif au seuil de 0.05 (95% chances que ce ne soit pas dû au hasard)
 
-data_immo$nbsignif_t<- rowSums(abs(df[, c(30:37)]) > 1.96)
+data_immo$nbsignif_t <- rowSums(abs(df[, c(30:37)]) > 1.96)
 
-mf_map(x = data_immo, var = "nbsignif_t", type = "typo", pal= "Reds")
-mf_title("Nombre des Betas significatif par EPCI (t-value)")
+mf_map(x = data_immo, 
+       var = "nbsignif_t", 
+       type = "typo",
+       pal = "Reds",
+       border = "gray",
+       lwd = 0.2)
+mf_title("Nombre de Betas significatifs par EPCI (t-value)")
 ```
 
 Il se peut que cela soit plus intéressant d'utiliser les p-value, notamment si vous avez moins de 200 individus.
 
 
 ```{r}
-
 # Les p-value ne sont pas fournis dans le modèle de la GWR, on pourrait les calculer à partir de t-value et de l'erreur standard mais le package GWmodel propose une fonction pour les obtenir
-
-pvalue<-gwr.t.adjust(mod.gwr_g)
+pvalue <- gwr.t.adjust(mod.gwr_g)
 
 # On ajoute les p-value à notre fichier
 data_immo$agri.p <- pvalue$SDF$part_agri_nb_emploi_p 
@@ -1353,9 +1488,14 @@ data_immo$suroccup.p <- pvalue$SDF$part_log_suroccup_p
 data_immo$cadre.p <- pvalue$SDF$part_cadre_profintellec_nbemploi_p
 
 df<- as.data.frame(data_immo)
-data_immo$nbsignif_p<- rowSums(df[, c(41:48)] < 0.05)
+data_immo$nbsignif_p <- rowSums(df[, c(41:48)] < 0.05)
 
-mf_map(x = data_immo, var = "nbsignif_p", type = "typo", pal= "Reds")
+mf_map(x = data_immo, 
+       var = "nbsignif_p", 
+       type = "typo",
+       pal= "Reds",
+       border = "gray",
+       lwd = 0.2,)
 mf_title("Nombre des Betas significatifs par EPCI (p-value)")
 
 ```
@@ -1363,7 +1503,6 @@ mf_title("Nombre des Betas significatifs par EPCI (p-value)")
 Il est aussi possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. L'intérêt est de voir où l'effet de la VI est significatif et où il ne l'est pas.
 
 ```{r}
-
 # Ici nous représenterons les p-value avec un découpage par classe de significativité et seulement les p-value de 2 VI
 
 par(mfrow = c(1, 2))
@@ -1380,20 +1519,19 @@ data_immo<- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.
                                   "[0.05;0.1[", "[0.1;1]")))
 
 
-mypal2 <- mf_get_pal(n = 5, palette = "SunsetDark")
+mypal2 <- mf_get_pal(n = 5, palette = "OrRd")
 
 mf_map(x = data_immo, 
        var = "agri.p_fac", 
        type = "typo", 
        border = "grey3", 
        lwd = 0.1, 
-       pal=mypal2, 
+       pal = mypal2, 
        leg_title = "Classe P-value")
 mf_title("P-value du coefficient de la part d'emploi agriculteurs")
 
 # Pour la densité de population
-
-data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p<= 0.002 ~ "[0;0.002[",
+data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0.002[",
                            dens.p <= 0.01 ~ "[0.002;0.01[",
                            dens.p <= 0.05 ~ "[0.01;0.05[",
                            dens.p <= 0.1 ~ "[0.05;0.1[",
@@ -1403,8 +1541,7 @@ data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p<= 0.002 ~ "[0;0.
                                    "[0.01;0.05[",
                                   "[0.05;0.1[", "[0.1;1]")))
 
-
-mypal2 <- mf_get_pal(n = 5, palette = "SunsetDark")
+mypal2 <- mf_get_pal(n = 5, palette = "OrRd")
 
 mf_map(x = data_immo, 
        var = "dens.p_fac", 
@@ -1426,7 +1563,7 @@ En effet, nous avons vu la limite des statistique dites "classiques" pour appré
 
 Cette méthode présente également certaines faiblesses, qui constituent souvent des pistes d'amélioration pour l'avenir :
 
-- La non-stationnarité n'est prise en compte que partiellement pour l'instant par les méthodes existantes ou les packages déjà élaborés. Une méthode redéfinissant pour chaque point de l'espace un groupe de variables explicatives différent garantirait certainement à la fois une meilleure explication (un R² plus élevé) et une meilleure sobriété du modèle (un AIC plus faible).
+- La non-stationnarité n'est prise en compte que partiellement pour l'instant par les méthodes existantes ou les packages déjà élaborés. Une méthode redéfinissant pour chaque point de l'espace un groupe de variables explicatives différent garantirait certainement à la fois une meilleure explication (un $R^2$ plus élevé) et une meilleure sobriété du modèle (un AIC plus faible).
 - La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l'espace présente une structure de la dépendance différente et qu'il soit pertinent de redéfinir, pour chaque point de l'espace, une forme de noyau et une bande passante différente.
 
 Les solutions qui permettraient de limiter les faiblesses de cette méthode nécessitent certainement de grosses capacités de calcul qui alourdiraient fortement la mise en œuvre des traitements statistiques.
@@ -1452,7 +1589,7 @@ kableExtra::kable_styling(knitr::kable(rzine::sessionRzine()[[2]], row.names = F
 rref <- bibentry(
    bibtype = "misc",
    title = "La régression géographiquement pondérée : GWR",
-   subtitle = "",
+   subtitle = "Comment prendre en compte l'effet local du spatial en statistique",
    author = c("Frédéric Audard", "Grégoire Le Campion", "Julie Pierson"),
    doi = "10.48645/xxxxxx",
    url = "https://rzine.fr/publication_rzine/xxxxxxx/",
