@@ -34,12 +34,33 @@ licence: "by-sa"
 ## Global options
 knitr::opts_chunk$set(echo=TRUE,
                       class.source="bg-info",
-                      class.output="bg-warning")
+                      class.output="bg-warning",
+                      fig.align="center")
 
 library(rzine)
+
 ```
 
+```{r}
+library(here)
+```
+
+
+![Manuel de géographie quantitative [@feuillet_2019]](figures/formatnoyau.png){width=80%, align=center}
+
+<p align="center">
+<figure>
+  <img src="figures/formatnoyau.png" width="500"/>
+  <figcaption style="font-size:13px;"></figcaption>
+</figure>
+</p>
+
+
 (au $m^2$)
+
+```{r, echo=FALSE, fig.cap="Manuel de géographie quantitative [@feuillet_2019]", out.width = '80%', fig.align = 'center'}
+knitr::include_graphics(here("figures", "formatnoyau.png"))
+```
 
 # Bibliographie {-}
 
@@ -73,6 +94,7 @@ rref <- bibentry(
 ``` 
 
 `r capture.output(print(rref))`
+
 
 ### BibTex : {-}
 

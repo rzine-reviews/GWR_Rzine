@@ -65,9 +65,9 @@ Lorsque l'on souhaite dépasser la simple caractérisation d'attributs liés à 
 
 Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appeler variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social avec une emprise sur un espace, la régression linéaire pose plusieurs problèmes :
 
-Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notéS epsilon **ε**). Ces **β** représentent l'effet de nos VI sur notre VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaires considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
+Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notés epsilon **ε**). Ces **β** représentent l'effet de nos VI sur notre VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaires considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
 
-Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet de nos VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
+Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet de nos VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
 
 Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Trois conditions doivent être validées pour qu'une régression linéaire puisse être effectuée sans que l'interprétation des résultats conduisent à des raisonnements fallacieux :
 
@@ -79,7 +79,7 @@ Si les deux dernières conditions ne trouvent pas de matérialisation spécifiqu
 
 Le troisième problème est lié aux effets de contexte : on ne peut pas étudier des données spatiales sans considérer que les individus statistiques (les objets spatiaux) appartiennent eux-mêmes à des agrégats qui ont une influence sur la variable à expliquer. Ainsi, certains attributs de l'agrégat vont avoir une influence sur l'entité spatiale de cet agrégat.
 
-Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d'échelle d'application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s'avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés [@Mathian_2001]. Certaines agrégations peuvent également varier et cacher des relations entre individus [Bailey_1995].
+Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d'échelle d'application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s'avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés [@Mathian_2001]. Certaines agrégations peuvent également varier et cacher des relations entre individus [@Bailey_1995].
 
 La GWR ne répond pas à l'ensemble de ces problèmes mais va nous permettre de résoudre les deux premiers en intégrant la dimension spatiale de nos données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
 
@@ -302,7 +302,7 @@ Ici, il est important de savoir qu'un voisinage peut être de 3 types :
 
 Lorsque nous travaillons avec des polygones (comme c'est le cas ici), le plus souvent on va se baser sur une matrice de contiguïté. Il faut encore savoir qu'il existe plusieurs types de voisinages basé sur la contiguïté. Dans un cas classique nous utiliserons celui de type **queen**. Queen est une référence à la reine des échecs, qui peut se déplacer dans toutes les directions ; ici on va considérer les voisins contigus à notre polygone de tous côtés. Il s'oppose au type **rook** qui fait référence à la tour, les voisins seront donc définis à partir des mouvements de cette pièce sur l'échiquier (dans toutes les directions sauf en diagonale).
 
-```{r, echo=FALSE, fig.cap="Figure 2.8 du manuel INSEE [Codifier la structure de voisinage](https://www.insee.fr/fr/statistiques/fichier/3635442/imet131-f-chapitre-2.pdf) [@insee_2018]", out.width = '80%', fig.align = 'center'}
+```{r, echo=FALSE, fig.cap="Figure 2.8 du manuel INSEE [Codifier la structure de voisinage](https://www.insee.fr/fr/statistiques/fichier/3635442/imet131-f-chapitre-2.pdf) [@insee_2018]", out.width = '60%', fig.align = 'center'}
 knitr::include_graphics(here("figures", "voisinage_insee.png"))
 ```
 
@@ -789,14 +789,12 @@ discr <- function(values, center, pos_center, interval, min_nb) {
   # ...pour les limites > centre
   x <- 1
   while (center + x * interval < max(values)) {
-    # breaks <- append(breaks, center + x * interval)
     breaks <- append(breaks, centermax + x * interval)
     x <- x + 1
   }
   # ...pour les limites < centre
   x <- 1
   while (center - x * interval > min(values)) {
-    # breaks = append(breaks, center - x * interval)
     breaks = append(breaks, centermin - x * interval)
     x <- x + 1
   }
@@ -842,6 +840,7 @@ discr <- function(values, center, pos_center, interval, min_nb) {
     # réaffecte x
     x <- length(breaks)
   }
+  # récupère le nb de classes d'un côté et de l'autre du centre
   if (pos_center == "class_break") {
     nb_cl_sup0 <- length(breaks[breaks > center])
     nb_cl_inf0 <- length(breaks[breaks < center])
@@ -869,7 +868,7 @@ nb_cl_inf0_res <- res_residus[[3]]
 
 On peut maintenant faire la carte des résidus :
 
-```{r}
+```{r collapse=TRUE}
 # # Définition d'une palette de couleur
 # cols_v1 <- c("#08519c", "#3182bd", "#6baed6", "#9ecae1", "#c6dbef", "#eff3ff", "#ffffce", "#fee5d9", "#fcbba1", "#fc9272",  "#fb6a4a", "#de2d26")
 
@@ -953,14 +952,14 @@ library(spdep)
 data_immo$prix_med_z<- (data_immo$prix_med-mean(data_immo$prix_med))/sd(data_immo$prix_med)
 ```
 
-Test de Geary :
+Nous pouvons commencer par réaliser le **test de Geary** :
 
 ```{r}
 # Attention à la lecture particulière des résultats de l'indice de Geary
 geary.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomisation = FALSE) 
 ```
 
-Test de Moran :
+On réalise ensuite le **test de Moran** :
 
 ```{r}
 # On indique dans un premier temps la variable que l'on souhaite analyser
@@ -973,7 +972,7 @@ moran.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomis
 
 Ce test d'autocorrélation se lit exactement comme un test de corrélation classique. On va donc s'intéresser au signe et à la grandeur du coefficient et à la p-value du test.
 
-Ici on donc une autocorrélation spatiale positive et importante.
+**Ici on donc une autocorrélation spatiale positive et importante.**
 
 Qu'est ce qu'implique l'existence de cette autocorrélation ?
 
@@ -981,9 +980,9 @@ Comme nous l'avons mentionné, l'autocorrélation spatiale, positive ou négativ
 
 Cette autocorrélation spatiale peut donc être :
 
-- Structurelle : Les valeurs s'influencent dans l'espace et créent ainsi une structure spatiale sous-jacente. On contrevient ainsi à l'hypothèse d'indépendance statistique des individus. Cette autocorrélation peut être constatée autant sur une VI que sur des VP.
-- Contextuelle : Le résultat d'un phénomène inobservé (un aléa) ou qu'on ne peut mesurer efficacement. Ce phénomène s'inscrit dans l'espace et de ce fait crée une structure spatiale. Les phénomènes de diffusion par exemple : Il existe différents phénomènes sociaux de la sorte comme par exemple des phénomènes d'interaction ou de diffusion (comme les phénomènes de diffusion technologique). Ces phénomènes peuvent produire de l'autocorrélation spatiale.
-- Symptomatique : Dans la définition du modèle statistique, la mesure de l'autocorrélation spatiale peut être envisagée comme un outil de diagnostic et de détection d'un “mauvais” (du point de vue statistique) modèle (variables non intégrées spatialement corrélées, erreurs sur le choix de l'échelle à laquelle le phénomène spatial est analysé, etc.)
+- **Structurelle** : Les valeurs s'influencent dans l'espace et créent ainsi une structure spatiale sous-jacente. On contrevient ainsi à l'hypothèse d'indépendance statistique des individus. Cette autocorrélation peut être constatée autant sur une VI que sur des VP.
+- **Contextuelle** : Le résultat d'un phénomène inobservé (un aléa) ou qu'on ne peut mesurer efficacement. Ce phénomène s'inscrit dans l'espace et de ce fait crée une structure spatiale. Les phénomènes de diffusion par exemple : Il existe différents phénomènes sociaux de la sorte comme par exemple des phénomènes d'interaction ou de diffusion (comme les phénomènes de diffusion technologique). Ces phénomènes peuvent produire de l'autocorrélation spatiale.
+- **Symptomatique** : Dans la définition du modèle statistique, la mesure de l'autocorrélation spatiale peut être envisagée comme un outil de diagnostic et de détection d'un “mauvais” (du point de vue statistique) modèle (variables non intégrées spatialement corrélées, erreurs sur le choix de l'échelle à laquelle le phénomène spatial est analysé, etc.)
 
 <div class="alert alert-danger" role="alert">
 En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et mettre au jour un phénomène spatial non mesuré, soit de vérifier la qualité et la fiabilité de votre modèle.
@@ -1002,15 +1001,17 @@ Ce nuage de points présente le nuage de point entre les valeurs d'une variable 
 
 Un aspect important de ce diagramme est qu'il permet d'ores et déjà de caractériser nos coefficients d'autocorrélation spatiale. Comme ce graphique présente des valeurs centrées-réduites, les valeurs sont centrées sur la moyenne qui est de 0. De ce fait, tous les points à droite de l'axe des ordonnées pour x = 0 auront une moyenne > 0 et ceux à gauche < 0. Cette réflexion s'applique également à l'axe des abscisses. Par convention on désigne les individus avec une moyenne > 0 par le terme high et ceux avec une moyenne < 0 par le terme low, au sens de supérieur ou inférieur à la moyenne.
 
-Ainsi on peut découper ce diagramme en 4 quadrants. Les quadrants en haut à droite et en-bas à gauche correspondent aux individus ayant une autocorrélation spatiale positive, c'est-à-dire une valeur proche de celle de leurs voisins.
+Ainsi on peut découper ce diagramme en 4 quadrants. Les quadrants en haut à droite et en bas à gauche correspondent aux individus ayant une autocorrélation spatiale positive, c'est-à-dire une valeur proche de celle de leurs voisins.
 
 - Pour le quadrant en haut à droite on parle du quadrant **High-High** composé d'individus ayant une valeur de la variable plus élevée que la moyenne entourés d'autres individus qui leur ressemblent
 - Pour le quadrant en bas à gauche on parle du quadrant **Low-Low** composé d'individus avec un score plus faible que la moyenne avec des voisins avec un score similaire.
 - Le quadrant en bas à droite est considéré comme le quadrant **High-Low**. On y retrouve des individus avec un score plus élevé que la moyenne sur la variable du prix médian mais avec un voisinage qui ne lui ressemble pas : Autocorrélation spatiale négative mais score élevé à la variable.
 - Enfin, en haut à gauche on retrouve à l'inverse les individus avec une valeur du prix médian plus faible que la moyenne et un indice d'autocorrélation spatiale négatif. C'est le quadrant **Low-High**.
 
-<p class="center"><img src="figures/moranplot.png" width="500"/> </p>
-
+```
+{r, echo=FALSE, fig.cap="Diagramme de Moran avec découpage en 4 quadrants", out.width = '90%', fig.align = 'center'}
+knitr::include_graphics(here("figures", "moranplot.png"))
+```
 
 ## Niveau local
 
@@ -1029,14 +1030,14 @@ L'idée est de faire appel ici au LISA pour compléter la compréhension du nive
 Le logiciel [GeoDa](http://geodacenter.github.io/), développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html) riche [@geoda].
 </div>
 
-Calcul de LISA sur R avec le I de Moran Local :
+Nous allons calculer le I de Moran local sur nos données, grâce au package `rgeoda` développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa :
 
 ```{r}
-# Pour ce faire on va utiliser le package rgeoda développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa
+# calcul moran local
 
 library(rgeoda)
 
-# Pour utiliser la fonction local_moran proposé par le package rgeoda 2 pré-requis:
+# Pour utiliser la fonction local_moran du package rgeoda 2 pré-requis:
 
 # 1- utiliser la fonction queen_weights du package rgeoda pour calculer une matrice de contiguïté de type queen 
 queen_w <- queen_weights(data_immo)
@@ -1081,7 +1082,7 @@ mf_map(x = data_immo,
        pal = palette,
        leg_title = "Discrétisation standardisée\nvaleur centrale = 0\nintervalle = σ / 2", 
        leg_val_rnd = 1)
-mf_title("Carte des LISA du prix médian du logement (Moran local")
+mf_title("Carte des LISA du prix médian du logement (Moran local)")
 ```
 
 Si le score du Moran local est  > 0 cela implique que l'on a un regroupement de valeurs similaires, plus faibles ou plus élevées que la moyenne. En revanche si le score est < 0 alors on a un regroupement de valeurs dissimilaires, par exemple des valeurs plus faibles entourés de valeur plus fortes (centre de la Corse).
@@ -1112,7 +1113,7 @@ mf_map(x = data_immo,
        lwd = 0.08, 
        pal = mypal, 
        leg_title = "P-value Local Moran")
-mf_title("Carte des significativité des LISA")
+mf_title("Carte de significativité des LISA")
 ```
 
 Les regroupements que l'on observe vont pouvoir se rapprocher des 4 types de regroupements que nous avions sur le diagramme de Moran (High-High, Low-Low, High-Low et Low-High).
@@ -1151,7 +1152,10 @@ Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent a
 
 Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser ? Ce choix va dépendre de la nature des phénomènes spatiaux étudiés. Pour être clair, on peut considérer que la VD peut être expliquée par une VI (modèle linéaire simple), la valeur des voisins de cette VI (modèle SLX), la valeur des voisins de la VD elle-même (modèle SAR), ou une combinaison des trois (modèle SDM). À cela, on peut ajouter un effet corrélé considérant que l'explication de notre VD est liée à un phénomène spatial non identifié ou non quantifiable qui a un impact à la fois sur le lieu de l'observation et son voisinage. Dans ce cas, on explique les résidus par le voisinage des résidus eux-mêmes (modèle SEM). Ce modèle n'explique pas le phénomène en soi mais permet de vérifier que la partie non expliquée n'est pas uniquement liée à une question de structure spatiale sous-jacente. On peut ensuite combiner ces différents effets et les cumuler tous jusqu'au modèle général d'imbrication spatial (GNS).
 
-![](figures/modeles.png)
+```
+{r, echo=FALSE, fig.cap="Choix du modèle de régression spatiale", out.width = '90%', fig.align = 'center'}
+knitr::include_graphics(here("public/figures", "modeles.png"))
+```
 
 Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que nos VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
@@ -1184,29 +1188,30 @@ dm.calib <- gw.dist(dp.locat = coordinates(data_immo_sp))
 
 ## Définition de la bande passante
 
-La bande passante est une distance au-delà de laquelle le poids des observations est considéré comme nul. Le calcul de cette distance est très important car la valeur de la bande passante pourra fortement influencer notre modèle. La définition de la bande passante renvoie à quel type de pondération nous souhaitons appliquer. Heureusement la fonction `bw.gwr` va choisir pour nous le résultat optimal...
+**La bande passante est une distance au-delà de laquelle le poids des observations est considéré comme nul.** Le calcul de cette distance est très important car la valeur de la bande passante pourra fortement influencer notre modèle. La définition de la bande passante renvoie à quel type de pondération nous souhaitons appliquer. Heureusement la fonction `bw.gwr` va choisir pour nous le résultat optimal...
 
 Pour ce faire la fonction va se baser sur un critère statistique que l'utilisateur devra définir : le CV (validation croisée) ou le AIC (Critère d'information d'Akaike). Elle reposera aussi sur un type de noyau qu'il faudra également définir : Gaussien, Exponentiel, Bicarré, Tricube ou encore Boxcar. Enfin, il sera également nécessaire de savoir si ce noyau pourra être adaptatif ou fixe.
 
 Voici quelques informations pour guider nos choix :
 
-- Le critère CV a pour objectif de maximiser le pouvoir prédictif du modèle, le critère AIC va chercher un compromis entre le pouvoir prédictif du modèle et son degré de complexité. En général, le critère AIC est privilégié.
-- Avec un noyau fixe l'étendue du noyau est déterminée par la distance au point d'intérêt et il est identique en tout point de l'espace. Un noyau fixe est adapté si la répartition des données est homogène dans l'espace, l'unité de la bande passante sera donc une distance. Avec un noyau adaptatif l'étendue du noyau est déterminée par le nombre de voisins. Il est donc plus adapté à une répartition non homogène, l'unité sera alors le nombre de voisins.
+- Le critère **CV** a pour objectif de maximiser le pouvoir prédictif du modèle, le critère **AIC** va chercher un compromis entre le pouvoir prédictif du modèle et son degré de complexité. En général, le critère AIC est privilégié.
+- Avec un **noyau fixe** l'étendue du noyau est déterminée par la distance au point d'intérêt et il est identique en tout point de l'espace. Un noyau fixe est adapté si la répartition des données est homogène dans l'espace, l'unité de la bande passante sera donc une distance. Avec un **noyau adaptatif** l'étendue du noyau est déterminée par le nombre de voisins. Il est donc plus adapté à une répartition non homogène, l'unité sera alors le nombre de voisins.
 
 Concernant la forme des noyaux :
 
-- Les noyaux gaussiens et exponentiels vont pondérer toutes les observations avec un poids qui tend vers zéro avec la distance au point estimé.
-- Les noyaux bisquare et tricube (dont les forme sont très proches) accordent également aux observations un poids décroissant avec la distance, mais par contre ce poids est nul au delà de la distance définie par la bande passante.
-- Le noyau Box-Car traite un phénomène continu de façon discontinue.
+- Les **noyaux gaussiens et exponentiels** vont pondérer toutes les observations avec un poids qui tend vers zéro avec la distance au point estimé.
+- Les **noyaux bisquare et tricube** (dont les forme sont très proches) accordent également aux observations un poids décroissant avec la distance, mais par contre ce poids est nul au delà de la distance définie par la bande passante.
+- Le **noyau Box-Car** traite un phénomène continu de façon discontinue.
 
-<p class="center">
-<figure>
-  <img src="figures/formatnoyau.png" width="500"/>
-  <figcaption style="font-size:13px;">Manuel de géographie quantitative [@feuillet_2019]</figcaption>
-</figure>
-</p>
+```{r, echo=FALSE, fig.cap="Manuel de géographie quantitative [@feuillet_2019]", out.width = '80%', fig.align = 'center'}
+knitr::include_graphics(here("figures", "formatnoyau.png"))
+```
 
 Sachant que sur la forme du noyau, il est tout à fait possible de comparer deux pondérations et deux modèles de GWR.
+
+<div class="alert alert-danger">
+Ce serait bien de justifier ici pourquoi on utilise un noyau gaussien non ?
+</div>
 
 ```{r}
 # Définition de la bande passante (bandwidth en anglais) :
@@ -1219,6 +1224,10 @@ bw_g <- bw.gwr(data = data_immo_sp,
 
 bw_g
 ```
+
+<div class="alert alert-danger">
+Une petite conclusion ? Du style "ici, nous allons donc utiliser une bande passante de 19 voisins : pour chaque EPCI, les EPCI qui seront à une distance supérieure (en nombre de voisins donc) ne seront pas pris en compte dans le modèle." ??
+</div>
 
 ## Estimation du modèle
 
@@ -1401,7 +1410,7 @@ for (var in colnames(data_immo)[22:29]) {
 }
 ```
 
-Les cartes des betas vont illustrer la variation des effets en fonctions des entités spatiales et de leur voisinage. Dans notre cas on verra quelles sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif, c'est-à-dire dans quel EPCI notre VI va entraîner une augmentation du prix médian et dans quel autre au contraire une diminution, toutes choses égales par ailleurs. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
+Les cartes des betas vont illustrer la variation des effets en fonctions des entités spatiales et de leur voisinage. **Dans notre cas on verra quels sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif**, c'est-à-dire dans quel EPCI notre VI va entraîner une augmentation du prix médian et dans quel autre au contraire une diminution, toutes choses égales par ailleurs. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
 
 Au-delà de cette visualisation VI par VI, il peut être intéressant de savoir par EPCI quelle variable sera la plus explicative dans la relation à notre VD, laquelle a l'impact le plus important. Nous avons donc réalisé une carte des contributions max par EPCI. Pour la réaliser nous nous sommes basés sur le T-value.
 
@@ -1433,7 +1442,7 @@ mf_map(x = data_immo,
 mf_title("Carte des variables contribuant le plus par epci")
 ```
 
-Au-delà de la non-stationnarité de nos VI, cette carte met en évidence un autre phénomène : Dans un modèle linéaire classique, la sélection des VI se fait de manière itérative (ascendante, descendante, ou mixte). L'inclusion d'une VI a pour conséquence d'en exclure d'autres qui présenteraient trop de multi-colinéarité. Le phénomène mis en évidence ici repose sur le fait qu'en fonction du lieu, la hiérarchie des VI, et donc leur pertinence au sein du modèle, n'est pas constante. Cette visualisation des données ouvre donc une perspective intéressante pour la suite. Il serait tout à fait pertinent de développer une méthode permettant d'effectuer un stepwise préalable à toute GWR valable pour chaque lieu individuellement. Un tel modèle traiterait dans sa totalité le problème de non-stationnarité.
+Au-delà de la non-stationnarité de nos VI, cette carte met en évidence un autre phénomène : Dans un modèle linéaire classique, la sélection des VI se fait de manière itérative (ascendante, descendante, ou mixte). L'inclusion d'une VI a pour conséquence d'en exclure d'autres qui présenteraient trop de multi-colinéarité. **Le phénomène mis en évidence ici repose sur le fait qu'en fonction du lieu, la hiérarchie des VI, et donc leur pertinence au sein du modèle, n'est pas constante.** Cette visualisation des données ouvre donc une perspective intéressante pour la suite. Il serait tout à fait pertinent de développer une méthode permettant d'effectuer un stepwise préalable à toute GWR valable pour chaque lieu individuellement. Un tel modèle traiterait dans sa totalité le problème de non-stationnarité.
 
 Nous pouvons également cartographier les $R^2$ locaux, ce qui fournit une indication sur les zones où la variabilité est la mieux expliquée.
 
@@ -1452,9 +1461,7 @@ mf_map(x = data_immo,
 mf_title("R² locaux")
 ```
 
-À partir des t-value on peut aussi étudier la significativité des effets sur le territoire. On peut ainsi calculer et cartographier un indicateur qui représenterait le nombre de VI dont l'effet est significatif sur chaque unité spatiale. Cela donne une bonne idée de la complexité du phénomène sur un espace donné (en effet sur un EPCI on peut avoir toutes les variables significatives, elle jouent donc sur cet espace toutes un rôles) et souligne l'importance d'avoir une carte par coefficient. Cette carte montre également qu'un modèle parfaitement adaptatif gagnerait en sobriété et donnerait un AIC plus satisfaisant en ne sélectionnant localement que les variables réellement significatives dans la relation.
-
-Dans ce cadre, il est possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. L'intérêt est de voir où l'effet de la VI est significatif et où il ne l'est pas.
+À partir des t-value on peut aussi étudier la significativité des effets sur le territoire. **On peut ainsi calculer et cartographier un indicateur qui représenterait le nombre de VI dont l'effet est significatif sur chaque unité spatiale.** Cela donne une bonne idée de la complexité du phénomène sur un espace donné (en effet sur un EPCI on peut avoir toutes les variables significatives, elle jouent donc sur cet espace toutes un rôles) et souligne l'importance d'avoir une carte par coefficient. Cette carte montre également qu'un modèle parfaitement adaptatif gagnerait en sobriété et donnerait un AIC plus satisfaisant en ne sélectionnant localement que les variables réellement significatives dans la relation.
 
 ```{r}
 # Pour rappel si on a plus de 200 individus et le t-value > |1.96| on pourra considérer le coefficient comme significatif au seuil de 0.05 (95% chances que ce ne soit pas dû au hasard)
@@ -1500,7 +1507,7 @@ mf_title("Nombre des Betas significatifs par EPCI (p-value)")
 
 ```
 
-Il est aussi possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. L'intérêt est de voir où l'effet de la VI est significatif et où il ne l'est pas.
+Dans ce cadre, il est possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. **L'intérêt est de voir où l'effet de la VI est significatif et où il ne l'est pas.**
 
 ```{r}
 # Ici nous représenterons les p-value avec un découpage par classe de significativité et seulement les p-value de 2 VI
