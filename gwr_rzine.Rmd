@@ -1152,9 +1152,8 @@ Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent a
 
 Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser ? Ce choix va dépendre de la nature des phénomènes spatiaux étudiés. Pour être clair, on peut considérer que la VD peut être expliquée par une VI (modèle linéaire simple), la valeur des voisins de cette VI (modèle SLX), la valeur des voisins de la VD elle-même (modèle SAR), ou une combinaison des trois (modèle SDM). À cela, on peut ajouter un effet corrélé considérant que l'explication de notre VD est liée à un phénomène spatial non identifié ou non quantifiable qui a un impact à la fois sur le lieu de l'observation et son voisinage. Dans ce cas, on explique les résidus par le voisinage des résidus eux-mêmes (modèle SEM). Ce modèle n'explique pas le phénomène en soi mais permet de vérifier que la partie non expliquée n'est pas uniquement liée à une question de structure spatiale sous-jacente. On peut ensuite combiner ces différents effets et les cumuler tous jusqu'au modèle général d'imbrication spatial (GNS).
 
-```
-{r, echo=FALSE, fig.cap="Choix du modèle de régression spatiale", out.width = '90%', fig.align = 'center'}
-knitr::include_graphics(here("public/figures", "modeles.png"))
+```{r, echo=FALSE, fig.cap="Choix du modèle de régression spatiale", out.width = '90%', fig.align = 'center'}
+knitr::include_graphics(here("figures", "modeles.png"))
 ```
 
 Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que nos VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
