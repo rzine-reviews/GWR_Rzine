@@ -788,13 +788,13 @@ discr <- function(values, center, pos_center, interval, min_nb) {
   }
   # ...pour les limites > centre
   x <- 1
-  while (center + x * interval < max(values)) {
+  while (centermax + x * interval < max(values)) {
     breaks <- append(breaks, centermax + x * interval)
     x <- x + 1
   }
   # ...pour les limites < centre
   x <- 1
-  while (center - x * interval > min(values)) {
+  while (centermin - x * interval > min(values)) {
     breaks = append(breaks, centermin - x * interval)
     x <- x + 1
   }
