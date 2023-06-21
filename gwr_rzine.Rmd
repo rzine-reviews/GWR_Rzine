@@ -243,12 +243,8 @@ mf_map(x = data_immo,
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
        leg_val_rnd = 0)
-mf_layout(
-  title = "Prix médian de l'immobilier au m² par EPCI",
-  credits = "Sources: Notaires de France, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("Prix médian de l'immobilier au m² par EPCI")
+mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
 
 Et avoir un aperçu rapide des autres données issues de l'INSEE :
@@ -256,19 +252,16 @@ Et avoir un aperçu rapide des autres données issues de l'INSEE :
 ```{r}
 par(mfrow = c(3,3))
 for (var in colnames(data_immo)[6:13]) {
-mf_map(x = data_immo,
-       var = var,
-       type = "choro",
-       breaks = "quantile",
-       nbreaks = 7,
-       pal = "Purples",
-       lwd = 0.01,
-       leg_pos = NA)
-mf_layout(
-  title = var,
-  credits = 'Sources: INSEE, IGN Admin Express',
-  arrow = FALSE,
-  scale = FALSE)
+  mf_map(x = data_immo,
+         var = var,
+         type = "choro",
+         breaks = "quantile",
+         nbreaks = 7,
+         pal = "Purples",
+         lwd = 0.01,
+         leg_pos = NA)
+  mf_title(var)
+  mf_credits('Sources: INSEE, IGN Admin Express')
 }
 ```
 
@@ -885,12 +878,8 @@ mf_map(x = data_immo,
        pal = palette,
        leg_title = "Valeur centrale =  0\nIntervalle = σ / 2", 
        leg_val_rnd = 1)
-mf_layout(
-  title = "Résidus de régression linéaire classique",
-  credits = "Sources: Notaires de France, INSEE, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("Résidus de régression linéaire classique")
+mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
 # réinitialisation du thème
 mf_theme("default")
 ```
@@ -936,12 +925,8 @@ mf_map(x = data_immo,
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
        leg_val_rnd = 0)
-mf_layout(
-  title = "Prix médian de l'immobilier au m² par EPCI",
-  credits = "Sources: Notaires de France, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("Prix médian de l'immobilier au m² par EPCI")
+mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
 
 Une structure spatiale apparaît de manière assez prégnante, ce qui est vérifié par les indicateurs statistiques :
@@ -1073,12 +1058,8 @@ mf_map(x = data_immo,
        pal = palette,
        leg_title = "Discrétisation standardisée\nvaleur centrale = 0\nintervalle = σ / 2", 
        leg_val_rnd = 1)
-mf_layout(
-  title = "Carte des LISA du prix médian du logement (Moran local)",
-  credits = "Sources: Notaires de France, INSEE, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("Carte des LISA du prix médian du logement (Moran local)")
+mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
 ```
 
 Si le score du Moran local est  > 0 cela implique que l'on a un regroupement de valeurs similaires, plus faibles ou plus élevées que la moyenne. En revanche si le score est < 0 alors on a un regroupement de valeurs dissimilaires, par exemple des valeurs plus faibles entourés de valeur plus fortes (centre de la Corse).
@@ -1109,12 +1090,8 @@ mf_map(x = data_immo,
        lwd = 0.08, 
        pal = mypal, 
        leg_title = "P-value Local Moran")
-mf_layout(
-  title = "Carte de significativité des LISA",
-  credits = "Sources: Notaires de France, INSEE, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("Carte de significativité des LISA")
+mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
 ```
 
 Les regroupements que l'on observe vont pouvoir se rapprocher des 4 types de regroupements que nous avions sur le diagramme de Moran (High-High, Low-Low, High-Low et Low-High).
@@ -1134,12 +1111,8 @@ mf_map(x = data_immo,
        pal= colors,
        val_order = c("Not significant","Low-Low","Low-High","High-Low","High-High"),
        leg_title = "Lisa cluster")
-mf_layout(
-  title = "LISA clusters",
-  credits = "Sources: Notaires de France, INSEE, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("LISA clusters")
+mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
 ```
 
 
@@ -1358,12 +1331,8 @@ mf_map(x = data_immo,
        pal = palette, 
        leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2", 
        leg_val_rnd = 1)
-mf_layout(
-  title = "Résidus GWR",
-  credits = "Sources: Notaires de France, INSEE, IGN Admin Express",
-  arrow = FALSE,
-  scale = FALSE
-)
+mf_title("Résidus GWR")
+mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
 ```
 
 Cette carte ne présente pas de structure spatiale marquée et nous amène à penser que nous avons expliqué l'ensemble des phénomènes spatiaux liés aux questions de prix de l'immobilier.
@@ -1387,8 +1356,11 @@ data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
 Pour réaliser les cartes, avec une discrétisation standardisée centrée sur 0 :
 
 ```{r}
-# par(mfrow = c(4, 2), heights = c(10, 10, 10, 10, 10, 10, 10, 10))
-# par(mfrow = c(2, 2))
+par(mfrow = c(3, 3))
+# layout.matrix <- matrix(1:8, nrow = 4, ncol = 2)
+# graphics::layout(mat = layout.matrix,
+#        heights = c(lcm(2), lcm(2), lcm(2), lcm(2))) # Heights of the 4 rows
+       # widths = c(2, 2))
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
   res <- discr(data.frame(data_immo)[, var], 0, "class_center", sd(data.frame(data_immo)[, var])*0.5, 10)
@@ -1409,8 +1381,11 @@ for (var in colnames(data_immo)[22:29]) {
          lwd = 0.1,
          breaks = breaks,
          pal = palette,
+         leg_pos = "left",
+         leg_title = NA,
          leg_val_rnd = 0)
   mf_title(var)
+  mf_legend(inches = 1)
 }
 ```
 
