@@ -1355,12 +1355,8 @@ data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
 
 Pour réaliser les cartes, avec une discrétisation standardisée centrée sur 0 :
 
-```{r}
-par(mfrow = c(3, 3))
-# layout.matrix <- matrix(1:8, nrow = 4, ncol = 2)
-# graphics::layout(mat = layout.matrix,
-#        heights = c(lcm(2), lcm(2), lcm(2), lcm(2))) # Heights of the 4 rows
-       # widths = c(2, 2))
+```{r fig.height = 10}
+par(mfrow = c(4, 2)) 
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
   res <- discr(data.frame(data_immo)[, var], 0, "class_center", sd(data.frame(data_immo)[, var])*0.5, 10)
@@ -1385,7 +1381,6 @@ for (var in colnames(data_immo)[22:29]) {
          leg_title = NA,
          leg_val_rnd = 0)
   mf_title(var)
-  mf_legend(inches = 1)
 }
 ```
 
