@@ -52,9 +52,11 @@ Cette fiche présente la réalisation d'une analyse de données à l'aide de la 
 **L'objectif de cette fiche est de vous présenter des méthodes et leurs applications qui vous permettront d'étudier concrètement les effets des dimensions spatiales des données.** Il s'agira de pouvoir d'une part caractériser la structure spatiale de données attributaires liées à des entités spatiales ; et d'autre part de mesurer l'effet statistique de l'information spatiale dans un modèle de régression visant à déterminer les facteurs explicatifs d'un phénomène.
 
 L'analyse présentée ici a pour objectif d'être reproductible : les données spatiales utilisées proviennent de la base ADMIN-EPXRESS de l'IGN ; les données statistiques, quant à elles, ont été construites à partir de la base des notaires de France, complétées par des données de l'INSEE pour les variables explicatives.
+
+Toutes les figures et cartes ont été produites dans le cadre de la rédaction de cette fiche, sauf mention contraire.
 </div>
 <br>
-Toutes les figures et cartes ont été produites dans le cadre de la rédaction de cette fiche, sauf mention contraire.
+
 <div style="background-color: #dcdcdc ; border-color:navajowhite3; padding: 0.8em; font-size:115% ; color: CCCCCC">
 **Prérequis** : connaissances de base en analyse de données statistiques, avec au moins une compréhension de ce qu'est une corrélation et une régression.
 </div>
@@ -107,7 +109,7 @@ library(plotly)
 # Manipulation et représentation de la données spatiales (cartographie)
 library(sf)
 library(mapsf)
-library(rgeoda)
+library(rgeoda) #permet en plus de calculer les indices d'auto-corrélation spatiale
 library(RColorBrewer)
 
 # Calcul du voisinage et réalisation de la GWR
