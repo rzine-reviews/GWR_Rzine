@@ -47,11 +47,11 @@ library(rzine)
 
 
 <div style="background-color: #dcdcdc ; border-color:navajowhite3; padding: 1em; font-size:115% ; color: CCCCCC">
-Cette fiche présente la réalisation d'une analyse de données à l'aide de la **régression géographique pondérée ou GWR**. La modélisation statistique dite “classique” présente des risques élevés lorsqu'on souhaite traiter des données spatiales. Des phénomènes de dépendance spatiale, des problèmes d'échelles d'application, des effets de contexte, ainsi qu'une forme d'hétérogénéité spatiale peuvent apparaître et compromettre les analyses effectuées, et engendrer des interprétations tronquées voire inexactes. Souvent ignorées, ces dimensions spatiales ne peuvent pas être considérées comme un simple aléa.
+Cette fiche présente la réalisation d'une analyse de données à l'aide de la **régression géographique pondérée ou GWR** (Geographical Weighted Regression). La modélisation statistique dite “classique” présente des risques élevés lorsqu'on souhaite traiter des données spatiales. Des phénomènes de dépendance spatiale, des problèmes d'échelles d'application, des effets de contexte, ainsi qu'une forme d'hétérogénéité spatiale peuvent apparaître et compromettre les analyses effectuées, et engendrer des interprétations tronquées voire inexactes. Souvent ignorées, ces dimensions spatiales ne peuvent pas être considérées comme un simple aléa.
 
 **L'objectif de cette fiche est de vous présenter des méthodes et leurs applications qui vous permettront d'étudier concrètement les effets des dimensions spatiales des données.** Il s'agira de pouvoir d'une part caractériser la structure spatiale de données attributaires liées à des entités spatiales ; et d'autre part de mesurer l'effet statistique de l'information spatiale dans un modèle de régression visant à déterminer les facteurs explicatifs d'un phénomène.
 
-L'analyse présentée ici a pour objectif d'être reproductible : les données spatiales utilisées proviennent de la base ADMIN-EPXRESS de l'IGN ; les données statistiques, quant à elles, ont été construites à partir de la base des notaires de France, complétées par des données de l'INSEE pour les variables explicatives.
+L'analyse présentée ici a pour objectif d'être reproductible : les données spatiales utilisées proviennent de la base ADMIN-EPXRESS de l'Institut national de l'information géographique et forestière (IGN) ; les données statistiques, quant à elles, ont été construites à partir de la base des notaires de France, complétées par des données de l'Institut National de la Statistique et des Études Économiques (INSEE) pour les variables explicatives.
 
 Toutes les figures et cartes ont été produites dans le cadre de la rédaction de cette fiche, sauf mention contraire.
 </div>
@@ -66,13 +66,13 @@ Toutes les figures et cartes ont été produites dans le cadre de la rédaction 
 
 Lorsque l'on souhaite dépasser la simple caractérisation d'attributs liés à des individus statistiques, on fait appel à des méthodes de modélisation explicitant des relations statistiques. La méthode la plus employée, principalement en sciences sociales, pour mesurer et analyser la nature des relations et des effets entre deux ou plusieurs variables, est le modèle de **régression linéaire**.
 
-Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appeler variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social avec une emprise sur un espace, la régression linéaire pose plusieurs problèmes :
+Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appelée variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social avec une emprise sur un espace, la régression linéaire pose plusieurs problèmes :
 
-Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notés epsilon **ε**). Ces **β** représentent l'effet de nos VI sur notre VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaires considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
+Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notés epsilon **ε**). Ces **β** représentent l'effet des VI sur la VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaire considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
 
-Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet de nos VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
+Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet des VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
 
-Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Trois conditions doivent être validées pour qu'une régression linéaire puisse être effectuée sans que l'interprétation des résultats conduisent à des raisonnements fallacieux :
+Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Trois conditions doivent être validées pour qu'une régression linéaire puisse être effectuée sans que l'interprétation des résultats ne conduise à des raisonnements fallacieux :
 
 - Les individus statistiques doivent être indépendants
 - Les résidus doivent suivre une distribution normale
@@ -84,7 +84,7 @@ Le troisième problème est lié aux effets de contexte : on ne peut pas étudi
 
 Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d'échelle d'application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s'avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés [@Mathian_2001]. Certaines agrégations peuvent également varier et cacher des relations entre individus [@Bailey_1995].
 
-La GWR ne répond pas à l'ensemble de ces problèmes mais va nous permettre de résoudre les deux premiers en intégrant la dimension spatiale de nos données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
+La GWR ne répond pas à l'ensemble de ces problèmes mais va nous permettre de résoudre les deux premiers en intégrant la dimension spatiale des données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
 
 # Les packages {-}
 
@@ -139,15 +139,15 @@ lapply(my_packages, library, character.only = TRUE)
 
 # Présentation et préparation des données
 
-Nous avons cherché à traiter ici une variable présentant des caractéristiques spatiales fortes et qui rencontrent les deux problèmes exposés précédemment d'indépendance statistique et de non-stationnarité. Les prix de l'immobilier en France sont effectivement soumis à ces problèmes et peuvent être expliqués, au moins partiellement, par des variables quantitatives issues de données de l'INSEE. Nous avons traité l'information liée au prix de l'immobilier à l'échelle de Etablissements Publics de Coopération Intercommunale (EPCI) pour nous assurer un nombre d'observation suffisant dans chaque entité spatiale.
+Nous avons cherché à traiter ici une variable présentant des caractéristiques spatiales fortes et qui rencontrent les deux problèmes exposés précédemment d'indépendance statistique et de non-stationnarité. Les prix de l'immobilier en France sont effectivement soumis à ces problèmes et peuvent être expliqués, au moins partiellement, par des variables quantitatives issues de données de l'INSEE. Nous avons traité l'information liée au prix de l'immobilier à l'échelle des Etablissements Publics de Coopération Intercommunale (EPCI) pour nous assurer un nombre d'observation suffisant dans chaque entité spatiale.
 
  - Les données du prix de l'immobilier par EPCI (prix médian au m²) sont issues des ventes observées sur l'année 2018, extraites depuis la [base de données des notaires de France](https://www.immobilier.notaires.fr/fr/prix-immobilier){target="_blank"} par Frédéric Audard et Alice Ferrari. Ce fichier a été simplifié pour ne conserver que les variables d'intérêts parmi une cinquantaine
-- Les données statistiques proviennent de l'INSEE (année 2019) : 9 variables ont été choisies pour leur potentialité à expliquer les variations des prix de l'immobilier, concernant [la population](https://www.insee.fr/fr/statistiques/6456153?sommaire=6456166), [le logement](https://www.insee.fr/fr/statistiques/6454155?sommaire=6454268) et [les revenus et niveaux de vie](https://www.insee.fr/fr/statistiques/6036907). Elles sont détaillées un peu plus bas.
-- Comme indiqué en introduction les données spatiales proviennent de la base [ADMIN-EXPRESS de l'IGN](https://geoservices.ign.fr/adminexpress) en accès libre. La couche est utilisée est celle des EPCI de la base ADMIN-EXPRESS-COG édition 2022 par territoire pour la France métropolitaine.
+- Les données statistiques proviennent de l'INSEE (année 2019) : 9 variables ont été choisies pour leur potentialité à expliquer les variations des prix de l'immobilier, concernant [la population](https://www.insee.fr/fr/statistiques/6456153?sommaire=6456166){target="_blank"}, [le logement](https://www.insee.fr/fr/statistiques/6454155?sommaire=6454268){target="_blank"} et [les revenus et niveaux de vie](https://www.insee.fr/fr/statistiques/6036907){target="_blank"}. Elles sont détaillées un peu plus bas.
+- Comme indiqué en introduction les données spatiales proviennent de la base [ADMIN-EXPRESS de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"} en accès libre. La couche est utilisée est celle des EPCI de la base ADMIN-EXPRESS-COG édition 2022 par territoire pour la France métropolitaine.
 
 Les données statistiques et du prix de l'immobilier ont été regroupées dans un même fichier CSV `donnees_standr.csv`.
 
-Les données spatiales (géométrie des EPCI) sont au format [shapefile](https://fr.wikipedia.org/wiki/Shapefile) dans le fichier `EPCI.shp`.
+Les données spatiales (géométrie des EPCI) sont au format [shapefile](https://fr.wikipedia.org/wiki/Shapefile){target="_blank"} dans le fichier `EPCI.shp`.
 
 ## Chargement des données sur le prix de l'immobilier par EPCI
 
@@ -177,11 +177,11 @@ La variable `SIREN` nous servira de "clé" pour joindre ces données statistique
 
 <div class="alert alert-danger" role="alert">
 Hormis la variable SIREN et prix_med toutes les autres ont été **centrées-réduites**. Cela implique qu'elles ont subie une transformation statistique visant à ce qu'elles aient une moyenne de 0 et un écart-type de 1.
-On parle aussi en statistique de **standardisation**. Cette transformation permet de conserver la variabilité de nos données tout en les rendant comparables. C'est cette transformation qui explique le grand nombre de décimales des données.
+On parle aussi en statistique de **standardisation**. Cette transformation permet de conserver la variabilité des données tout en les rendant comparables. C'est cette transformation qui explique le grand nombre de décimales des données.
 <hr>
 Lorsque l'on s'apprête à faire de la modélisation statistique, il est très recommandé de réaliser cette opération au moins sur les variables que vous utiliserez comme variables explicatives dans votre modèle.
 <hr>
-Sur R on peut facilement réaliser cette opération avec la fonction `scale()`. Ou à "la main" l'opération est simple. On soustrait chaque valeur par la moyenne puis on divise par l'écart-type.</div>
+Sur R on peut facilement réaliser cette opération avec la fonction `scale()`. La standardisation peut aussi se faire "manuellement" : il suffit de soustraire chaque valeur par la moyenne puis de diviser par l'écart-type.</div>
 
 ## Chargement des données géographiques : les EPCI de France métropolitaine
 
@@ -207,7 +207,7 @@ nrow(immo_df)
 nrow(epci_sf)
 ```
 
-On constate que nos deux jeux de données n'ont pas exactement le même nombre de lignes. En effet, le jeu de données `immo_df` possède moins de lignes que notre objet sf `epci_sf`. Cela indique simplement que nous n'avons pas l'indication du prix médian de l'immobilier pour tous les EPCI de France métropolitaine.
+On constate que les deux jeux de données n'ont pas exactement le même nombre de lignes. En effet, le jeu de données `immo_df` possède moins de lignes que l'objet sf `epci_sf`. Cela indique simplement que nous n'avons pas l'indication du prix médian de l'immobilier pour tous les EPCI de France métropolitaine.
 
 Il peut être intéressant d'identifier et visualiser les EPCI qui n'ont pas de correspondance dans le tableau de données `immo_df`, pour ce faire on réalise la jointure on conservant toutes les lignes de `epci_sf` :
 
@@ -216,12 +216,12 @@ Il peut être intéressant d'identifier et visualiser les EPCI qui n'ont pas de 
 # même celles qui n'ont pas de correspondance dans immo_df
 data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN", all.x = TRUE)
 nrow(data_immo)
-# on peut filtrer les données de la jointure pour ne voir que les epci n'ayant pas de correspondance dans le tableau immo_df
+# filtre des données de la jointure pour ne voir que les epci sans correspondance dans le tableau immo_df
 datatable(data_immo[is.na(data_immo$prix_med),])
 mf_map(x = data_immo[is.na(data_immo$prix_med),])
 ```
 
-Cependant, notre VD étant `prix_med` les lignes vides ne nous intéressent pas, nous ne les conserverons pas car elles pourraient poser problème lors de la réalisation de nos analyses.
+Cependant, la VD étant `prix_med` les lignes vides ne nous intéressent pas, nous ne les conserverons pas car elles pourraient poser problème lors de la réalisation de nos analyses.
 On refait la jointure en ne gardant que les EPCI ayant une correspondance dans le tableau de données :
 
 ```{r}
@@ -230,7 +230,7 @@ nrow(data_immo)
 ```
 
 <div class="alert alert-success" role="alert">
-Pourquoi certains EPCI n'ont-ils pas de correspondance dans notre tableau de données ? Il s'agit notamment des EPCI de la petite couronne de Paris, qui se superposent à l'EPCI de la métropole du grand Paris (les données sont donc bien présentes pour cette zone). Pour le reste, il s'agit de nouveaux EPCI ou bien d'EPCI ayant évolué et donc changé d'identifiant.
+Pourquoi certains EPCI n'ont-ils pas de correspondance dans ce tableau de données ? Il s'agit notamment des EPCI de la petite couronne de Paris, qui se superposent à l'EPCI de la métropole du grand Paris (les données sont donc bien présentes pour cette zone). Pour le reste, il s'agit de nouveaux EPCI ou bien d'EPCI ayant évolué et donc changé d'identifiant.
 </div>
 
 On peut maintenant représenter les données du prix médian de l'immobilier par EPCI sous forme de carte :
@@ -274,15 +274,15 @@ data_immo_sp <- as(data_immo, "Spatial")
 ```
 
 <div class="alert alert-success" role="alert">
-Les packages [sf (Simple Features for R)](https://r-spatial.github.io/sf/) et [sp (Classes and methods for spatial data)](https://www.rdocumentation.org/packages/sp/versions/1.5-0) proposent tous deux des fonctions pour manipuler des données spatiales. Le package sf est plus récent et plus performant, mais beaucoup de packages R ne fonctionnent encore qu'avec le format sp.
+Les packages [sf (Simple Features for R)](https://r-spatial.github.io/sf/){target="_blank"} et [sp (Classes and methods for spatial data)](https://www.rdocumentation.org/packages/sp/versions/1.5-0){target="_blank"} proposent tous deux des fonctions pour manipuler des données spatiales. Le package sf est plus récent et plus performant, mais beaucoup de packages R ne fonctionnent encore qu'avec le format sp.
 </div>
 
 
 # Création du voisinage
 
-Avant de procéder à nos différentes analyses, nous devons d'abord créer et définir notre **voisinage**. Cette étape est absolument essentielle.
+Avant de procéder à nos différentes analyses, nous devons d'abord créer et définir le **voisinage**. Cette étape est absolument essentielle.
 
-En effet, cette notion de voisinage est centrale en statistique spatiale, le principe de base étant que le voisinage a un effet sur nos individus. Les choix qui seront fait dans la construction du voisinage impacteront de fait très fortement les résultats.
+En effet, cette notion de voisinage est centrale en statistique spatiale, le principe de base étant que le voisinage a un effet sur les individus. Les choix qui seront fait dans la construction du voisinage impacteront de fait très fortement les résultats.
 
 ## Voisinage
 
@@ -300,7 +300,7 @@ Lorsque nous travaillons avec des polygones (comme c'est le cas ici), le plus so
 knitr::include_graphics(here("figures", "voisinage_insee.png"))
 ```
 
-Heureusement R permet assez simplement de définir notre voisinage.
+R permet assez simplement de définir le voisinage.
 
 ```{r warning=FALSE}
 # Création de la liste des voisins : avec l'option queen = TRUE, 
@@ -311,7 +311,7 @@ neighbours_epci <- poly2nb(data_immo, queen = TRUE)
 coord <- st_coordinates(st_centroid(data_immo))
 ``` 
 
-Voici la représentation graphique de notre voisinage :
+Voici la représentation graphique du voisinage :
 
 ```{r}
 # Faire un graphe de voisinage
@@ -321,7 +321,8 @@ plot(neighbours_epci, coord)
 Pour comprendre ce que contient neighbours_epci :
 
 ```{r}
-# si on prend le 1er élément de neighbours_epci, on voit qu'il a pour voisins les poygones 62, 74 etc.
+# si on prend le 1er élément de neighbours_epci, 
+# on voit qu'il a pour voisins les poygones 62, 74 etc.
 neighbours_epci[[1]]
 # ce qu'on peut vérifier sur la carte :
 neighbours1 <- data_immo[c(1,62,74,338,1135,1136,1137,1140),]
@@ -369,7 +370,7 @@ N'étant pas le sujet de la fiche nous passerons rapidement sur ces étapes et n
 
 ## Exploration des variables
 
-Cette première étape très importante permet d'étudier la distribution de nos données et d'identifier d'éventuels **individus extrêmes** qui pourrait venir perturber les résultats.
+Cette première étape très importante permet d'étudier la distribution des données et d'identifier d'éventuels **individus extrêmes** qui pourrait venir perturber les résultats.
 
 Ici par exemple nous serions en droit de nous poser la question de conserver dans notre jeu de données l'entité spatiale avec un prix médian à plus de 10 000 qui se détache très clairement de tous les autres EPCI.
 
@@ -381,7 +382,7 @@ Pour visualiser la distribution d'une variable quantitative l'histogramme est un
 add_histogram(plot_ly(data_immo, x = ~prix_med))
 ```
 
-Il est important de réaliser également pour nos VI cet histogramme que nous venons de faire pour notre VD :
+Il est important de réaliser également pour les VI cet histogramme que nous venons de faire pour la VD :
 
 ```{r warning=FALSE}
 # Distribution des variables indépendantes :
@@ -414,7 +415,7 @@ L'étude des corrélations peut donc apporter une aide précieuse dans cette ré
 Ainsi, une analyse des corrélation pourra vérifier :
 
 - l'existence d'un lien entre les variables indépendantes et la variable à étudier. En effet dans une régression linéaire, il est nécessaire d'avoir une relation linéaire entre la VD et les différentes VI.
-- la multicolinéarité des variables indépendantes. Les corrélations ne doivent pas être trop fortes entre nos VI. Un coefficient > 0.7 en valeurs absolues doit entraîner la suppression des variables concernées. Cela peut aussi être vérifié très efficacement avec le VIF (Variance Inflation Factor) mais peut se faire seulement après avoir lancé notre modèle.
+- la multicolinéarité des variables indépendantes. Les corrélations ne doivent pas être trop fortes entre les VI. Un coefficient > 0.7 en valeurs absolues doit entraîner la suppression des variables concernées. Cela peut aussi être vérifié très efficacement avec le VIF (Variance Inflation Factor) mais peut se faire seulement après avoir lancé le modèle.
 - L'absence de corrélation entre les variables explicatives du modèle et les variables externes. En effet, les variables d'influence doivent être incluses dans le modèle (sauf dans le cas où cela induirait une trop grande multicolinéarité).
 
 
@@ -460,25 +461,25 @@ corrplot(mat_cor,
 ```
 
 
-L'études des corrélations nous permet ici de confirmer une relation entre notre variable à expliquer et toutes les variables explicatives définies. Par exemple, elle est négativement corrélée avec le pourcentage de logments vacants.
+L'étude des corrélations nous permet ici de confirmer une relation entre la variable à expliquer et toutes les variables explicatives définies. Par exemple, elle est négativement corrélée avec le pourcentage de logments vacants.
 
-Elle met aussi à jour de très fortes multicolinéarités, ce qui va nous poser problème. Par exemple, la part de logement suroccupés est fortement corrélée au pourcentage de petits logements. Dans le cadre de la définition d'un modèle linéaire classique, il faudrait sortir du modèle les variables explicatives qui corrèlent trop fortement. Dans le cadre de cette fiche nous faisons le choix de conserver toutes nos VI, cela fera sens au moment de la GWR.
+Elle met aussi à jour de très fortes multicolinéarités, ce qui va nous poser problème. Par exemple, la part de logement suroccupés est fortement corrélée au pourcentage de petits logements. Dans le cadre de la définition d'un modèle linéaire classique, il faudrait sortir du modèle les variables explicatives qui sont trop fortement corrélées. Dans le cadre de cette fiche nous faisons le choix de conserver toutes les VI, cela fera sens au moment de la GWR.
 
-## Régression linéaire ou Méthode des moindre carrés ordinaire (MCO).
+## Régression linéaire ou Méthode des moindre carrés ordinaire (MCO)
 
 ### Principe et réalisation de la régression linéaire
 
-La régression linéaire est un des modèles les plus utilisés en SHS, elle peut être simple (une seule variable explicative) ou multiple (plusieurs VI). Le principe n'est en réalité pas si complexe. **La régression linéaire consiste à modéliser la covariation entre une variable à expliquer et une ou des variables explicatives.**
+La régression linéaire est un des modèles les plus utilisés en Sciences Humaines et Sociales (SHS), elle peut être simple (une seule variable explicative) ou multiple (plusieurs VI). Le principe n'est en réalité pas si complexe. **La régression linéaire consiste à modéliser la covariation entre une variable à expliquer et une ou des variables explicatives.**
 
 Pour ce faire le modèle de régression va chercher à estimer les termes de l'équation de la droite de régression entre la variable à expliquer et la variable explicative. Cette équation va prendre la forme $f(x)= ax + b + e_i$. Équation qui ressemble à la fonction affine $f(x)= ax + b$, qui est étudiée en général au collège.
 
-Si l'on cherche à modéliser la covariation entre le prix médian et le pourcentage de logements vacants, l'équation de notre droite de régression ressemblerait à  : $prixmed_i = a*perclogvac_i + b + e_i$.
+Si l'on cherche à modéliser la covariation entre le prix médian et le pourcentage de logements vacants, l'équation de la droite de régression ressemblerait à  : $prixmed_i = a*perclogvac_i + b + e_i$.
 
 Où $a$ est le coefficient associé à la variable du pourcentage de logements vacants, $b$ est la constante qui apparaîtra sous le nom d'intercept dans les résultats et enfin $e$ qui lui correspond aux résidus. Les résidus étant ce qui incarne l'écart au modèle.
 
-Traditionnellement on va faire usage d'une régression linéaire lorsque l'on veut prédire les valeurs de notre VD dans les cas où elle n'aurait pas été mesurée, ou si l'on souhaite comprendre les relations statistiques entre les variables.
+Traditionnellement on va faire usage d'une régression linéaire lorsque l'on veut prédire les valeurs de la VD dans les cas où elle n'aurait pas été mesurée, ou si l'on souhaite comprendre les relations statistiques entre les variables.
 
-Pour lancer notre modèle de régression linéaire avec toutes nos VI voici les lignes de commandes :
+Pour lancer le modèle de régression linéaire avec toutes les VI voici les lignes de commandes :
 
 ```{r}
 # Dans le fonctionnement sur R il est important de stocker la régression dans un objet.
@@ -509,7 +510,7 @@ Pour interpréter les résultats, plusieurs éléments fournis par la commande `
 
 <p class="center"><img src="figures/resreg.png" width="500"/> </p>
 
-D'abord l'information fournie par `Adjusted R-squared`, il s'agit du $R^2$ qui est le coefficient de détermination. Il est ici de $0.77$ ce qui veut dire que 77% de la variation du prix médian est expliqué par notre modèle. Juste en-dessous, on a le p-value associé à notre modèle. S'il est inférieur à $0.05$ on peut considérer qu'il est statistiquement significatif. Voici pour les infos associées globalement au modèle.
+D'abord l'information fournie par `Adjusted R-squared`, il s'agit du $R^2$ qui est le coefficient de détermination. Il est ici de $0.77$ ce qui veut dire que 77% de la variation du prix médian est expliqué par le modèle. Juste en-dessous, on a le p-value associé au modèle. S'il est inférieur à $0.05$ on peut considérer qu'il est statistiquement significatif. Voici pour les infos associées globalement au modèle.
 
 Ensuite, on peut regarder ce qu'il se passe au niveau des variables explicatives. La première colonne appelée `estimate` est le coefficient de régression associé à la variable explicative. Le signe va être très important car il va donner la direction de la relation (exactement comme pour les corrélations). Ici pour le pourcentage de logements vacants il est de $-287$, ce qui veut dire que lorsque ce pourcentage augmente d'une unité alors le prix médian baisse de $287€$.
 
@@ -518,7 +519,7 @@ La colonne $Pr(>|t|)$ correspond à la p-value associée à ce résultat. Une fo
 Nous allons tout de même conserver ces variables qui pourtant devraient être considérées comme non significatives ; les modèles de GWR utilisés par la suite montreront l'utilité de telles variables, dont l'intérêt aurait pu être rejeté *a priori*.
 
 <div class="alert alert-success" role="alert">
-La $t-value$ est le coefficient divisé par son erreur standard. Plus ce quotient est proche de $0$ et plus on peut considérer qu'il n'y a pas d'effet de notre VI sur notre VD. En revanche, dans le cas où on aurait plus de 200 individus, si $t-value > |1.96|$ alors on peut considérer qu'il y a $95\%$ de chance qu'il y ait un effet significatif de la VI sur la VD.
+La $t-value$ est le coefficient divisé par son erreur standard. Plus ce quotient est proche de $0$ et plus on peut considérer qu'il n'y a pas d'effet de la VI sur la VD. En revanche, dans le cas où on aurait plus de 200 individus, si $t-value > |1.96|$ alors on peut considérer qu'il y a $95\%$ de chance qu'il y ait un effet significatif de la VI sur la VD.
 </div>
 
 <div class="alert alert-danger" role="alert">
@@ -530,11 +531,11 @@ Pour aller au delà de ce raisonnement il faut intégrer des effets d'interactio
 </div>
 
 
-## Diagnostic de notre modèle linéaire
+## Diagnostic du modèle linéaire
 
 ### Multicolinéarité
 
-Un des enjeux les plus importants dans le cadre de régression multiple est de vérifier la multicolinéarité entre les variables explicatives. Le risque d'une trop grande colinéarité est de biaiser le modèle et notamment de biaiser les estimations des erreurs type des coefficients de régression (et donc les t-value et p-value).
+Un des enjeux les plus importants dans le cadre de régression multiple est de vérifier la multicolinéarité entre les variables explicatives. Le risque d'une trop grande colinéarité est de biaiser le modèle et notamment les estimations des erreurs type des coefficients de régression (et donc les t-value et p-value).
 
 La **VIF (Variance Inflation Factor)** est une très bonne méthode pour vérifier les risques de multicolinéarité. Elle suppose simplement d'avoir estimé un premier modèle pour être utilisée.
 
@@ -570,7 +571,7 @@ abline(v = 4, lwd = 3, lty = 2)
 abline(v = 3, lwd = 3, lty = 2)
 ```
 
-Comme le laissait supposer l'étude des corrélations de nos variables, nous avons en effet une forte multicolinéarité entre certaines de nos variables explicatives. Selon le VIF nous devrions donc relancer notre modèle sans les variables fortement colinéaires, c'est à dire sans le pourcentage de logements suroccupés et sans le pourcentage de petits logements.
+Comme le laissait supposer l'étude des corrélations de nos variables, nous avons en effet une forte multicolinéarité entre certaines des variables explicatives. Selon le VIF nous devrions donc relancer notre modèle sans les variables fortement colinéaires, c'est à dire sans le pourcentage de logements suroccupés et sans le pourcentage de petits logements.
 
 Pour commencer, on peut retirer du modèle la variable ayant le VIF le plus élevé à savoir le pourcentage de petits logements.
 
@@ -595,7 +596,7 @@ On note qu'au niveau global il y a peu de changements, le $R^2$ a très légère
 
 Lorsque l'on conçoit un modèle linéaire, nous sommes censés respecter un principe de parcimonie. Ce principe implique qu'un bon modèle a un nombre optimal de variables. Bref, qu'il ne s'embarrasse pas de variables non significatives.
 
-Ce principe veut donc que nous retirons de notre modèle la variable part d'agriculteurs dans le nombre d'emplois.
+Ce principe veut donc que nous retirions du modèle la variable part d'agriculteurs dans le nombre d'emplois.
 
 La fonction `step()` permet de réaliser une régression pas à pas descendante (ou ascendante).
 
@@ -606,9 +607,9 @@ Dans le cas d'une régression descendante, le modèle initial comprend toutes le
 step(mod.lm2, direction = "both")
 ```
 
-On observe ici qu'à la fin la variable `part_agri_nb_emploi` n'est donc pas conservé.
+On observe ici que la variable `part_agri_nb_emploi` n'est donc au final pas conservée.
 
-Notre nouveau modèle devrait donc ressembler à ça :
+Notre nouveau modèle se définit donc ainsi :
 
 ```{r}
 mod.lm3 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + med_niveau_vis + part_log_suroccup + part_cadre_profintellec_nbemploi, data = data_immo)
@@ -620,17 +621,17 @@ mod.lm3 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + med_n
 L'analyse des résidus est très importante car les conditions de validité d'un modèle linéaire au delà des résultats reposent grandement sur les résidus. Ils permettent en outre d'identifier les individus extrêmes (ou outliers).
 
 <div class="alert alert-danger" role="alert">
-Pour rappel, les résidus correspondent à l'écart au modèle. Ainsi, un résidu > 0 implique que notre individu a été sous-estimé par le modèle (il est au-dessus de la droite de régression), un résidu < 0 que l'individu a été sur-estimé par le modèle (il est sous la droite de régression).
+Pour rappel, les résidus correspondent à l'écart au modèle. Ainsi, un résidu > 0 implique que l'individu a été sous-estimé par le modèle (il est au-dessus de la droite de régression), un résidu < 0 que l'individu a été sur-estimé par le modèle (il est sous la droite de régression).
 </div>
 
 Les 3 conditions qui concernent les résidus sont :
 
 - Ils doivent suivre une loi normale.
 - Ils ne doivent pas varier en fonction des variables explicatives. C'est l'hypothèse **d'homoscédasticité**, ils ont une variance homogène.
-- Ils ne doivent pas être autocorrélés.
+- Ils ne doivent pas être spatialement autocorrélés.
 
 <div class="alert alert-success" role="alert">
-Soyons clairs, lorsque la démarche est de simplement réaliser une étude de modèle linéaire il est rare de voir des articles en géographie où ces trois conditions sont étudiées ou validées. C'est pourtant important même s'il faut reconnaître que les types de données en SHS remplissent pas toujours ces conditions. Ceci dit, dans une démarche qui s'arrêterait au modèle linéaire s'il y en a une à vérifier ce serait plutôt la normalité des résidus.
+Soyons clairs, lorsque la démarche est de simplement réaliser une étude de modèle linéaire il est rare de voir des articles en géographie où ces trois conditions sont étudiées ou validées. C'est pourtant important même s'il faut reconnaître que les types de données en SHS ne remplissent pas toujours ces conditions. Ceci dit, dans une démarche qui s'arrêterait au modèle linéaire s'il y en a une à vérifier ce serait plutôt la normalité des résidus.
 </div>
 
 Pour obtenir les résidus :
@@ -643,9 +644,13 @@ On peut également les visualiser :
 
 ```{r}
 par(mfrow=c(1,3))
-qqPlot(mod.lm) # diagramme quantile-quantile qui permet de vérifier l'ajustement d'une distribution à un modèle théorique, ici la loi normale
-hist(rstudent(mod.lm), breaks = 50, col="darkblue", border="white", main="Analyse visuelle des résidus") # Histogramme pour donner une autre indication sur la normalité
-plot(rstudent(mod.lm)) # un graphique pour visualiser l'homoscédasticité des résidus
+# diagramme quantile-quantile qui permet de vérifier l'ajustement
+# d'une distribution à un modèle théorique, ici la loi normale
+qqPlot(mod.lm)
+# Histogramme pour donner une autre indication sur la normalité
+hist(rstudent(mod.lm), breaks = 50, col="darkblue", border="white", main="Analyse visuelle des résidus")
+# un graphique pour visualiser l'homoscédasticité des résidus
+plot(rstudent(mod.lm))
 ```
 
 Si la voie graphique ne vous inspire pas il existe des tests statistiques qui permettent de vérifier la normalité des résidus ou bien leur homoscédasticité.
@@ -668,7 +673,7 @@ Dans les deux cas il nous faut rejeter H0, les résidus n'ont donc pas une distr
 Le modèle ne peut donc pas être analysé en l'état. Le problème de l'hétéroscédasticité des résidus indique un problème de spécification du modèle (par exemple une variable manquante).
 
 <div class="alert alert-success" role="alert">
-**Apparté sur les outliers**
+**Aparté sur les outliers**
 
 Le qqplot nous indique deux individus extrêmes, ici ceux ayant pour identifiant 266 et 36. Il peut dans certain cas être intéressant de supprimer ces individus et voir comment réagit le modèle.
 
@@ -694,7 +699,7 @@ car::compareCoefs(mod.lm, mod.lmx, pvals = TRUE)
 Dans certain cas les différences sont mineures, ici la différence est importante, en effet, on voit qu'une VI a perdu sa significativité. Quoi qu'il en soit c'est une opération qui doit être effectuée avec prudence, la suppression des individus pose toujours question notamment en terme de justification théorique. Il faut le faire uniquement si l'analyse des individus indique un problème important (valeurs aberrantes, inversion...).
 </div>
 
-### L'autocorrélation des résidus
+### L'autocorrélation spatiale des résidus
 
 C'est la condition la plus difficile à vérifier et celle qui pose le plus problème.
 
@@ -704,19 +709,20 @@ Les deux outils connus au moins de nom par tous les géographes sont les tests d
 
 Dans la littérature le test de Moran semble être préféré à celui de Geary en raison d'une stabilité plus grande.
 
-**Test de Moran des résidus de la régression** (H0 : pas d'autocorrélation spatiale) :
+**Test de Moran des résidus de la régression** (Hypothèse nulle H0 : pas d'autocorrélation spatiale) :
 
 ```{r}
 lm.morantest(model = mod.lm, 
              listw = neighbours_epci_w)
 ```
 
-**Test de Geary** (H0 pas d'autocorrélation) :
+**Test de Geary** (Hypothèse nulle H0 : pas d'autocorrélation) :
 
 ```{r}
-#  Attention : Pour avoir le  coefficient il faut faire 1-"Résultat test de Geary" (soit ici le coefficient est 0.67)
+#  Attention : Pour avoir le  coefficient il faut faire 1-"Résultat test de Geary"
+# (soit ici le coefficient est 0.67)
 # Le coefficient de Geary s'étend de 0 à 2, 1 étant le "0" et signifiant aucune corrélation
-# Par ailleurs, un score inférieur à 1 implique une corrélation positive et un score supérieur à 1 une corrélation négative.
+# Par ailleurs, un score < 1 implique une corrélation positive et un score > 1 une corrélation négative.
 geary(x = data_immo$prix_med, 
       listw = neighbours_epci_w,
       n = length(neighbours_epci), 
@@ -727,7 +733,7 @@ geary(x = data_immo$prix_med,
 On voit dans les deux cas qu'il y aurait bien une auto-corrélation spatiale.
 Cela implique deux choses très importantes :
 
-- La condition d'absence d'autocorrélation de nos résidus n'est pas vérifiée, le modèle classique n'est pas interprétable en l'état.
+- La condition d'absence d'autocorrélation des résidus n'est pas vérifiée, le modèle classique n'est pas interprétable en l'état.
 - La dimension spatiale joue un rôle, nous pouvons justifier d'étudier de manière plus approfondie l'autocorrélation spatiale et l'usage de la GWR.
 
 
@@ -851,10 +857,10 @@ discr <- function(values, center, pos_center, interval, min_nb) {
 ```
 
 <div class="alert alert-success">
-Vous pouvez également utiliser le logiciel de cartographie en ligne [Magrit](http://magrit.cnrs.fr/) pour calculer les limites de classe !
+Vous pouvez également utiliser le logiciel de cartographie en ligne [Magrit](http://magrit.cnrs.fr/){target="_blank"} pour calculer les limites de classe !
 </div>
 
-Nous pouvons maintenant appeler cette fonction sur nos résidus, avec comme valeur centrale 0, et comme intervalle un demi écart-type. Les classes extrêmes seront regroupées afin de ne pas avoir de classes d'effectif < 5.
+Nous pouvons maintenant appeler cette fonction sur les résidus, avec comme valeur centrale 0, et comme intervalle un demi écart-type. Les classes extrêmes seront regroupées afin de ne pas avoir de classes d'effectif < 5.
 
 ```{r}
 res_residus <- discr(data_immo$res_reg, 0, "class_center", sd(data_immo$res_reg)*0.5, 10)
@@ -886,7 +892,7 @@ mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
 mf_theme("default")
 ```
 
-Sur cette carte on voit très clairement une spatialisation des résidus, sans même faire les tests nous aurions pu voir que la dimension spatiale jouait bien un rôle. Sans autocorrelation nous aurions eu une répartition aléatoire des résidus.
+Sur cette carte on voit très clairement une spatialisation des résidus, sans même faire les tests nous aurions pu voir que la dimension spatiale jouait bien un rôle. Sans autocorrélation nous aurions eu une répartition aléatoire des résidus.
 
 # Analyse de l'autocorrélation spatiale
 
@@ -915,7 +921,7 @@ Concernant l'indice de Geary, il met en rapport d'une part l'écart entre la VI 
 
 Pourquoi utiliser un indice plutôt qu'un autre ? Ils traduisent sensiblement la même chose, mais diffèrent dans leur construction : Moran est une agrégation de logique locale quand Geary se rapporte à des écarts au global. Cela dit le coût de réalisation n'est pas très élevé et rien n'empêche de faire l'un et l'autre pour voir si les résultats sont cohérents entre eux.
 
-Commençons par représenter sur une carte notre variable du prix médian des logements par EPCI :
+Commençons par représenter sur une carte la variable du prix médian des logements par EPCI :
 
 ```{r}
 mf_map(x = data_immo, 
@@ -934,7 +940,9 @@ mf_credits("Sources: Notaires de France, IGN Admin Express")
 Une structure spatiale apparaît de manière assez prégnante, ce qui est vérifié par les indicateurs statistiques :
 
 ```{r}
-# Pour l'occasion on va standardiser notre prix médian. Cela permettra par la suite de le comparer à d'autres variables si d'autres analyses d'autocorrélation spatiale sont réalisées
+# Pour l'occasion on va standardiser le prix médian
+# cela permettra par la suite de le comparer à d'autres variables 
+# si d'autres analyses d'autocorrélation spatiale sont réalisées
 data_immo$prix_med_z<- (data_immo$prix_med-mean(data_immo$prix_med))/sd(data_immo$prix_med)
 ```
 
@@ -947,13 +955,16 @@ geary.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomis
 
 On réalise ensuite le **test de Moran** :
 
+On indique dans un premier temps la variable que l'on souhaite analyser puis la matrice de voisinage.
+
+- L'argument zero.policy=TRUE permet de préciser que l'on souhaite intégrer à l'analyse les entités spatiales qui n'auraient pas de voisins
+- L'argument randomisation=FALSE transmet l'instruction à la fonction que nous supposons que la distribution est normale ; dans le cas contraire on devrait partir sur une solution de type Monte-Carlo qui repose sur la randomisation
+
 ```{r}
-# On indique dans un premier temps la variable que l'on souhaite analyser
-# Puis la matrice de voisinage
-# L'argument zero.policy=TRUE permet de préciser que l'on souhaite intégrer à l'analyse les entités spatiales qui n'auraient pas de voisins
-# L'argument randomisation=FALSE transmet l'instruction à la fonction que nous supposons que la distribution est normale
-# Dans le cas contraire on devrait partir sur une solution de type Monte-Carlo qui repose sur la randomisation
-moran.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomisation = FALSE)
+moran.test(data_immo$prix_med_z, 
+           neighbours_epci_w, 
+           zero.policy = TRUE, 
+           randomisation = FALSE)
 ```
 
 Ce test d'autocorrélation se lit exactement comme un test de corrélation classique. On va donc s'intéresser au signe et à la grandeur du coefficient et à la p-value du test.
@@ -977,15 +988,17 @@ En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et met
 Pour visualiser rapidement la structure spatiale on peut aussi réaliser un diagramme de Moran qui est complémentaire au test statistique.
 
 ```{r}
-moran.plot(data_immo$prix_med_z,neighbours_epci_w, labels = TRUE, xlab="prix medians centrés réduits par epci" , ylab="moyenne du prix médian centré réduit par epci des voisins")
-
+moran.plot(data_immo$prix_med_z,neighbours_epci_w, 
+           labels = TRUE, 
+           xlab="prix medians centrés réduits par epci" , 
+           ylab="moyenne du prix médian centré réduit par epci des voisins")
 ```
 
 Comment lire ce diagramme ?
 
-Ce nuage de points présente le nuage de point entre les valeurs d'une variable et les valeurs moyennes des voisins de chaque valeur de la variable initiale. Si nos individus sont répartis complètement aléatoirement dans l'espace alors c'est le signe d'une absence d'autocorrélation, la pente de la droite de régression sera donc de 0. Si on contraire la pente est non nulle, comme c'est le cas ici, c'est le signe de la présence d'une autocorrélation spatiale.
+Il présente le nuage de point entre les valeurs d'une variable et les valeurs moyennes des voisins de chaque valeur de la variable initiale. Si les individus sont répartis complètement aléatoirement dans l'espace alors c'est le signe d'une absence d'autocorrélation, la pente de la droite de régression sera donc de 0. Si on contraire la pente est non nulle, comme c'est le cas ici, c'est le signe de la présence d'une autocorrélation spatiale.
 
-Un aspect important de ce diagramme est qu'il permet d'ores et déjà de caractériser nos coefficients d'autocorrélation spatiale. Comme ce graphique présente des valeurs centrées-réduites, les valeurs sont centrées sur la moyenne qui est de 0. De ce fait, tous les points à droite de l'axe des ordonnées pour x = 0 auront une moyenne > 0 et ceux à gauche < 0. Cette réflexion s'applique également à l'axe des abscisses. Par convention on désigne les individus avec une moyenne > 0 par le terme high et ceux avec une moyenne < 0 par le terme low, au sens de supérieur ou inférieur à la moyenne.
+Un aspect important de ce diagramme est qu'il permet d'ores et déjà de caractériser les coefficients d'autocorrélation spatiale. Comme ce graphique présente des valeurs centrées-réduites, les valeurs sont centrées sur la moyenne qui est de 0. De ce fait, tous les points à droite de l'axe des ordonnées pour x = 0 auront une moyenne > 0 et ceux à gauche < 0. Cette réflexion s'applique également à l'axe des abscisses. Par convention on désigne les individus avec une moyenne > 0 par le terme high et ceux avec une moyenne < 0 par le terme low, au sens de supérieur ou inférieur à la moyenne.
 
 Ainsi on peut découper ce diagramme en 4 quadrants. Les quadrants en haut à droite et en bas à gauche correspondent aux individus ayant une autocorrélation spatiale positive, c'est-à-dire une valeur proche de celle de leurs voisins.
 
@@ -1012,7 +1025,7 @@ L'idée est de faire appel ici au LISA pour compléter la compréhension du nive
 
 
 <div class="alert alert-success" role="alert">
-Le logiciel [GeoDa](http://geodacenter.github.io/), développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html) riche [@geoda].
+Le logiciel [GeoDa](http://geodacenter.github.io/){target="_blank"}, développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html){target="_blank"} riche [@geoda].
 </div>
 
 Nous allons calculer le I de Moran local sur nos données, grâce au package `rgeoda` développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa :
@@ -1029,7 +1042,8 @@ prix_med_z = data_immo["prix_med_z"]
 
 lisa <- local_moran(queen_w, prix_med_z)
 
-# Pour visualiser les résultats des LISA il faut les stocker dans des objets ou dans des bases de données pour les représenter 
+# Pour visualiser les résultats des LISA,
+# il faut les stocker dans des objets ou dans des bases de données
 lisa_colors <- lisa_colors(lisa)
 lisa_labels <- lisa_labels(lisa)
 lisa_clusters <- lisa_clusters(lisa)
@@ -1127,30 +1141,30 @@ En revanche, s'il n'y a pas d'autocorrélation spatiale au niveau global les LIS
 
 Bien que l'analyse d'autocorrélation spatiale soit riche en enseignements sur nos données, il reste l'étape de la modélisation pour prendre en compte les différents effets constatés. Comme nous l'avons vu, les données, lorsqu'elles sont spatialisées, sont souvent soumises aux phénomènes de dépendance et d'hétérogénéité spatiale.
 
-Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d'une part ; et d'autre part de traiter la relation de notre VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
+Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d'une part ; et d'autre part de traiter la relation de la VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
 
-Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser ? Ce choix va dépendre de la nature des phénomènes spatiaux étudiés. Pour être clair, on peut considérer que la VD peut être expliquée par une VI (modèle linéaire simple), la valeur des voisins de cette VI (modèle SLX), la valeur des voisins de la VD elle-même (modèle SAR), ou une combinaison des trois (modèle SDM). À cela, on peut ajouter un effet corrélé considérant que l'explication de notre VD est liée à un phénomène spatial non identifié ou non quantifiable qui a un impact à la fois sur le lieu de l'observation et son voisinage. Dans ce cas, on explique les résidus par le voisinage des résidus eux-mêmes (modèle SEM). Ce modèle n'explique pas le phénomène en soi mais permet de vérifier que la partie non expliquée n'est pas uniquement liée à une question de structure spatiale sous-jacente. On peut ensuite combiner ces différents effets et les cumuler tous jusqu'au modèle général d'imbrication spatial (GNS).
+Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser. Ce choix va dépendre de la nature des phénomènes spatiaux étudiés. Pour être clair, on peut considérer que la VD peut être expliquée par une VI (modèle linéaire simple), la valeur des voisins de cette VI (modèle SLX), la valeur des voisins de la VD elle-même (modèle SAR), ou une combinaison des trois (modèle SDM). À cela, on peut ajouter un effet corrélé considérant que l'explication de la VD est liée à un phénomène spatial non identifié ou non quantifiable qui a un impact à la fois sur le lieu de l'observation et son voisinage. Dans ce cas, on explique les résidus par le voisinage des résidus eux-mêmes (modèle SEM). Ce modèle n'explique pas le phénomène en soi mais permet de vérifier que la partie non expliquée n'est pas uniquement liée à une question de structure spatiale sous-jacente. On peut ensuite combiner ces différents effets et les cumuler tous jusqu'au modèle général d'imbrication spatial (GNS).
 
 ```{r, echo=FALSE, fig.cap="Choix du modèle de régression spatiale", out.width = '90%', fig.align = 'center'}
 knitr::include_graphics(here("figures", "modeles.png"))
 ```
 
-Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que nos VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
+Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que les VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
 <div class="alert alert-danger" role="alert">
-Ainsi, si on s'intéresse au lien entre les voisins on est dans l'autocorrélation spatiale et les modèle SEM, SAR & cie mais si on s'intéresse à l'hétérogénéité de nos variables c'est-à-dire à leur variabilité selon leur localisation on est dans la GWR.
+Ainsi, si on s'intéresse au lien entre les voisins on est dans l'autocorrélation spatiale et les modèles SEM, SAR & cie mais si on s'intéresse à l'hétérogénéité des variables c'est-à-dire à leur variabilité selon leur localisation on est dans la GWR.
 </div>
 
 <div class="alert alert-success" role="alert">
 Attention, ce qui en théorie peut paraître assez tranché ne l'est souvent pas du tout en pratique. En effet, il y a bien des cas où l'on a du mal à savoir dans quel cadre on se situe exactement.
 </div>
 
-Pour réaliser une GWR sur R plusieurs packages reconnus existent. On peut citer notamment le [`package spgwr`](http://rspatial.r-forge.r-project.org/spgwr/index.html) et le [`package GWmodel`](https://www.rdocumentation.org/packages/GWmodel/versions/2.2-9). Nous choisirons d'utiliser ici le `package GWmodel`.
+Pour réaliser une GWR sur R plusieurs packages reconnus existent. On peut citer notamment le [`package spgwr`](http://rspatial.r-forge.r-project.org/spgwr/index.html){target="_blank"} et le [`package GWmodel`](https://www.rdocumentation.org/packages/GWmodel/versions/2.2-9){target="_blank"}. Nous choisirons d'utiliser ici le `package GWmodel`.
 
 
 ## Calcul de la matrice des distance
 
-La première étape est de calculer la distance entre toutes nos observations. Pour ce faire nous utiliserons la fonction `gw.dist()`.
+La première étape est de calculer la distance entre toutes les observations. Pour ce faire nous utiliserons la fonction `gw.dist()`.
 
 
 ```{r}
@@ -1166,7 +1180,7 @@ dm.calib <- gw.dist(dp.locat = coordinates(data_immo_sp))
 
 **La bande passante est une distance au-delà de laquelle le poids des observations est considéré comme nul.** Le calcul de cette distance est très important car la valeur de la bande passante pourra fortement influencer notre modèle. La définition de la bande passante renvoie à quel type de pondération nous souhaitons appliquer. Heureusement la fonction `bw.gwr` va choisir pour nous le résultat optimal...
 
-Pour ce faire la fonction va se baser sur un critère statistique que l'utilisateur devra définir : le CV (validation croisée) ou le AIC (Critère d'information d'Akaike). Elle reposera aussi sur un type de noyau qu'il faudra également définir : Gaussien, Exponentiel, Bicarré, Tricube ou encore Boxcar. Enfin, il sera également nécessaire de savoir si ce noyau pourra être adaptatif ou fixe.
+Pour ce faire la fonction va se baser sur un critère statistique que l'utilisateur devra définir : le CV (validation croisée) ou le AIC (Akaike Information Criterion ou Critère d'information d'Akaike). Elle reposera aussi sur un type de noyau qu'il faudra également définir : Gaussien, Exponentiel, Bicarré, Tricube ou encore Boxcar. Enfin, il sera également nécessaire de savoir si ce noyau pourra être adaptatif ou fixe.
 
 Voici quelques informations pour guider nos choix :
 
@@ -1199,23 +1213,25 @@ bw_g <- bw.gwr(data = data_immo_sp,
 bw_g
 ```
 
-Notre bande passante est donc ici de 19 voisins, ce qui implique que les EPCI au-delà de cette "distance" auront un poids ramené à 0 et ne joueront donc plus de rôle dans la description de la relation statistique.
+La bande passante est donc ici de 19 voisins, ce qui implique que les EPCI au-delà de cette "distance" auront un poids ramené à 0 et ne joueront donc plus de rôle dans la description de la relation statistique.
 
 ## Estimation du modèle
 
-Une fois la bande passante définie on peut lancer l'estimation de notre modèle de GWR :
+Une fois la bande passante définie on peut lancer l'estimation du modèle de GWR :
 
 ```{r}
+# un des problèmes de la GWR est de gérer des individus "aberrants" au niveau local
+# 2 méthodes ont été définies pour gérer cela :
+# Méthode 1 (filtered = TRUE) on filtre en fonction des individus standardisés
+# L'objectif est de détecter les individus dont les résidus sont très élevés et de les exclure.
+# Méthode 2 (filtered = FALSE) on diminue le poids des observations aux résidus élevés.
 mod.gwr_g <- gwr.robust(data = data_immo_sp, 
-                   dMat = dm.calib,
-                   bw = bw_g,
-                   kernel = "gaussian",
-                   filtered = FALSE, # un des problèmes de la GWR est de gérer des individus "aberrants" au niveau local. 2 méthodes ont été définies pour gérer cela. 
-                                    # Méthode 1 (argument TRUE) on filtre en fonction des individus standardisés. L'objectif est de détecter les individus dont les résidus sont très élevés et de les exclure.
-                                    # Méthode 2 (argument FALSE) on diminue le poids des observations aux résidus élevés.
-                   adaptive = TRUE,
-                   formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
-
+                        dMat = dm.calib,
+                        bw = bw_g,
+                        kernel = "gaussian",
+                        filtered = FALSE,
+                        adaptive = TRUE,
+                        formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
 ```
 
 
@@ -1252,19 +1268,19 @@ Le modèle avec une forme qui a été définie au format gaussien explique un me
 
 ## Interprétation des premiers résultats
 
-Comme pour le modèle linéaire classique, l'objet qui contient notre GWR est composé de plusieurs éléments. Pour obtenir nos résultats il suffit d'appeler l'objet.
+Comme pour le modèle linéaire classique, l'objet qui contient la GWR est composé de plusieurs éléments. Pour obtenir les résultats il suffit d'appeler l'objet.
 
 ```{r}
-# Pour voir les différent élément qui compose notre modèle de GWR
+# Pour voir les différents éléments qui composent notre modèle de GWR
 summary(mod.gwr_g)
 
-# Pour accéder aux résultat
+# Pour accéder aux résultats
 mod.gwr_g
 ```
 
-Cette visualisation des résultats nous propose d'abord un rappel complet du modèle linéaire classique. Puis viennent ensuite les informations concernant notre GWR. Le premier indicateur à analyser est le $R^2 ajusté$ ajusté de la GWR, qui est nettement meilleur que celui de la régression linéaire multiple. On passe de $77\%$ de variance expliqué à $91\%$ avec la GWR. Ce $R^2$, pour la GWR, est en fait une moyenne calculée des $R^2$ de toutes les régressions locales réalisées par la GWR.
+Cette visualisation des résultats nous propose d'abord un rappel complet du modèle linéaire classique. Puis viennent ensuite les informations concernant la GWR. Le premier indicateur à analyser est le $R^2 ajusté$ de la GWR, qui est nettement meilleur que celui de la régression linéaire multiple. On passe de $77\%$ de variance expliquée à $91\%$ avec la GWR. Ce $R^2$, pour la GWR, est en fait une moyenne calculée des $R^2$ de toutes les régressions locales réalisées par la GWR.
 
-La seconde information qui nous intéresse particulièrement est les coefficient associés à nos VI. Nous voyons qu'ils ne sont pas présentés de la même manière que ceux de la régression linéaire. En effet, chaque VI va avoir des coefficients en fonction du minimum, maximum et des quartiles. Cela permet de rendre compte de la stationnarité de l'effet ou non. Dans notre cas on voit qu'il y a bien une variation et même dans certains cas une inversion des signes. Cela laisse supposer une non stationnarité des effets : un effet local peut être présent qui ne suivrait pas l'effet global.
+La seconde information qui nous intéresse particulièrement est les coefficients associés aux VI. Nous voyons qu'ils ne sont pas présentés de la même manière que ceux de la régression linéaire. En effet, chaque VI va avoir des coefficients en fonction du minimum, maximum et des quartiles. Cela permet de rendre compte de la stationnarité de l'effet ou non. Dans notre cas on voit qu'il y a bien une variation et même dans certains cas une inversion des signes. Cela laisse supposer une non stationnarité des effets : un effet local peut être présent qui ne suivrait pas l'effet global.
 
 Par exemple, pour le pourcentage de logement vacant avec un coefficient global (modèle linéaire) de $-287$, quand ce pourcentage augmente le prix médian baisse. En simplifiant le pourcentage baisse d'une unité le prix médian augmente de $287€$. Dans le cas de la densité de population on a un coefficient global positif donc une relation positive. La densité augmente donc le prix médian augmente. Ici, au global la densité augmente d'une unité le prix médian augmente de $173€$.
 
@@ -1272,7 +1288,7 @@ Les résultats de la GWR peuvent donc être lus à une échelle globale pour mes
 
 Ensuite nous pouvons constater une inversion du signe du coefficient. Ainsi dans les EPCI du dernier quartile où le prix médian du logement est le plus élevé (par ex. Paris) le coefficient est positif. À son maximum une augmentation d'une unité entraîne une augmentation du prix de $659€$. On a donc très clairement un effet de la densité qui ne sera pas du tout le même en fonction du lieu.
 
-Nous pouvons également étudier l'intervalle interquartile. Ainsi, toujours pour la densité, ce résultat implique que pour 50% de nos unités spatiales (EPCI entre quartile 1 et 3), une augmentation d'une unité de la densité va impliquer une augmentation du prix médian entre $72€$ et $268€$.
+Nous pouvons également étudier l'intervalle interquartile. Ainsi, toujours pour la densité, ce résultat implique que pour 50% des unités spatiales (EPCI entre quartile 1 et 3), une augmentation d'une unité de la densité va impliquer une augmentation du prix médian entre $72€$ et $268€$.
 
 <div class="alert alert-danger" role="alert">
 Au travers de ces résultats on voit parfaitement comment une même variable peut avoir un effet différent, voire opposé en fonction des unités de lieu.
@@ -1280,7 +1296,7 @@ Au travers de ces résultats on voit parfaitement comment une même variable peu
 
 La cartographie va être la meilleure manière de représenter les betas (coefficients) et les différents indicateurs fournis avec la GWR, cela nous permet de décrire plus finement et plus précisément les phénomènes observés.
 
-L'ensemble des données est stocké dans le sous objet SDF de notre modèle. Il contient l'ensemble des informations du modèle associé à chaque donnée spatiale.
+L'ensemble des données est stocké dans le sous objet SDF du modèle. Il contient l'ensemble des informations du modèle associé à chaque donnée spatiale.
 
 On peut le convertir en un dataframe pour le visualiser plus facilement. À l'origine il est au format "SpatialPointsDataFrame".
 
@@ -1341,7 +1357,7 @@ Cette carte ne présente pas de structure spatiale marquée et nous amène à pe
 
 ### Étude des coefficients
 
-Pour visualiser la non stationnarité des effets de nos VI la solution la plus efficace est la carte.
+Pour visualiser la non stationnarité des effets des VI la solution la plus efficace est la carte.
 
 ```{r}
 # On ajoute à data_immo les coefficients
@@ -1386,9 +1402,9 @@ for (var in colnames(data_immo)[22:29]) {
 }
 ```
 
-Les cartes des betas vont illustrer la variation des effets en fonctions des entités spatiales et de leur voisinage. **Dans notre cas on verra quels sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif**, c'est-à-dire dans quel EPCI notre VI va entraîner une augmentation du prix médian et dans quel autre au contraire une diminution, toutes choses égales par ailleurs. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
+Les cartes des betas vont illustrer la variation des effets en fonctions des entités spatiales et de leur voisinage. **Dans notre cas on verra quels sont les EPCI où l'effet du coefficient est négatif et ceux où il est positif**, c'est-à-dire dans quel EPCI la VI va entraîner une augmentation du prix médian et dans quel autre au contraire une diminution, toutes choses égales par ailleurs. Sachant que dans notre cas toutes les VI sont significatives, elles ont donc toutes un effet qui varie localement.
 
-Au-delà de cette visualisation VI par VI, il peut être intéressant de savoir par EPCI quelle variable sera la plus explicative dans la relation à notre VD, laquelle a l'impact le plus important. Nous avons donc réalisé une carte des contributions max par EPCI. Pour la réaliser nous nous sommes basés sur le T-value.
+Au-delà de cette visualisation VI par VI, il peut être intéressant de savoir par EPCI quelle variable sera la plus explicative dans la relation à la VD, laquelle a l'impact le plus important. Nous avons donc réalisé une carte des contributions max par EPCI. Pour la réaliser nous nous sommes basés sur le T-value.
 
 ```{r}
 data_immo$agri.t <- mod.gwr_g$SDF$part_agri_nb_emploi_TV
@@ -1418,7 +1434,7 @@ mf_map(x = data_immo,
 mf_title("Carte des variables contribuant le plus par epci")
 ```
 
-Au-delà de la non-stationnarité de nos VI, cette carte met en évidence un autre phénomène : Dans un modèle linéaire classique, la sélection des VI se fait de manière itérative (ascendante, descendante, ou mixte). L'inclusion d'une VI a pour conséquence d'en exclure d'autres qui présenteraient trop de multi-colinéarité. **Le phénomène mis en évidence ici repose sur le fait qu'en fonction du lieu, la hiérarchie des VI, et donc leur pertinence au sein du modèle, n'est pas constante.** Cette visualisation des données ouvre donc une perspective intéressante pour la suite. Il serait tout à fait pertinent de développer une méthode permettant d'effectuer un stepwise préalable à toute GWR valable pour chaque lieu individuellement. Un tel modèle traiterait dans sa totalité le problème de non-stationnarité.
+Au-delà de la non-stationnarité des VI, cette carte met en évidence un autre phénomène : Dans un modèle linéaire classique, la sélection des VI se fait de manière itérative (ascendante, descendante, ou mixte). L'inclusion d'une VI a pour conséquence d'en exclure d'autres qui présenteraient trop de multi-colinéarité. **Le phénomène mis en évidence ici repose sur le fait qu'en fonction du lieu, la hiérarchie des VI, et donc leur pertinence au sein du modèle, n'est pas constante.** Cette visualisation des données ouvre donc une perspective intéressante pour la suite. Il serait tout à fait pertinent de développer une méthode permettant d'effectuer un stepwise préalable à toute GWR valable pour chaque lieu individuellement. Un tel modèle traiterait dans sa totalité le problème de non-stationnarité.
 
 Nous pouvons également cartographier les $R^2$ locaux, ce qui fournit une indication sur les zones où la variabilité est la mieux expliquée.
 
@@ -1444,8 +1460,9 @@ Nous avons choisi d'utiliser une palette de valeurs large pour représenter au m
 À partir des t-value on peut aussi étudier la significativité des effets sur le territoire. **On peut ainsi calculer et cartographier un indicateur qui représenterait le nombre de VI dont l'effet est significatif sur chaque unité spatiale.** Cela donne une bonne idée de la complexité du phénomène sur un espace donné (en effet sur un EPCI on peut avoir toutes les variables significatives, elle jouent donc sur cet espace toutes un rôles) et souligne l'importance d'avoir une carte par coefficient. Cette carte montre également qu'un modèle parfaitement adaptatif gagnerait en sobriété et donnerait un AIC plus satisfaisant en ne sélectionnant localement que les variables réellement significatives dans la relation.
 
 ```{r}
-# Pour rappel si on a plus de 200 individus et le t-value > |1.96| on pourra considérer le coefficient comme significatif au seuil de 0.05 (95% chances que ce ne soit pas dû au hasard)
-
+# Pour rappel si on a plus de 200 individus et le t-value > |1.96| 
+# on pourra considérer le coefficient comme significatif au seuil de 0.05 
+# (95% chances que ce ne soit pas dû au hasard)
 data_immo$nbsignif_t <- rowSums(abs(df[, c(30:37)]) > 1.96)
 
 mf_map(x = data_immo, 
@@ -1461,7 +1478,9 @@ Il se peut que cela soit plus intéressant d'utiliser les p-value, notamment si 
 
 
 ```{r}
-# Les p-value ne sont pas fournis dans le modèle de la GWR, on pourrait les calculer à partir de t-value et de l'erreur standard mais le package GWmodel propose une fonction pour les obtenir
+# Les p-value ne sont pas fournis dans le modèle de la GWR
+# on pourrait les calculer à partir de t-value et de l'erreur standard 
+# mais le package GWmodel propose une fonction pour les obtenir
 pvalue <- gwr.t.adjust(mod.gwr_g)
 
 # On ajoute les p-value à notre fichier
@@ -1474,7 +1493,7 @@ data_immo$tinylog.p <- pvalue$SDF$perc_tiny_log_p
 data_immo$suroccup.p <- pvalue$SDF$part_log_suroccup_p
 data_immo$cadre.p <- pvalue$SDF$part_cadre_profintellec_nbemploi_p
 
-df<- as.data.frame(data_immo)
+df <- as.data.frame(data_immo)
 data_immo$nbsignif_p <- rowSums(df[, c(41:48)] < 0.05)
 
 mf_map(x = data_immo, 
@@ -1493,10 +1512,9 @@ Sur ces deux dernières cartes (nombre de betas significatifs par EPCI avec les 
 Dans ce cadre, il est possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. **L'intérêt est de voir où l'effet de la VI est significatif et où il ne l'est pas.**
 
 ```{r}
-# Ici nous représenterons les p-value avec un découpage par classe de significativité et seulement les p-value de 2 VI
-
+# Ici nous représenterons les p-value avec un découpage par classe de significativité
+# et seulement les p-value de 2 VI
 par(mfrow = c(1, 2))
-
 # Par exemple les p-value des coefficients de la variable part de l'emploi agriculteur
 data_immo<- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.002[",
                            agri.p <= 0.01 ~ "[0.002;0.01[",
@@ -1508,9 +1526,7 @@ data_immo<- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.
                                    "[0.01;0.05[",
                                   "[0.05;0.1[", "[0.1;1]")))
 
-
 mypal2 <- mf_get_pal(n = 5, palette = "OrRd")
-
 mf_map(x = data_immo, 
        var = "agri.p_fac", 
        type = "typo", 
@@ -1532,7 +1548,6 @@ data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0
                                   "[0.05;0.1[", "[0.1;1]")))
 
 mypal2 <- mf_get_pal(n = 5, palette = "OrRd")
-
 mf_map(x = data_immo, 
        var = "dens.p_fac", 
        type = "typo", 
