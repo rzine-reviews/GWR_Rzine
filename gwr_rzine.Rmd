@@ -199,15 +199,14 @@ Sur R on peut facilement réaliser cette opération avec la fonction `scale()`. 
 
 ## Chargement des données géographiques : les EPCI de France métropolitaine
 
-Ces données proviennent de la base [ADMIN-EPXRESS-COG de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"}, édition 2022. Le format d'entrée est le shapefile mais nous passerons par une conversion au format sf, ce qui nous permet d'utiliser le package [mapsf](https://riatelab.github.io/mapsf/){target="_blank"}, pour les prévisualiser :
+Ces données proviennent de la base [ADMIN-EPXRESS-COG de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"}, édition 2022. Le format d'entrée est le shapefile que nous allons lire dans un objet sf :
 
 ```{r collapse=TRUE}
 # lecture du shapefile en entrée dans un objet sf
 shp_path <- here("data", "EPCI.shp")
 epci_sf <- st_read(shp_path, quiet = TRUE)
-# visualisation des données géographiques
-mf_map(x = epci_sf)
-# et la table attributaire correspondante
+# on vérifie dans les données qu'il existe un champ correspondant au code SIREN
+# qui permettra de lier les données de immo_df à cet objet sf
 datatable(head(epci_sf, 5))
 ```
 
@@ -232,7 +231,7 @@ data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN"
 nrow(data_immo)
 # filtre des données de la jointure pour ne voir que les epci sans correspondance dans immo_df
 datatable(data_immo[is.na(data_immo$prix_med),])
-mf_map(x = data_immo[is.na(data_immo$prix_med),])
+plot(data_immo[is.na(data_immo$prix_med),]$geometry)
 ```
 
 Cependant, la VD étant `prix_med` les lignes vides ne nous intéressent pas, nous ne les conserverons pas car elles pourraient poser problème lors de la réalisation de nos analyses.
