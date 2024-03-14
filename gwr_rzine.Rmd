@@ -122,8 +122,22 @@ Vous pouvez vérifier l'installation des différents packages à l'aide des lign
 ```{r packages_rmd, echo=TRUE, results=FALSE}
 
 #  Packages nécessaires
-my_packages <- c("here", "DT", "dplyr", "car", "correlation", "corrplot", "ggplot2", "gtsummary", "GGally", 
-                "plotly", "sf", "mapsf", "rgeoda", "RColorBrewer", "spdep", "GWmodel")
+my_packages <- c("here", 
+                 "DT", 
+                 "dplyr", 
+                 "car", 
+                 "correlation", 
+                 "corrplot", 
+                 "ggplot2", 
+                 "gtsummary", 
+                 "GGally", 
+                 "plotly", 
+                 "sf", 
+                 "mapsf", 
+                 "rgeoda", 
+                 "RColorBrewer", 
+                 "spdep", 
+                 "GWmodel")
 
 # Vérifier si ces packages sont installés
 missing_packages <- my_packages[!(my_packages %in% installed.packages()[,"Package"])]
@@ -190,7 +204,7 @@ Ces données proviennent de la base [ADMIN-EPXRESS-COG de l'IGN](https://geoserv
 ```{r collapse=TRUE}
 # lecture du shapefile en entrée dans un objet sf
 shp_path <- here("data", "EPCI.shp")
-epci_sf <- st_read(shp_path)
+epci_sf <- st_read(shp_path, quiet = TRUE)
 # visualisation des données géographiques
 mf_map(x = epci_sf)
 # et la table attributaire correspondante
@@ -216,7 +230,7 @@ Il peut être intéressant d'identifier et visualiser les EPCI qui n'ont pas de 
 # même celles qui n'ont pas de correspondance dans immo_df
 data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN", all.x = TRUE)
 nrow(data_immo)
-# filtre des données de la jointure pour ne voir que les epci sans correspondance dans le tableau immo_df
+# filtre des données de la jointure pour ne voir que les epci sans correspondance dans immo_df
 datatable(data_immo[is.na(data_immo$prix_med),])
 mf_map(x = data_immo[is.na(data_immo$prix_med),])
 ```
@@ -484,10 +498,18 @@ Pour lancer le modèle de régression linéaire avec toutes les VI voici les lig
 
 ```{r}
 # Dans le fonctionnement sur R il est important de stocker la régression dans un objet.
-# Pour lancer la régression on va utiliser la fonction lm() dont les 2 lettres sont l'acronyme pour linear model
-mod.lm <- lm(formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi, 
+# Pour lancer la régression on va utiliser la fonction lm() 
+# dont les 2 lettres sont l'acronyme pour linear model
+mod.lm <- lm(formula = prix_med ~ 
+               perc_log_vac + 
+               perc_maison + 
+               perc_tiny_log + 
+               dens_pop + 
+               med_niveau_vis + 
+               part_log_suroccup + 
+               part_agri_nb_emploi + 
+               part_cadre_profintellec_nbemploi, 
              data = data_immo)
-
 # On affiche les principaux résultats avec la fonction summary
 summary(mod.lm)
 ```
@@ -577,9 +599,15 @@ Comme le laissait supposer l'étude des corrélations de nos variables, nous avo
 Pour commencer, on peut retirer du modèle la variable ayant le VIF le plus élevé à savoir le pourcentage de petits logements.
 
 ```{r collapse=TRUE}
-mod.lm2 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + 
-    med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + 
-    part_cadre_profintellec_nbemploi, data = data_immo)
+mod.lm2 <- lm(formula = prix_med ~ 
+                perc_log_vac + 
+                perc_maison + 
+                dens_pop + 
+                med_niveau_vis + 
+                part_log_suroccup + 
+                part_agri_nb_emploi + 
+                part_cadre_profintellec_nbemploi, 
+              data = data_immo)
 
 summary(mod.lm2)
 vif(mod.lm2)
@@ -613,7 +641,14 @@ On observe ici que la variable `part_agri_nb_emploi` n'est donc au final pas con
 Notre nouveau modèle se définit donc ainsi :
 
 ```{r}
-mod.lm3 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + med_niveau_vis + part_log_suroccup + part_cadre_profintellec_nbemploi, data = data_immo)
+mod.lm3 <- lm(formula = prix_med ~ 
+                perc_log_vac + 
+                perc_maison + 
+                dens_pop + 
+                med_niveau_vis + 
+                part_log_suroccup + 
+                part_cadre_profintellec_nbemploi, 
+              data = data_immo)
 ```
 
 
@@ -764,7 +799,11 @@ Vous pouvez également utiliser le logiciel de cartographie en ligne [Magrit](ht
 Nous pouvons maintenant appeler cette fonction sur les résidus, avec comme valeur centrale 0, et comme intervalle un demi écart-type. Les classes extrêmes seront regroupées afin de ne pas avoir de classes d'effectif < 5.
 
 ```{r}
-res_residus <- discr(data_immo$res_reg, 0, "class_center", sd(data_immo$res_reg)*0.5, 10)
+res_residus <- discr(values = data_immo$res_reg, 
+                     center = 0, 
+                     pos_center = "class_center", 
+                     interval = sd(data_immo$res_reg)*0.5, 
+                     min_nb = 10)
 breaks_residus <- res_residus[[1]]
 nb_cl_sup0_res <- res_residus[[2]]
 nb_cl_inf0_res <- res_residus[[3]]
@@ -776,7 +815,9 @@ On peut maintenant faire la carte des résidus :
 # on fonce légèrement la couleur de fond pour mieux voir la classe centrale
 mf_theme("default", bg = "#dedede")
 # création d'une palette divergente avec une couleur neutre centrale
-palette = mf_get_pal(n = c(nb_cl_inf0_res, nb_cl_sup0_res), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+palette = mf_get_pal(n = c(nb_cl_inf0_res, nb_cl_sup0_res), 
+                     pal = c("Teal", "Peach"), 
+                     neutral = "#f5f5f5")
 # la carte :
 par(mfrow = c(1,1))
 mf_map(x = data_immo, 
@@ -845,14 +886,17 @@ Une structure spatiale apparaît de manière assez prégnante, ce qui est vérif
 # Pour l'occasion on va standardiser le prix médian
 # cela permettra par la suite de le comparer à d'autres variables 
 # si d'autres analyses d'autocorrélation spatiale sont réalisées
-data_immo$prix_med_z<- (data_immo$prix_med-mean(data_immo$prix_med))/sd(data_immo$prix_med)
+data_immo$prix_med_z <- (data_immo$prix_med-mean(data_immo$prix_med))/sd(data_immo$prix_med)
 ```
 
 Nous pouvons commencer par réaliser le **test de Geary** :
 
 ```{r}
 # Attention à la lecture particulière des résultats de l'indice de Geary
-geary.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomisation = FALSE) 
+geary.test(data_immo$prix_med_z, 
+           neighbours_epci_w, 
+           zero.policy = TRUE, 
+           randomisation = FALSE) 
 ```
 
 On réalise ensuite le **test de Moran** :
@@ -960,7 +1004,11 @@ Pour illustrer les Moran locaux on peut réaliser une carte :
 # on récupère les moran locaux dans data_immo
 data_immo$moranlocalvalue <- lisa_values(lisa)
 # discrétisation standardisée avec des classes de un demi-écart-type
-res_moranloc <- discr(data_immo$moranlocalvalue, 0, "class_break", sd(data_immo$moranlocalvalue)/2, 10)
+res_moranloc <- discr(values = data_immo$moranlocalvalue, 
+                      center = 0, 
+                      pos_center = "class_break", 
+                      interval = sd(data_immo$moranlocalvalue)/2, 
+                      min_nb = 10)
 breaks_moranloc <- res_moranloc[[1]]
 nb_cl_sup0_moranloc <- res_moranloc[[2]]
 nb_cl_inf0_moranloc <- res_moranloc[[3]]
@@ -990,14 +1038,15 @@ L'étude des p-value associées est également importante pour l'interprétation
 data_immo$moranlocalpvalue<- lisa_pvalues(lisa)
 
 # Pour plus de lisibilité dans la carte on va faire des classes des p-value
-data_immo <- data_immo %>%  mutate(lisapvalue_fac = case_when(moranlocalpvalue <= 0.002 ~ "[0.001;0.002[",
+data_immo <- data_immo %>% mutate(lisapvalue_fac = case_when(moranlocalpvalue <= 0.002 ~ "[0.001;0.002[",
                            moranlocalpvalue <= 0.01 ~ "[0.002;0.01[",
                            moranlocalpvalue <= 0.05 ~ "[0.01;0.05[",
                            TRUE ~ "[0.05;0.5]")) %>%
   mutate(lisapvalue_fac = factor(lisapvalue_fac,
-                        levels = c("[0.001;0.002[", "[0.002;0.01[",
-                                   "[0.01;0.05[",
-                                  "[0.05;0.5]")))
+                                 levels = c("[0.001;0.002[", 
+                                            "[0.002;0.01[", 
+                                            "[0.01;0.05[", 
+                                            "[0.05;0.5]")))
 
 mypal <- mf_get_pal(n = 4, palette = "Reds")
 
@@ -1110,8 +1159,15 @@ bw_g <- bw.gwr(data = data_immo_sp,
               kernel = "gaussian", 
               adaptive = TRUE, 
               dMat = dm.calib,
-              formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
-
+              formula = prix_med ~ 
+                perc_log_vac + 
+                perc_maison + 
+                perc_tiny_log + 
+                dens_pop + 
+                med_niveau_vis + 
+                part_log_suroccup + 
+                part_agri_nb_emploi + 
+                part_cadre_profintellec_nbemploi)
 bw_g
 ```
 
@@ -1119,7 +1175,20 @@ La bande passante est donc ici de 19 voisins, ce qui implique que les EPCI au-de
 
 ## Estimation du modèle
 
-Une fois la bande passante définie on peut lancer l'estimation du modèle de GWR :
+Une fois la bande passante définie on peut lancer l'estimation du modèle de GWR. Pour éviter les répétitions la formule est stockée dans une variable au préalable.
+
+```{r}
+formula <- prix_med ~ 
+  perc_log_vac +
+  perc_maison + 
+  perc_tiny_log + 
+  dens_pop + 
+  med_niveau_vis + 
+  part_log_suroccup + 
+  part_agri_nb_emploi + 
+  part_cadre_profintellec_nbemploi
+```
+
 
 ```{r}
 # un des problèmes de la GWR est de gérer des individus "aberrants" au niveau local
@@ -1133,7 +1202,7 @@ mod.gwr_g <- gwr.robust(data = data_immo_sp,
                         kernel = "gaussian",
                         filtered = FALSE,
                         adaptive = TRUE,
-                        formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
+                        formula = formula)
 ```
 
 
@@ -1145,7 +1214,7 @@ bw_tri <- bw.gwr(data = data_immo_sp,
               kernel = "tricube", 
               adaptive = TRUE, 
               dMat = dm.calib,
-              formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
+              formula = formula)
 
 mod.gwr_tri <- gwr.robust(data = data_immo_sp, 
                    dMat = dm.calib,
@@ -1153,7 +1222,7 @@ mod.gwr_tri <- gwr.robust(data = data_immo_sp,
                    kernel = "gaussian",
                    filtered = FALSE,
                    adaptive = TRUE,
-                   formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi)
+                   formula = formula)
 
 Best_gwr <- cbind(
   rbind(bw_g, bw_tri),
@@ -1235,12 +1304,18 @@ Commençons par une étude des résidus afin de vérifier que cette fois ils n'o
 res_gwr <- mod.gwr_g$SDF$Stud_residual
 data_immo$res_gwr <- res_gwr
 # calcul des limites de classes avec la fonction discr, centrées sur 0
-res_resgwr <- discr(data_immo$res_gwr, 0, "class_center", sd(data_immo$res_gwr)*0.5, 10)
+res_resgwr <- discr(values = data_immo$res_gwr, 
+                    center = 0, 
+                    pos_center = "class_center", 
+                    interval = sd(data_immo$res_gwr)*0.5, 
+                    min_nb = 10)
 breaks_gwr <- res_resgwr[[1]]
 nb_cl_sup0_gwr <- res_resgwr[[2]]
 nb_cl_inf0_gwr <- res_resgwr[[3]]
 # création de la palette correspondante
-palette = mf_get_pal(n = c(nb_cl_inf0_gwr, nb_cl_sup0_gwr), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+palette = mf_get_pal(n = c(nb_cl_inf0_gwr, nb_cl_sup0_gwr), 
+                     pal = c("Teal", "Peach"), 
+                     neutral = "#f5f5f5")
 # la carte des résidus
 mf_map(x = data_immo, 
        var = "res_gwr", 
@@ -1279,13 +1354,19 @@ Pour réaliser les cartes, avec une discrétisation standardisée centrée sur 0
 par(mfrow = c(4, 2)) 
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
-  res <- discr(data.frame(data_immo)[, var], 0, "class_center", sd(data.frame(data_immo)[, var])*0.5, 10)
+  res <- discr(values = data.frame(data_immo)[, var], 
+               center = 0, 
+               pos_center = "class_center", 
+               interval = sd(data.frame(data_immo)[, var])*0.5, 
+               min_nb = 10)
   breaks <- res[[1]]
   # palette de couleurs
   nb_cl_sup0 <- res[[2]]
   nb_cl_inf0 <- res[[3]]
   if (nb_cl_inf0 > 0) {
-    palette = mf_get_pal(n = c(nb_cl_inf0, nb_cl_sup0), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+    palette = mf_get_pal(n = c(nb_cl_inf0, nb_cl_sup0), 
+                         pal = c("Teal", "Peach"), 
+                         neutral = "#f5f5f5")
   } else { # cas de la médiane du niveau de vie où la valeur min est supérieure à 0
     palette = mf_get_pal(n = c(nb_cl_sup0), pal = c("Peach"))
   }
@@ -1320,7 +1401,8 @@ data_immo$cadre.t <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi_TV
 
 # Définir contrib max
 df <- as.data.frame(data_immo)
-# On passe les t-values en valeurs absolues pour voir la plus grande contribution dans un sens sens ou dans l'autre
+# On passe les t-values en valeurs absolues pour voir la plus grande
+# contribution dans un sens sens ou dans l'autre
 data_immo$contribmax<- colnames(df[, c(30:37)])[max.col(abs(df[, c(30:37)]),ties.method="first")]
 ```
 
@@ -1424,9 +1506,11 @@ data_immo <- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0
                            agri.p <= 0.1 ~ "[0.05;0.1[",
                            TRUE ~ "[0.1;1]")) %>%
   mutate(agri.p_fac = factor(agri.p_fac,
-                        levels = c("[0;0.002[", "[0.002;0.01[",
+                        levels = c("[0;0.002[", 
+                                   "[0.002;0.01[",
                                    "[0.01;0.05[",
-                                  "[0.05;0.1[", "[0.1;1]")))
+                                   "[0.05;0.1[", 
+                                   "[0.1;1]")))
 
 mypal2 <- mf_get_pal(n = 5, palette = "OrRd")
 mf_map(x = data_immo, 
