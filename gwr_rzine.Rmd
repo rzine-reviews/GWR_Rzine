@@ -315,6 +315,7 @@ Voici la représentation graphique du voisinage :
 
 ```{r}
 # Faire un graphe de voisinage
+par(mfrow = c(1,1))
 plot(neighbours_epci, coord)
 ``` 
 
@@ -877,6 +878,7 @@ mf_theme("default", bg = "#dedede")
 # création d'une palette divergente avec une couleur neutre centrale
 palette = mf_get_pal(n = c(nb_cl_inf0_res, nb_cl_sup0_res), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
 # la carte :
+par(mfrow = c(1,1))
 mf_map(x = data_immo, 
        var = "res_reg", 
        type = "choro", 
@@ -1516,7 +1518,7 @@ Dans ce cadre, il est possible de réaliser une collection de cartes des p-value
 # et seulement les p-value de 2 VI
 par(mfrow = c(1, 2))
 # Par exemple les p-value des coefficients de la variable part de l'emploi agriculteur
-data_immo<- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.002[",
+data_immo <- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.002[",
                            agri.p <= 0.01 ~ "[0.002;0.01[",
                            agri.p <= 0.05 ~ "[0.01;0.05[",
                            agri.p <= 0.1 ~ "[0.05;0.1[",
