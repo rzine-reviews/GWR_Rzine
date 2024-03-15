@@ -329,7 +329,8 @@ Voici la représentation graphique du voisinage :
 ```{r}
 # Faire un graphe de voisinage
 par(mfrow = c(1,1))
-plot(neighbours_epci, coord)
+par(mai = c(0, 0, 0, 0)) # pour réduire les marges de la figure
+plot.nb(x = neighbours_epci, coords = coord, points = FALSE)
 ``` 
 
 Pour comprendre ce que contient neighbours_epci :
