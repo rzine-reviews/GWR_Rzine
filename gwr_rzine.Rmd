@@ -181,9 +181,9 @@ Ce fichier est composé des 10 variables suivantes :
 - perc_log_vac : % logements vacants
 - perc_maison : % maisons
 - perc_tiny_log : % petits logements (surface < ?)
-- dens_pop : densité de population (nb habitants / km² ?)
+- dens_pop : densité de population
 - med_niveau_vis : médiane du niveau de vie
-- part_log_suroccup : % logements suroccupés
+- part_log_suroccup : % logements suroccupés, cf. [définition de l'INSEE](https://www.insee.fr/fr/statistiques/4962864#comprendre)
 - part_agri_nb_emploi : % agriculteurs
 - part_cadre_profintellec_nbemploi : % cadres et professions intellectuelles
 
