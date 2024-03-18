@@ -210,6 +210,13 @@ epci_sf <- st_read(shp_path, quiet = TRUE)
 datatable(head(epci_sf, 5))
 ```
 
+Nous allons également charger une couche de régions qui nous servira d'habillage pour les cartes :
+
+```{r}
+shp_path <- here("data", "REGION.shp")
+region_sf <- st_read(shp_path, quiet = TRUE)
+```
+
 
 ## Jointure des données géographiques et tabulaires
 
@@ -257,8 +264,15 @@ mf_map(x = data_immo,
        pal = "Mint",
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
+       leg_box_border = NA,
        leg_val_rnd = 0,
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#34282C",
+       lwd = 2)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
 mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
@@ -828,9 +842,16 @@ mf_map(x = data_immo,
        lwd = 0.1,
        breaks = breaks_residus,
        pal = palette,
-       leg_title = "Valeur centrale =  0\nIntervalle = σ / 2", 
-       leg_val_rnd = 1,
+       leg_title = "Valeur centrale =  0\nIntervalle = σ / 2",
+       leg_box_border = NA,
+       leg_val_rnd = 0,
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#B6B6B4",
+       lwd = 2)
 mf_title("Résidus de régression linéaire classique")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 # réinitialisation du thème
@@ -877,8 +898,15 @@ mf_map(x = data_immo,
        pal = "Mint",
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
+       leg_box_border = NA,
        leg_val_rnd = 0,
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#34282C",
+       lwd = 2)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
 mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
@@ -1026,8 +1054,15 @@ mf_map(x = data_immo,
        lwd = 0.2,
        pal = palette,
        leg_title = "Discrétisation standardisée\nvaleur centrale = 0\nintervalle = σ / 2", 
+       leg_box_border = "gray",
        leg_val_rnd = 1,
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 2)
 mf_title("Carte des LISA du prix médian du logement (Moran local)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1061,7 +1096,14 @@ mf_map(x = data_immo,
        lwd = 0.08, 
        pal = mypal, 
        leg_title = "P-value Local Moran",
+       leg_box_border = "grey3",
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 2)
 mf_title("Carte de significativité des LISA")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1084,6 +1126,12 @@ mf_map(x = data_immo,
        val_order = c("Not significant","Low-Low","Low-High","High-Low","High-High"),
        leg_title = "Lisa cluster",
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#34282C",
+       lwd = 2)
 mf_title("LISA clusters")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1331,8 +1379,15 @@ mf_map(x = data_immo,
        breaks = breaks_gwr,
        pal = palette, 
        leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2", 
+       leg_box_border = "gray",
        leg_val_rnd = 1,
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 2)
 mf_title("Résidus GWR")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1387,6 +1442,7 @@ for (var in colnames(data_immo)[22:29]) {
          pal = palette,
          leg_pos = "left",
          leg_title = NA,
+         leg_box_border = "gray",
          leg_val_rnd = 0)
   mf_title(var)
 }
@@ -1422,7 +1478,14 @@ mf_map(x = data_immo,
        pal = brewer.pal(6,'Set2'),
        border = "white",
        lwd = 0.2,
+       leg_box_border = "white",
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#736F6E",
+       lwd = 2)
 mf_title("Carte des variables contribuant le plus par epci")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1443,7 +1506,14 @@ mf_map(x = data_immo,
        border = "gray",
        lwd = 0.2,
        leg_title = "Discrétisation par quantile",
+       leg_box_border = "gray",
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 2)
 mf_title("R² locaux")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1466,7 +1536,14 @@ mf_map(x = data_immo,
        pal = "Reds",
        border = "gray",
        lwd = 0.2,
+       leg_box_border = "gray",
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 2)
 mf_title("Nombre de Betas significatifs par EPCI (t-value)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1499,7 +1576,14 @@ mf_map(x = data_immo,
        pal= "Reds",
        border = "gray",
        lwd = 0.2,
+       leg_box_border = "gray",
        leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 2)
 mf_title("Nombre des Betas significatifs par EPCI (p-value)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1533,8 +1617,15 @@ mf_map(x = data_immo,
        type = "typo", 
        border = "grey3", 
        lwd = 0.1, 
+       leg_box_border = "grey3",
        pal = mypal2, 
        leg_title = "Classe P-value")
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#736F6E",
+       lwd = 2)
 mf_title("P-value du coefficient de la part d'emploi agriculteurs")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
@@ -1555,8 +1646,15 @@ mf_map(x = data_immo,
        type = "typo", 
        border = "grey3", 
        lwd = 0.1, 
+       leg_box_border = "grey3",
        pal=mypal2, 
        leg_title = "Classe P-value")
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#736F6E",
+       lwd = 2)
 mf_title("P-value du coefficient de la densité de population")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
