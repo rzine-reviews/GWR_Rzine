@@ -157,7 +157,7 @@ Nous avons cherché à traiter ici une variable présentant des caractéristique
 
  - Les données du prix de l'immobilier par EPCI (prix médian au m²) sont issues des ventes observées sur l'année 2018, extraites depuis la [base de données des notaires de France](https://www.immobilier.notaires.fr/fr/prix-immobilier){target="_blank"} par Frédéric Audard et Alice Ferrari. Ce fichier a été simplifié pour ne conserver que les variables d'intérêts parmi une cinquantaine
 - Les données statistiques proviennent de l'INSEE (année 2019) : 9 variables ont été choisies pour leur potentialité à expliquer les variations des prix de l'immobilier, concernant [la population](https://www.insee.fr/fr/statistiques/6456153?sommaire=6456166){target="_blank"}, [le logement](https://www.insee.fr/fr/statistiques/6454155?sommaire=6454268){target="_blank"} et [les revenus et niveaux de vie](https://www.insee.fr/fr/statistiques/6036907){target="_blank"}. Elles sont détaillées un peu plus bas.
-- Comme indiqué en introduction les données spatiales proviennent de la base [ADMIN-EXPRESS de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"} en accès libre. La couche est utilisée est celle des EPCI de la base ADMIN-EXPRESS-COG édition 2022 par territoire pour la France métropolitaine.
+- Comme indiqué en introduction les données spatiales proviennent de la base [ADMIN-EXPRESS de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"} en accès libre. La couche est utilisée est celle des EPCI de la base ADMIN-EXPRESS-COG édition 2021 par territoire pour la France métropolitaine.
 
 Les données statistiques et du prix de l'immobilier ont été regroupées dans un même fichier CSV `donnees_standr.csv`.
 
@@ -199,7 +199,7 @@ Sur R on peut facilement réaliser cette opération avec la fonction `scale()`. 
 
 ## Chargement des données géographiques : les EPCI de France métropolitaine
 
-Ces données proviennent de la base [ADMIN-EPXRESS-COG de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"}, édition 2022. Le format d'entrée est le shapefile que nous allons lire dans un objet sf :
+Ces données proviennent de la base [ADMIN-EPXRESS-COG de l'IGN](https://geoservices.ign.fr/adminexpress){target="_blank"}, édition 2021. Le format d'entrée est le shapefile que nous allons lire dans un objet sf :
 
 ```{r collapse=TRUE}
 # lecture du shapefile en entrée dans un objet sf
@@ -257,7 +257,8 @@ mf_map(x = data_immo,
        pal = "Mint",
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
-       leg_val_rnd = 0)
+       leg_val_rnd = 0,
+       leg_adj = c(0, 1.5))
 mf_title("Prix médian de l'immobilier au m² par EPCI")
 mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
@@ -276,7 +277,7 @@ for (var in colnames(data_immo)[6:13]) {
          lwd = 0.01,
          leg_pos = NA)
   mf_title(var)
-  mf_credits('Sources: INSEE, IGN Admin Express')
+  mf_credits('Sources: INSEE 2019, IGN Admin Express 2021')
 }
 ```
 
@@ -828,9 +829,10 @@ mf_map(x = data_immo,
        breaks = breaks_residus,
        pal = palette,
        leg_title = "Valeur centrale =  0\nIntervalle = σ / 2", 
-       leg_val_rnd = 1)
+       leg_val_rnd = 1,
+       leg_adj = c(0, 1.5))
 mf_title("Résidus de régression linéaire classique")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 # réinitialisation du thème
 mf_theme("default")
 ```
@@ -875,7 +877,8 @@ mf_map(x = data_immo,
        pal = "Mint",
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
-       leg_val_rnd = 0)
+       leg_val_rnd = 0,
+       leg_adj = c(0, 1.5))
 mf_title("Prix médian de l'immobilier au m² par EPCI")
 mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
@@ -1023,9 +1026,10 @@ mf_map(x = data_immo,
        lwd = 0.2,
        pal = palette,
        leg_title = "Discrétisation standardisée\nvaleur centrale = 0\nintervalle = σ / 2", 
-       leg_val_rnd = 1)
+       leg_val_rnd = 1,
+       leg_adj = c(0, 1.5))
 mf_title("Carte des LISA du prix médian du logement (Moran local)")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 Si le score du Moran local est  > 0 cela implique que l'on a un regroupement de valeurs similaires, plus faibles ou plus élevées que la moyenne. En revanche si le score est < 0 alors on a un regroupement de valeurs dissimilaires, par exemple des valeurs plus faibles entourés de valeur plus fortes (centre de la Corse).
@@ -1056,9 +1060,10 @@ mf_map(x = data_immo,
        border = "grey3", 
        lwd = 0.08, 
        pal = mypal, 
-       leg_title = "P-value Local Moran")
+       leg_title = "P-value Local Moran",
+       leg_adj = c(0, 1.5))
 mf_title("Carte de significativité des LISA")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 Les regroupements que l'on observe vont pouvoir se rapprocher des 4 types de regroupements que nous avions sur le diagramme de Moran (High-High, Low-Low, High-Low et Low-High).
@@ -1077,9 +1082,10 @@ mf_map(x = data_immo,
        lwd = 0.1, 
        pal= colors,
        val_order = c("Not significant","Low-Low","Low-High","High-Low","High-High"),
-       leg_title = "Lisa cluster")
+       leg_title = "Lisa cluster",
+       leg_adj = c(0, 1.5))
 mf_title("LISA clusters")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 
@@ -1325,9 +1331,10 @@ mf_map(x = data_immo,
        breaks = breaks_gwr,
        pal = palette, 
        leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2", 
-       leg_val_rnd = 1)
+       leg_val_rnd = 1,
+       leg_adj = c(0, 1.5))
 mf_title("Résidus GWR")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 Cette carte ne présente pas de structure spatiale marquée et nous amène à penser que nous avons expliqué l'ensemble des phénomènes spatiaux liés aux questions de prix de l'immobilier.
@@ -1350,7 +1357,7 @@ data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
 
 Pour réaliser les cartes, avec une discrétisation standardisée centrée sur 0 :
 
-```{r fig.height = 10}
+```{r fig.height = 10, fig.cap=paste("Sources : Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")}
 par(mfrow = c(4, 2)) 
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
@@ -1414,8 +1421,10 @@ mf_map(x = data_immo,
        type = "typo", 
        pal = brewer.pal(6,'Set2'),
        border = "white",
-       lwd = 0.2)
+       lwd = 0.2,
+       leg_adj = c(0, 1.5))
 mf_title("Carte des variables contribuant le plus par epci")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 Au-delà de la non-stationnarité des VI, cette carte met en évidence un autre phénomène : Dans un modèle linéaire classique, la sélection des VI se fait de manière itérative (ascendante, descendante, ou mixte). L'inclusion d'une VI a pour conséquence d'en exclure d'autres qui présenteraient trop de multi-colinéarité. **Le phénomène mis en évidence ici repose sur le fait qu'en fonction du lieu, la hiérarchie des VI, et donc leur pertinence au sein du modèle, n'est pas constante.** Cette visualisation des données ouvre donc une perspective intéressante pour la suite. Il serait tout à fait pertinent de développer une méthode permettant d'effectuer un stepwise préalable à toute GWR valable pour chaque lieu individuellement. Un tel modèle traiterait dans sa totalité le problème de non-stationnarité.
@@ -1433,8 +1442,10 @@ mf_map(x = data_immo,
        pal= "Reds",
        border = "gray",
        lwd = 0.2,
-       leg_title = "Discrétisation par quantile")
+       leg_title = "Discrétisation par quantile",
+       leg_adj = c(0, 1.5))
 mf_title("R² locaux")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 <div class="alert alert-success">
@@ -1454,8 +1465,10 @@ mf_map(x = data_immo,
        type = "typo",
        pal = "Reds",
        border = "gray",
-       lwd = 0.2)
+       lwd = 0.2,
+       leg_adj = c(0, 1.5))
 mf_title("Nombre de Betas significatifs par EPCI (t-value)")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 Il se peut que cela soit plus intéressant d'utiliser les p-value, notamment si vous avez moins de 200 individus.
@@ -1485,8 +1498,10 @@ mf_map(x = data_immo,
        type = "typo",
        pal= "Reds",
        border = "gray",
-       lwd = 0.2,)
+       lwd = 0.2,
+       leg_adj = c(0, 1.5))
 mf_title("Nombre des Betas significatifs par EPCI (p-value)")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 <div class="alert alert-success">
@@ -1521,6 +1536,7 @@ mf_map(x = data_immo,
        pal = mypal2, 
        leg_title = "Classe P-value")
 mf_title("P-value du coefficient de la part d'emploi agriculteurs")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # Pour la densité de population
 data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0.002[",
@@ -1542,6 +1558,7 @@ mf_map(x = data_immo,
        pal=mypal2, 
        leg_title = "Classe P-value")
 mf_title("P-value du coefficient de la densité de population")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
 Ces cartes des p-value sont particulièrement importantes car elles nous donnent les endroits où l'effet est significatif. En effet, on sait que la VI a effet global qui est significatif, qu'elle a en plus une variabilité locale or localement elle n'est pas partout significative. Pour la part d'agriculteur dans l'emploi, l'effet est significatif quasiment uniquement dans le Sud-Est.
