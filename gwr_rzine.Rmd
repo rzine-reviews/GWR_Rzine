@@ -1430,7 +1430,7 @@ for (var in colnames(data_immo)[22:29]) {
                          pal = c("Teal", "Peach"), 
                          neutral = "#f5f5f5")
   } else { # cas de la médiane du niveau de vie où la valeur min est supérieure à 0
-    palette = mf_get_pal(n = c(nb_cl_sup0), pal = c("Peach"))
+    palette = mf_get_pal(n = c(nb_cl_sup0), pal = c("Peach"), rev = TRUE)
   }
   # la carte
   mf_map(x = data_immo,
