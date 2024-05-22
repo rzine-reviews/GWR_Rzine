@@ -876,6 +876,8 @@ La question de l'autocorrélation est centrale. Elle rend notre modèle linéair
 
 À ce stade, nous pouvons nous demander ce que traduit - au-delà d'un problème statistique - l'autocorrélation spatiale ? **Elle traduit statistiquement la dépendance spatiale, identifiée comme condition de validité précédemment.** Si une autocorrélation spatiale est constatée sur la VI, alors les conditions de validités minimales à l'application d'une régression linéaire ne sont pas remplies. L'autocorrélation spatiale mesure, dans les faits l'intensité de la relation entre la proximité des lieux et leur degré de ressemblance.
 
+Certains auteurs parlent d'effets spatiaux de premier ordre ou de deuxième ordre : La variation spatiale de premier ordre se produit lorsque les observations dans une région varient en fonction des propriétés locales de l'environnement. En revanche, la variation spatiale de second ordre résulte des interactions entre les observations ([@sullivan2010]).
+
 Si l'autocorrélation spatiale est positive, mes données seront semblables à celles de mes voisins et dissemblables de celles des individus éloignés. À l'inverse si l'autocorrélation spatiale est négative, mes données seront différentes de celles de mes voisins et ressembleront davantage à celles des individus éloignés.
 
 L'étude de l'autocorrélation spatiale est particulièrement intéressante car elle permet de mieux comprendre l'éventuelle structure spatiale du phénomène observé. C'est d'autant plus important que lorsqu'on constate une structure spatiale sous-jacente, la plupart des méthodes des statistiques classiques deviennent inadaptées.
@@ -1158,16 +1160,12 @@ Bien que l'analyse d'autocorrélation spatiale soit riche en enseignements sur n
 
 Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d'une part ; et d'autre part de traiter la relation de la VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
 
-Il existe différents modèles de régression spatiale, toute la question est de savoir quel modèle utiliser. Ce choix va dépendre de la nature des phénomènes spatiaux étudiés. Pour être clair, on peut considérer que la VD peut être expliquée par une VI (modèle linéaire simple), la valeur des voisins de cette VI (modèle SLX), la valeur des voisins de la VD elle-même (modèle SAR), ou une combinaison des trois (modèle SDM). À cela, on peut ajouter un effet corrélé considérant que l'explication de la VD est liée à un phénomène spatial non identifié ou non quantifiable qui a un impact à la fois sur le lieu de l'observation et son voisinage. Dans ce cas, on explique les résidus par le voisinage des résidus eux-mêmes (modèle SEM). Ce modèle n'explique pas le phénomène en soi mais permet de vérifier que la partie non expliquée n'est pas uniquement liée à une question de structure spatiale sous-jacente. On peut ensuite combiner ces différents effets et les cumuler tous jusqu'au modèle général d'imbrication spatial (GNS).
-
-```{r, echo=FALSE, fig.cap="Choix du modèle de régression spatiale", out.width = '90%', fig.align = 'center'}
-knitr::include_graphics(here("figures", "modeles.png"))
-```
+Ces méthodes ne sont pas l'objet de la présente fiche et nous renvoyons les lecteurs et lectrices à d'autres références ([@elhorst2014]).
 
 Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que les VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
 <div class="alert alert-danger" role="alert">
-Ainsi, si on s'intéresse au lien entre les voisins on est dans l'autocorrélation spatiale et les modèles SEM, SAR & cie mais si on s'intéresse à l'hétérogénéité des variables c'est-à-dire à leur variabilité selon leur localisation on est dans la GWR.
+Ainsi, si on s'intéresse au lien entre les voisins on est dans l'autocorrélation spatiale et les modèles de régression spatiale mais si on s'intéresse à l'hétérogénéité des variables c'est-à-dire à leur variabilité selon leur localisation on est dans la GWR.
 </div>
 
 <div class="alert alert-success" role="alert">
