@@ -280,6 +280,16 @@ mf_credits("Sources: Notaires de France, IGN Admin Express")
 Et avoir un aperçu rapide des autres données issues de l'INSEE :
 
 ```{r}
+# correspondance entre le nom des variables et un intitulé plus lisible
+noms_variables <- list('perc_log_vac' = '% logements vacants',
+          'perc_maison' = '% maisons',
+          'perc_tiny_log' = '% petits logements',
+          'dens_pop' = 'densité de population',
+          'med_niveau_vis' = 'médiane niveau de vie',
+          'part_log_suroccup' = '% logements suroccupés',
+          'part_agri_nb_emploi' = '% agriculteurs',
+          'part_cadre_profintellec_nbemploi' = '% cadres et professions intellectuelles')
+# les cartes
 par(mfrow = c(3,3))
 for (var in colnames(data_immo)[6:13]) {
   mf_map(x = data_immo,
@@ -290,7 +300,7 @@ for (var in colnames(data_immo)[6:13]) {
          pal = "Purples",
          lwd = 0.01,
          leg_pos = NA)
-  mf_title(var)
+  mf_title(noms_variables[var])
   mf_credits('Sources: INSEE 2019, IGN Admin Express 2021')
 }
 ```
@@ -1077,15 +1087,15 @@ L'étude des p-value associées est également importante pour l'interprétation
 data_immo$moranlocalpvalue<- lisa_pvalues(lisa)
 
 # Pour plus de lisibilité dans la carte on va faire des classes des p-value
-data_immo <- data_immo %>% mutate(lisapvalue_fac = case_when(moranlocalpvalue <= 0.002 ~ "[0.001;0.002[",
-                           moranlocalpvalue <= 0.01 ~ "[0.002;0.01[",
-                           moranlocalpvalue <= 0.05 ~ "[0.01;0.05[",
+data_immo <- data_immo %>% mutate(lisapvalue_fac = case_when(moranlocalpvalue <= 0.002 ~ "[0.001 - 0.002[",
+                           moranlocalpvalue <= 0.01 ~ "[0.002 - 0.01[",
+                           moranlocalpvalue <= 0.05 ~ "[0.01 - 0.05[",
                            TRUE ~ "[0.05;0.5]")) %>%
   mutate(lisapvalue_fac = factor(lisapvalue_fac,
-                                 levels = c("[0.001;0.002[", 
-                                            "[0.002;0.01[", 
-                                            "[0.01;0.05[", 
-                                            "[0.05;0.5]")))
+                                 levels = c("[0.001 - 0.002[", 
+                                            "[0.002 - 0.01[", 
+                                            "[0.01 - 0.05[", 
+                                            "[0.05 - 0.5]")))
 
 mypal <- mf_get_pal(n = 4, palette = "Reds")
 
@@ -1095,7 +1105,7 @@ mf_map(x = data_immo,
        border = "grey3", 
        lwd = 0.08, 
        pal = mypal, 
-       leg_title = "P-value Local Moran",
+       leg_title = "p-value Moran local",
        leg_box_border = "grey3",
        leg_adj = c(0, 1.5))
 mf_map(x = region_sf, 
@@ -1123,7 +1133,7 @@ mf_map(x = data_immo,
        border = "black", 
        lwd = 0.1, 
        pal= colors,
-       val_order = c("Not significant","Low-Low","Low-High","High-Low","High-High"),
+       val_order = c("Non significatif","Low-Low","Low-High","High-Low","High-High"),
        leg_title = "Lisa cluster",
        leg_adj = c(0, 1.5))
 mf_map(x = region_sf, 
@@ -1132,7 +1142,7 @@ mf_map(x = region_sf,
        col = NA,
        border = "#34282C",
        lwd = 2)
-mf_title("LISA clusters")
+mf_title("Regroupement des LISA")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
@@ -1388,7 +1398,7 @@ mf_map(x = region_sf,
        col = NA,
        border = "gray",
        lwd = 2)
-mf_title("Résidus GWR")
+mf_title("Résidus de la GWR")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
@@ -1444,7 +1454,8 @@ for (var in colnames(data_immo)[22:29]) {
          leg_title = NA,
          leg_box_border = "gray",
          leg_val_rnd = 0)
-  mf_title(var)
+  var_name <- substr(var, 1, nchar(var) - 5)
+  mf_title(noms_variables[var_name])
 }
 ```
 
@@ -1486,7 +1497,7 @@ mf_map(x = region_sf,
        col = NA,
        border = "#736F6E",
        lwd = 2)
-mf_title("Carte des variables contribuant le plus par epci")
+mf_title("Carte des variables contribuant le plus par EPCI")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
