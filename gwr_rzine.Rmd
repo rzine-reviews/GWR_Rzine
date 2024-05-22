@@ -437,14 +437,14 @@ Il est important de réaliser également pour les VI cet histogramme que nous ve
 
 ```{r warning=FALSE}
 # Distribution des variables indépendantes :
-a <- add_histogram(plot_ly(data_immo, x = ~log(perc_log_vac), name = "perc_log_vac"))
-b <- add_histogram(plot_ly(data_immo, x = ~log(perc_maison), name = "perc_maison"))
-c <- add_histogram(plot_ly(data_immo, x = ~log(perc_tiny_log), name = "perc_tiny_log"))
-d <- add_histogram(plot_ly(data_immo, x = ~log(dens_pop), name = "dens_pop"))
-e <- add_histogram(plot_ly(data_immo, x = ~log(med_niveau_vis), name = "med_niveau_vis"))
-f <- add_histogram(plot_ly(data_immo, x = ~log(part_log_suroccup), name = "part_log_suroccup"))
-g <- add_histogram(plot_ly(data_immo, x = ~log(part_agri_nb_emploi), name = "part_agri_nb_emploi"))
-h <- add_histogram(plot_ly(data_immo, x = ~log(part_cadre_profintellec_nbemploi), name = "part_cadre_profintellec_nbemploi"))
+a <- add_histogram(plot_ly(data_immo, x = ~(perc_log_vac), name = "perc_log_vac"))
+b <- add_histogram(plot_ly(data_immo, x = ~(perc_maison), name = "perc_maison"))
+c <- add_histogram(plot_ly(data_immo, x = ~(perc_tiny_log), name = "perc_tiny_log"))
+d <- add_histogram(plot_ly(data_immo, x = ~(dens_pop), name = "dens_pop"))
+e <- add_histogram(plot_ly(data_immo, x = ~(med_niveau_vis), name = "med_niveau_vis"))
+f <- add_histogram(plot_ly(data_immo, x = ~(part_log_suroccup), name = "part_log_suroccup"))
+g <- add_histogram(plot_ly(data_immo, x = ~(part_agri_nb_emploi), name = "part_agri_nb_emploi"))
+h <- add_histogram(plot_ly(data_immo, x = ~(part_cadre_profintellec_nbemploi), name = "part_cadre_profintellec_nbemploi"))
 fig = subplot(a, b, c, d, e, f, g, h, nrows = 2)
 fig
 ```
