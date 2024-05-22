@@ -161,6 +161,11 @@ Nous avons cherché à traiter ici une variable présentant des caractéristique
 
 Les données statistiques et du prix de l'immobilier ont été regroupées dans un même fichier CSV `donnees_standr.csv`.
 
+Ces données, de prix de l'immobilier, sont fréquemment transformées (passées au logarithme) pour permettre un meilleur ajustement du modèle. Il s'agit d'un positionnement théorique de recherche. Ici, le choix a été fait de conserver la structure statistique initiale de nos données, sans transformation pour deux raisons :
+
+- Le passage au logarithme amoindrit le poids des valeurs extrêmes fortes. Cette transformation aurait donc pour conséquence de réduire le poids de paris dans la compréhension de la spatialisation des prix de l'immobilier. Or, Paris joue un rôle prépondérant dans ce phénomène. Il influence directement toute la couronne parisienne, mais également les métropoles reliées directement à Paris en transport ferré à grande vitesse, et les communes alentours de ces métropoles, et donc pas voie de conséquence, quasiment l'ensemble du territoire national
+- L'interprétation des coefficients ne peut plus se faire directement et complexifie la compréhension de nos résultats. Nous avons standardisé nos variables pour permettre de comparer nos coefficients et pouvoir interpréter les grandeurs qu'ils représentent. Le passage au logarithme empêche cette interprétation directe.
+
 Les données spatiales (géométrie des EPCI) sont au format [shapefile](https://fr.wikipedia.org/wiki/Shapefile){target="_blank"} dans le fichier `EPCI.shp`.
 
 ## Chargement des données sur le prix de l'immobilier par EPCI
