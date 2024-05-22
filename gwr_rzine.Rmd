@@ -278,6 +278,7 @@ mf_map(x = data_immo,
        leg_box_border = NA,
        leg_val_rnd = 0,
        leg_adj = c(0, 1.5))
+
 mf_map(x = region_sf, 
        add = TRUE,
        type = "base",
@@ -887,7 +888,7 @@ La question de l'autocorrélation est centrale. Elle rend notre modèle linéair
 
 À ce stade, nous pouvons nous demander ce que traduit - au-delà d'un problème statistique - l'autocorrélation spatiale ? **Elle traduit statistiquement la dépendance spatiale, identifiée comme condition de validité précédemment.** Si une autocorrélation spatiale est constatée sur la VI, alors les conditions de validités minimales à l'application d'une régression linéaire ne sont pas remplies. L'autocorrélation spatiale mesure, dans les faits l'intensité de la relation entre la proximité des lieux et leur degré de ressemblance.
 
-Certains auteurs parlent d'effets spatiaux de premier ordre ou de deuxième ordre : La variation spatiale de premier ordre se produit lorsque les observations dans une région varient en fonction des propriétés locales de l'environnement. En revanche, la variation spatiale de second ordre résulte des interactions entre les observations ([@sullivan2010]).
+Certains auteurs parlent d'effets spatiaux de premier ordre ou de deuxième ordre : La variation spatiale de premier ordre se produit lorsque les observations dans une région varient en fonction des propriétés locales de l'environnement. En revanche, la variation spatiale de second ordre résulte des interactions entre les observations ([@sullivan_2010]).
 
 Si l'autocorrélation spatiale est positive, mes données seront semblables à celles de mes voisins et dissemblables de celles des individus éloignés. À l'inverse si l'autocorrélation spatiale est négative, mes données seront différentes de celles de mes voisins et ressembleront davantage à celles des individus éloignés.
 
@@ -1171,7 +1172,7 @@ Bien que l'analyse d'autocorrélation spatiale soit riche en enseignements sur n
 
 Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d'une part ; et d'autre part de traiter la relation de la VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
 
-Ces méthodes ne sont pas l'objet de la présente fiche et nous renvoyons les lecteurs et lectrices à d'autres références ([@elhorst2014]).
+Ces méthodes ne sont pas l'objet de la présente fiche et nous renvoyons les lecteurs et lectrices à d'autres références ([@elhorst_2014]).
 
 Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que les VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
@@ -1683,18 +1684,20 @@ Ces cartes des p-value sont particulièrement importantes car elles nous donnent
 
 # Conclusion {-}
 
-Nous avons donc réalisé une analyse du prix médian de l'immobilier en France métropolitaine. La GWR nous semble être une méthode particulièrement intéressante, à la croisée de la statistique et de la géographie, et qui peut s'avérer très utile globalement en SHS pour essayer d'appréhender la complexité des phénomènes qui sont étudiés.
+Nous avons donc réalisé une analyse du prix médian de l'immobilier en France métropolitaine. La GWR nous semble être une méthode particulièrement intéressante, à la croisée de la statistique et de la géographie, et qui peut s'avérer très utile globalement en SHS pour essayer d'appréhender la complexité des phénomènes qui sont étudiés. Une autre ressource présentant ces méthodes est également disponible et permettra d'éclairer les lecteurs et lectrices sur un cas d'application plus local ([@Feuillet_2021]).
 
 En effet, nous avons vu la limite des statistique dites "classiques" pour appréhender des phénomènes avec une structure spatiale. Dans ce cadre, la GWR nous permet de dépasser cette limite de l'indépendance tout en s'intéressant à la variabilité des effets des variables en fonction de l'espace. C'est là son principal intérêt : elle permet à la fois de visualiser l'hétérogénéité spatiale tout en prenant en compte dans le modèle des effets de structure. Elle ne doit, par contre, qu'être utilisée après une régression classique et une analyse d'autocorrélation spatiale permettant d'identifier l'existence d'une dépendance statistique.
+
+Nous invitons les lecteurs et lectrices à consulter des cas d'application pour approfondir ces méthodes et l'interprétation de résultats ([@Helbich_2013] ; [@Bulteau_2018]).
 
 Cette méthode présente également certaines faiblesses, qui constituent souvent des pistes d'amélioration pour l'avenir :
 
 - La non-stationnarité n'est prise en compte que partiellement pour l'instant par les méthodes existantes ou les packages déjà élaborés. Une méthode redéfinissant pour chaque point de l'espace un groupe de variables explicatives différent garantirait certainement à la fois une meilleure explication (un $R^2$ plus élevé) et une meilleure sobriété du modèle (un AIC plus faible).
-- La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l'espace présente une structure de la dépendance différente et qu'il soit pertinent de redéfinir, pour chaque point de l'espace, une forme de noyau et une bande passante différente ([@comber2022]).
+- La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l'espace présente une structure de la dépendance différente et qu'il soit pertinent de redéfinir, pour chaque point de l'espace, une forme de noyau et une bande passante différente ([@comber_2022]).
 
 Les solutions qui permettraient de limiter les faiblesses de cette méthode nécessitent certainement de grosses capacités de calcul qui alourdiraient fortement la mise en œuvre des traitements statistiques.
 
-La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"} qui peuvent également s'avérer extrêmement intéressantes et riches.
+La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"}  ou la MGWR ([@Lu_2014]) qui peuvent également s'avérer extrêmement intéressantes et riches.
 
 # Bibliographie {-}
 
