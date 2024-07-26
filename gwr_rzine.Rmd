@@ -66,15 +66,16 @@ Toutes les figures et cartes ont été produites dans le cadre de la rédaction 
 
 Lorsque l'on souhaite dépasser la simple caractérisation d'attributs liés à des individus statistiques, on fait appel à des méthodes de modélisation explicitant des relations statistiques. La méthode la plus employée, principalement en sciences sociales, pour mesurer et analyser la nature des relations et des effets entre deux ou plusieurs variables, est le modèle de **régression linéaire**.
 
-Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appelée variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social avec une emprise sur un espace, la régression linéaire pose plusieurs problèmes :
+Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appelée variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social observé sur une maille territoriale, la régression linéaire pose plusieurs problèmes :
 
 Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notés epsilon **ε**). Ces **β** représentent l'effet des VI sur la VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaire considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
 
 Les données sont ainsi structurées :
 
 - Par des relations de proximité : Il s'agit d'un effet de situation induit par la position relative des lieux les uns par rapport aux autres
-- Par des hétérogénéités propres aux lieux qui proviennent de caractéristiques géographiques diverses. Ces caractéristiques relèvent d’un effet de site.
-Les individus statistiques, représentés par des unités spatiales ne peuvent pas être envisagées comme indépendantes et identiquement distribuées.
+- Par des hétérogénéités propres aux lieux qui proviennent de caractéristiques géographiques diverses. Ces caractéristiques relèvent d'un effet de site.
+
+Les individus statistiques, représentés par des unités spatiales ne peuvent pas être envisagés comme indépendants et identiquement distribués.
 
 Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet des VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
 
@@ -157,9 +158,15 @@ lapply(my_packages, library, character.only = TRUE)
 
 ```
 
+# Cheminement {-}
+
+Le schéma ci-dessous représente les différents cheminements possibles pour expliques les variations de Y. Les étapes suivies ici sont représentées en bleu.
+
+![Naviguer à vue dans le continuum statistique spatial](figures/xuenylom.jpg)
+
 # Présentation et préparation des données
 
-Nous avons cherché à traiter ici une variable présentant des caractéristiques spatiales fortes et qui rencontrent les deux problèmes exposés précédemment d'indépendance statistique et de non-stationnarité. Les prix de l'immobilier en France sont effectivement soumis à ces problèmes et peuvent être expliqués, au moins partiellement, par des variables quantitatives issues de données de l'INSEE. Nous avons traité l'information liée au prix de l'immobilier à l'échelle des Etablissements Publics de Coopération Intercommunale (EPCI) pour nous assurer un nombre d'observation suffisant dans chaque entité spatiale.
+Nous avons cherché à traiter ici une variable présentant des caractéristiques spatiales fortes et qui rencontrent les deux problèmes exposés précédemment d'indépendance statistique et de non-stationnarité. Les prix de l'immobilier en France sont effectivement soumis à ces problèmes et peuvent être expliqués, au moins partiellement, par des variables quantitatives issues de données de l'INSEE. Nous avons traité l'information liée au prix de l'immobilier à l'échelle des Etablissements Publics de Coopération Intercommunale (EPCI) pour nous assurer un nombre d'observations suffisant dans chaque entité spatiale.
 
  - Les données du prix de l'immobilier par EPCI (prix médian au m²) sont issues des ventes observées sur l'année 2018, extraites depuis la [base de données des notaires de France](https://www.immobilier.notaires.fr/fr/prix-immobilier){target="_blank"} par Frédéric Audard et Alice Ferrari. Ce fichier a été simplifié pour ne conserver que les variables d'intérêts parmi une cinquantaine
 - Les données statistiques proviennent de l'INSEE (année 2019) : 9 variables ont été choisies pour leur potentialité à expliquer les variations des prix de l'immobilier, concernant [la population](https://www.insee.fr/fr/statistiques/6456153?sommaire=6456166){target="_blank"}, [le logement](https://www.insee.fr/fr/statistiques/6454155?sommaire=6454268){target="_blank"} et [les revenus et niveaux de vie](https://www.insee.fr/fr/statistiques/6036907){target="_blank"}. Elles sont détaillées un peu plus bas.
@@ -167,9 +174,9 @@ Nous avons cherché à traiter ici une variable présentant des caractéristique
 
 Les données statistiques et du prix de l'immobilier ont été regroupées dans un même fichier CSV `donnees_standr.csv`.
 
-Ces données, de prix de l'immobilier, sont fréquemment transformées (passées au logarithme) pour permettre un meilleur ajustement du modèle. Il s'agit d'un positionnement théorique de recherche. Ici, le choix a été fait de conserver la structure statistique initiale de nos données, sans transformation pour deux raisons :
+Ces données de prix de l'immobilier sont fréquemment transformées (passées au logarithme) pour permettre un meilleur ajustement du modèle. Il s'agit d'un positionnement théorique de recherche. Ici, le choix a été fait de conserver la structure statistique initiale de nos données, sans transformation pour deux raisons :
 
-- Le passage au logarithme amoindrit le poids des valeurs extrêmes fortes. Cette transformation aurait donc pour conséquence de réduire le poids de paris dans la compréhension de la spatialisation des prix de l'immobilier. Or, Paris joue un rôle prépondérant dans ce phénomène. Il influence directement toute la couronne parisienne, mais également les métropoles reliées directement à Paris en transport ferré à grande vitesse, et les communes alentours de ces métropoles, et donc pas voie de conséquence, quasiment l'ensemble du territoire national
+- Le passage au logarithme amoindrit le poids des valeurs extrêmes fortes. Cette transformation aurait donc pour conséquence de réduire le poids de paris dans la compréhension de la spatialisation des prix de l'immobilier. Or, Paris joue un rôle prépondérant dans ce phénomène. Il influence directement toute la couronne parisienne, mais également les métropoles reliées directement à Paris en transport ferré à grande vitesse, et les communes alentours de ces métropoles, et donc par voie de conséquence, quasiment l'ensemble du territoire national
 - L'interprétation des coefficients ne peut plus se faire directement et complexifie la compréhension de nos résultats. Nous avons standardisé nos variables pour permettre de comparer nos coefficients et pouvoir interpréter les grandeurs qu'ils représentent. Le passage au logarithme empêche cette interprétation directe.
 
 Les données spatiales (géométrie des EPCI) sont au format [shapefile](https://fr.wikipedia.org/wiki/Shapefile){target="_blank"} dans le fichier `EPCI.shp`.
@@ -185,7 +192,7 @@ immo_df <- read.csv2(csv_path)
 datatable(head(immo_df, 10))
 ```
 
-Ce fichier est composé des 10 variables suivantes :
+Ce fichier est composé des 10 variables suivantes (les données datent de 2019 sauf prix médian 2018) :
 
 - SIREN : code SIREN de l'EPCI
 - prix_med : prix médian par EPCI à la vente (au m²)
@@ -270,11 +277,11 @@ On peut maintenant représenter les données du prix médian de l'immobilier par
 mf_map(x = data_immo, 
        var = "prix_med", 
        type = "choro",
-       breaks = "quantile",
-       nbreaks = 7,
+       breaks = "jenks",
+       nbreaks = 9,
        pal = "Mint",
        lwd = 0.01,
-       leg_title = "Discrétisation par quantile",
+       leg_title = "Discrétisation Jenks",
        leg_box_border = NA,
        leg_val_rnd = 0,
        leg_adj = c(0, 1.5))
@@ -284,9 +291,9 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#34282C",
-       lwd = 2)
+       lwd = 1)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
-mf_credits("Sources: Notaires de France, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, IGN Admin Express")
 ```
 
 Et avoir un aperçu rapide des autres données issues de l'INSEE :
