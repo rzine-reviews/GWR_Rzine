@@ -15,6 +15,7 @@ output:
   rzine::readrzine:
     highlight: kate
     number_sections: true
+    fig_caption: yes
 csl: Rzine_citation.csl
 bibliography: biblio.bib
 nocite: |
@@ -298,16 +299,16 @@ mf_credits("Sources: Notaires de France 2018, IGN Admin Express")
 
 Et avoir un aperçu rapide des autres données issues de l'INSEE :
 
-```{r}
+```{r fig.cap = "Variables explicatives, discrétisation par quantiles"}
 # correspondance entre le nom des variables et un intitulé plus lisible
 noms_variables <- list('perc_log_vac' = '% logements vacants',
-          'perc_maison' = '% maisons',
-          'perc_tiny_log' = '% petits logements',
-          'dens_pop' = 'densité de population',
-          'med_niveau_vis' = 'médiane niveau de vie',
-          'part_log_suroccup' = '% logements suroccupés',
-          'part_agri_nb_emploi' = '% agriculteurs',
-          'part_cadre_profintellec_nbemploi' = '% cadres et professions intellectuelles')
+                       'perc_maison' = '% maisons',
+                       'perc_tiny_log' = '% petits logements',
+                       'dens_pop' = 'densité de population',
+                       'med_niveau_vis' = 'médiane niveau de vie',
+                       'part_log_suroccup' = '% logements suroccupés',
+                       'part_agri_nb_emploi' = '% agriculteurs',
+                       'part_cadre_profintellec_nbemploi' = '% cadres et professions intellectuelles')
 # les cartes
 par(mfrow = c(3,3))
 for (var in colnames(data_immo)[6:13]) {
@@ -1440,12 +1441,24 @@ data_immo$logvac.coef <- mod.gwr_g$SDF$perc_log_vac
 data_immo$tinylog.coef <- mod.gwr_g$SDF$perc_tiny_log
 data_immo$suroccup.coef <- mod.gwr_g$SDF$part_log_suroccup
 data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
+
+# correspondance entre le nom des variables et un intitulé plus lisible
+noms_coefs <- list('agri.coef' = '% agriculteurs',
+                   'perc_maison.coef' = '% maisons',
+                   'dens_pop.coef' = 'densité de population',
+                   'med_vie.coef' = 'médiane niveau de vie',
+                   'logvac.coef' = '% logements vacants',
+                   'tinylog.coef' = '% petits logements',
+                   'suroccup.coef' = '% logements suroccupés',
+                   'cadre.coef' = '% cadres et professions intellectuelles')
 ```
 
 Pour réaliser les cartes, avec une discrétisation standardisée centrée sur 0 :
 
-```{r fig.height = 10, fig.cap=paste("Sources : Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")}
-par(mfrow = c(4, 2)) 
+```{r fig.height = 10, fig.cap="Coefficients de la GWR (Sources : Notaires de France 2018, INSEE 2019, IGN Admin Express 2021)"}
+# par(mfrow = c(4, 2)) 
+par(mfrow = c(2, 4)) 
+par(mai = c(0, 0, 0, 0))
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
   res <- discr(values = data.frame(data_immo)[, var], 
@@ -1472,12 +1485,14 @@ for (var in colnames(data_immo)[22:29]) {
          lwd = 0.1,
          breaks = breaks,
          pal = palette,
-         leg_pos = "left",
+         # leg_pos = "left",
+         leg_pos = NA,
          leg_title = NA,
          leg_box_border = "gray",
          leg_val_rnd = 0)
-  var_name <- substr(var, 1, nchar(var) - 5)
-  mf_title(noms_variables[var_name])
+  # var_name <- substr(var, 1, nchar(var) - 5)
+  mf_title(noms_coefs[var])
+  # mf_title(var)
 }
 ```
 
@@ -1499,7 +1514,7 @@ data_immo$cadre.t <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi_TV
 df <- as.data.frame(data_immo)
 # On passe les t-values en valeurs absolues pour voir la plus grande
 # contribution dans un sens sens ou dans l'autre
-data_immo$contribmax<- colnames(df[, c(30:37)])[max.col(abs(df[, c(30:37)]),ties.method="first")]
+data_immo$contribmax <- colnames(df[, c(30:37)])[max.col(abs(df[, c(30:37)]),ties.method="first")]
 ```
 
 ```{r}
@@ -1511,15 +1526,24 @@ mf_map(x = data_immo,
        pal = brewer.pal(6,'Set2'),
        border = "white",
        lwd = 0.2,
-       leg_box_border = "white",
-       leg_adj = c(0, 1.5))
+       leg_pos = NA)
 mf_map(x = region_sf, 
        add = TRUE,
        type = "base",
        col = NA,
        border = "#736F6E",
        lwd = 1.5)
-mf_title('variables contribuant le plus "localement" à l’explication de la variabilité des prix médian par EPCI')
+mf_legend(type = "typo",
+          val = c("Densité de population", 
+                  "% logements vacants", 
+                  "% maisons", 
+                  "médiane du niveau de vie",
+                  "% logements suroccupés",
+                  "% petits logements"),
+          title = "",
+          pal = brewer.pal(6,'Set2'),
+          box_border = "white")
+mf_title("Variables contribuant le plus à l’explication de la variabilité du prix médian au niveau de l'EPCI")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
@@ -1570,6 +1594,7 @@ mf_map(x = data_immo,
        border = "gray",
        lwd = 0.2,
        leg_box_border = "gray",
+       leg_title = "Nombre de variables",
        leg_adj = c(0, 1.5))
 mf_map(x = region_sf, 
        add = TRUE,
@@ -1609,6 +1634,7 @@ mf_map(x = data_immo,
        pal= "Reds",
        border = "gray",
        lwd = 0.2,
+       leg_title = "Nombre de betas",
        leg_box_border = "gray",
        leg_adj = c(0, 1.5))
 mf_map(x = region_sf, 
@@ -1617,7 +1643,7 @@ mf_map(x = region_sf,
        col = NA,
        border = "gray",
        lwd = 1.5)
-mf_title("Nombre des Betas significatifs par EPCI (p-value)")
+mf_title("Nombre des betas significatifs par EPCI (p-value)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
@@ -1652,14 +1678,15 @@ mf_map(x = data_immo,
        lwd = 0.1, 
        leg_box_border = "grey3",
        pal = mypal2, 
-       leg_title = "Classe P-value")
+       leg_title = "p-value",
+       leg_size = 0.8)
 mf_map(x = region_sf, 
        add = TRUE,
        type = "base",
        col = NA,
        border = "#736F6E",
        lwd = 1.5)
-mf_title("P-value du coefficient de la part d'emploi agriculteurs")
+mf_title("P-value du coefficient du % agriculteurs")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # Pour la densité de population
@@ -1681,7 +1708,8 @@ mf_map(x = data_immo,
        lwd = 0.1, 
        leg_box_border = "grey3",
        pal=mypal2, 
-       leg_title = "Classe P-value")
+       leg_title = "p-value",
+       leg_size = 0.8)
 mf_map(x = region_sf, 
        add = TRUE,
        type = "base",

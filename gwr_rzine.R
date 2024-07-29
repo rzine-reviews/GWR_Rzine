@@ -359,7 +359,7 @@ moran.plot(data_immo$prix_med_z,neighbours_epci_w,
 # 1- utiliser la fonction queen_weights du package rgeoda pour calculer une matrice de contiguïté de type queen 
 queen_w <- queen_weights(data_immo)
 # 2- Sortir la variable à étudier dans un vecteur
-prix_med_z = data_immo["prix_med_z"]
+prix_med_z <- data_immo["prix_med_z"]
 lisa <- local_moran(queen_w, prix_med_z)
 # Pour visualiser les résultats des LISA il faut les stocker dans des objets 
 # ou dans des bases de données pour les représenter 
