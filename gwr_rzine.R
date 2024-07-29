@@ -103,13 +103,19 @@ coord <- st_coordinates(st_centroid(data_immo))
 # Faire un graphe de voisinage
 par(mfrow = c(1,1))
 plot(neighbours_epci, coord)
-# si on prend le 1er élément de neighbours_epci, on voit qu'il a pour voisins les poygones 62, 74 etc.
+# si on prend le 1er élément de neighbours_epci, on voit qu'il a pour voisins les polygones 62, 74 etc.
 neighbours_epci[[1]]
 # ce qu'on peut vérifier sur la carte :
 neighbours1 <- data_immo[c(1,62,74,338,1135,1136,1137,1140),]
 neighbours1$index <- rownames(neighbours1)
-mf_map(x = neighbours1)
-mf_label(x = neighbours1, var = "index")
+mf_map(x = neighbours1, border = "white")
+# pour voir les numéros
+mf_label(x = neighbours1, var = "index", halo = TRUE)
+# pour ajouter les liens entre voisins, il faut convertir neighbours_epci en objet sf
+proj4string_2154 <- "+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
+neighbours_epci_sf <- spdep::nb2lines(neighbours_epci, coords=coord, proj4string=proj4string_2154, as_sf=T)
+mf_map(x = neighbours_epci_sf[neighbours_epci_sf$i == 1,], col = "grey30", add = TRUE)
+
 
 # 2.2 Création de la matrice de voisinage
 
