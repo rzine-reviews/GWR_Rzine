@@ -190,7 +190,7 @@ csv_path <- here("data", "donnees_standr.csv")
 # lecture du CSV dans un dataframe
 immo_df <- read.csv2(csv_path)
 # Pour visualiser les 10 1ères lignes
-datatable(head(immo_df, 10))
+datatable(immo_df, 10)
 ```
 
 Ce fichier est composé des 10 variables suivantes (les données datent de 2019 sauf prix médian 2018) :
@@ -226,7 +226,7 @@ shp_path <- here("data", "EPCI.shp")
 epci_sf <- st_read(shp_path, quiet = TRUE)
 # on vérifie dans les données qu'il existe un champ correspondant au code SIREN
 # qui permettra de lier les données de immo_df à cet objet sf
-datatable(head(epci_sf, 5))
+datatable(epci_sf, 5)
 ```
 
 Nous allons également charger une couche de régions qui nous servira d'habillage pour les cartes :
