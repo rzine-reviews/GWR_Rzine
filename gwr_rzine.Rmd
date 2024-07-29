@@ -161,7 +161,7 @@ lapply(my_packages, library, character.only = TRUE)
 
 # Cheminement {-}
 
-Le schéma ci-dessous (Frédéric Audard, 2024) représente les différents cheminements possibles pour expliques les variations de Y. Les étapes suivies ici sont représentées en bleu.
+Le schéma ci-dessous (Frédéric Audard, 2024) représente les différents cheminements possibles pour expliquer les variations de Y. Les étapes suivies ici sont représentées en bleu.
 
 ![Naviguer à vue dans le continuum statistique spatial](figures/xuenylom.jpg)
 
@@ -721,9 +721,10 @@ Soyons clairs, lorsque la démarche est de simplement réaliser une étude de mo
 </div>
 
 Pour obtenir les résidus :
+
 ```{r}
 res_modlm <- mod.lm$residuals
-datatable(as.data.frame(res_modlm))
+datatable(cbind("Nom EPCI" = data_immo$NOM, data.frame("Résidu" = res_modlm)))
 ```
 
 On peut également les visualiser :
@@ -1362,8 +1363,8 @@ On peut le convertir en un dataframe pour le visualiser plus facilement. À l'or
 # Pour visualiser ce fichier dans R
 #View(mod.gwr_g$SDF@data)
 
-#Pour voir à quoi il ressemble dans ce document
-datatable(mod.gwr_g$SDF@data)
+# Pour voir à quoi il ressemble dans ce document
+datatable(cbind("Nom EPCI" = data_immo$NOM, mod.gwr_g$SDF@data))
 
 # Pour voir les variables qui le constituent
 names(mod.gwr_g$SDF@data)
@@ -1456,9 +1457,7 @@ noms_coefs <- list('agri.coef' = '% agriculteurs',
 Pour réaliser les cartes, avec une discrétisation standardisée centrée sur 0 :
 
 ```{r fig.height = 10, fig.cap="Coefficients de la GWR (Sources : Notaires de France 2018, INSEE 2019, IGN Admin Express 2021)"}
-# par(mfrow = c(4, 2)) 
-par(mfrow = c(2, 4)) 
-par(mai = c(0, 0, 0, 0))
+par(mfrow = c(4, 2))
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
   res <- discr(values = data.frame(data_immo)[, var], 
@@ -1485,14 +1484,11 @@ for (var in colnames(data_immo)[22:29]) {
          lwd = 0.1,
          breaks = breaks,
          pal = palette,
-         # leg_pos = "left",
-         leg_pos = NA,
+         leg_pos = "left",
          leg_title = NA,
          leg_box_border = "gray",
          leg_val_rnd = 0)
-  # var_name <- substr(var, 1, nchar(var) - 5)
   mf_title(noms_coefs[var])
-  # mf_title(var)
 }
 ```
 
