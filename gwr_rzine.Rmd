@@ -190,7 +190,7 @@ csv_path <- here("data", "donnees_standr.csv")
 # lecture du CSV dans un dataframe
 immo_df <- read.csv2(csv_path)
 # Pour visualiser les 10 1ères lignes
-datatable(immo_df)
+datatable(format(immo_df, digits = 1, scientific = FALSE))
 ```
 
 Ce fichier est composé des 10 variables suivantes (les données datent de 2019 sauf prix médian 2018) :
@@ -724,7 +724,8 @@ Pour obtenir les résidus :
 
 ```{r}
 res_modlm <- mod.lm$residuals
-datatable(cbind("Nom EPCI" = data_immo$NOM, data.frame("Résidu" = res_modlm)))
+datatable(cbind("Nom EPCI" = data_immo$NOM, data.frame("Résidu" = res_modlm))
+          %>% format(digits = 2, scientific = FALSE))
 ```
 
 On peut également les visualiser :
@@ -1364,7 +1365,8 @@ On peut le convertir en un dataframe pour le visualiser plus facilement. À l'or
 #View(mod.gwr_g$SDF@data)
 
 # Pour voir à quoi il ressemble dans ce document
-datatable(cbind("Nom EPCI" = data_immo$NOM, mod.gwr_g$SDF@data))
+datatable(cbind("Nom EPCI" = data_immo$NOM, mod.gwr_g$SDF@data)
+          %>% format(digits = 2, scientific = FALSE))
 
 # Pour voir les variables qui le constituent
 names(mod.gwr_g$SDF@data)
