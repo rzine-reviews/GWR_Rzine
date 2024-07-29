@@ -1647,10 +1647,6 @@ mf_title("Nombre des betas significatifs par EPCI (p-value)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
-<div class="alert alert-success">
-Sur ces deux dernières cartes (nombre de betas significatifs par EPCI avec les t-value et p-value) nous avons pris volontairement une liberté avec les règles de sémiologie graphique de Bertin. En effet, s'agissant de valeurs discrètes, nous aurions dû les représenter sous forme de symboles proportionnels. Cependant, dans la mesure où les EPCI ont une taille relativement homogène et par souci de visibilité, et aussi parce qu'il s'agit plus d'une carte exploratoire que d'un véritable rendu, nous avons opté pour une carte choroplèthe. Que les mânes de Bertin nous pardonnent !
-</div>
-
 Dans ce cadre, il est possible de réaliser une collection de cartes des p-value (ou t-value) comme ce qui a été fait pour les coefficients. **L'intérêt est de voir où l'effet de la VI est significatif et où il ne l'est pas.**
 
 ```{r}
