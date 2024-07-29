@@ -470,7 +470,7 @@ Pour un point plus complet sur les corrélations et leur mise en oeuvre sur R, v
 
 Très rapidement, la **corrélation** permet d'étudier le lien, la relation entre deux variables. La corrélation repose sur la **covariance** entre les variables.
 
-Quand 2 variables covarient, un écart à la moyenne d'une variable est accompagné par un écart dans le même sens (corrélation positive) ou dans le sens opposé de l'autre (corrélation négative) pour le même individu de l'autre variable. Dit autrement, lorsque deux variables covarient, pour chaque valeur qui s'écarte de la moyenne, on s'attend à trouver un écart à la moyenne pour l'autre variable.
+Quand 2 variables covarient, pour un même individu, un écart à la moyenne pour une variable sera accompagné par un écart à la moyenne pour l'autre variable. Si les 2 écarts se font dans le même sens, on parle de corrélation positive, sinon il s'agit d'une corrélation négative.
 
 La conception d'un modèle statistique doit absolument être le fruit d'une réflexion portant sur le choix des variables indépendantes (explicatives) et le choix de la méthode de régression. Et pour définir un modèle de régression certaine règles doivent être respectées.
 
@@ -525,7 +525,7 @@ corrplot(mat_cor,
 ```
 
 
-L'étude des corrélations nous permet ici de confirmer une relation entre la variable à expliquer et toutes les variables explicatives définies. Par exemple, elle est négativement corrélée avec le pourcentage de logments vacants.
+L'étude des corrélations nous permet ici de confirmer une relation entre la variable à expliquer et toutes les variables explicatives définies. Par exemple, elle est négativement corrélée avec le pourcentage de logements vacants.
 
 Elle met aussi à jour de très fortes multicolinéarités, ce qui va nous poser problème. Par exemple, la part de logement suroccupés est fortement corrélée au pourcentage de petits logements. Dans le cadre de la définition d'un modèle linéaire classique, il faudrait sortir du modèle les variables explicatives qui sont trop fortement corrélées. Dans le cadre de cette fiche nous faisons le choix de conserver toutes les VI, cela fera sens au moment de la GWR.
 
@@ -586,9 +586,9 @@ D'abord l'information fournie par `Adjusted R-squared`, il s'agit du $R^2$ qui e
 
 Ensuite, on peut regarder ce qu'il se passe au niveau des variables explicatives. La première colonne appelée `estimate` est le coefficient de régression associé à la variable explicative. Le signe va être très important car il va donner la direction de la relation (exactement comme pour les corrélations). Ici pour le pourcentage de logements vacants il est de $-287$, ce qui veut dire que lorsque ce pourcentage augmente d'une unité alors le prix médian baisse de $287€$.
 
-La colonne $Pr(>|t|)$ correspond à la p-value associée à ce résultat. Une fois encore s'il est inférieur à $0.05$ alors on peut considérer le résultat comme statistiquement significatif. Dans notre cas on peut dire que la part d'agriculteurs, de cadres et professions intellectuelles dans le nombre d'emplois n'ont pas un effet significatif sur le prix médian du logement.
+La colonne $Pr(>|t|)$ correspond à la p-value associée à ce résultat. Une fois encore s'il est inférieur à $0.05$ alors on peut considérer le résultat comme statistiquement significatif. Dans notre cas on peut dire que la part d'agriculteurs, de cadres et professions intellectuelles dans le nombre d'emplois n'ont pas un effet significatif sur le prix médian du logement à l'échelle de l'EPCI.
 
-Nous allons tout de même conserver ces variables qui pourtant devraient être considérées comme non significatives ; les modèles de GWR utilisés par la suite montreront l'utilité de telles variables, dont l'intérêt aurait pu être rejeté *a priori*.
+Nous allons tout de même conserver ces variables qui pourtant devraient être considérées comme non significatives ; les modèles de GWR utilisés par la suite montreront l'utilité de telles variables dont l'intérêt aurait pu être rejeté *a priori*, puisque leur significativité peut varier localement.
 
 <div class="alert alert-success" role="alert">
 La $t-value$ est le coefficient divisé par son erreur standard. Plus ce quotient est proche de $0$ et plus on peut considérer qu'il n'y a pas d'effet de la VI sur la VD. En revanche, dans le cas où on aurait plus de 200 individus, si $t-value > |1.96|$ alors on peut considérer qu'il y a $95\%$ de chance qu'il y ait un effet significatif de la VI sur la VD.
