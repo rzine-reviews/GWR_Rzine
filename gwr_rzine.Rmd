@@ -1028,13 +1028,13 @@ knitr::include_graphics(here("figures", "moranplot.png"))
 
 Les indices de Geary et Moran présentent une limite importante : ils partent du principe d'un processus spatial stationnaire, autrement dit global. Ainsi, l'effet de dépendance serait le même dans tout notre espace et la mesure fournie ne permet pas de différencier les contextes spatiaux locaux. De plus, l'effet de la dimension serait le même dans tout notre espace ; ce qui pose question et ce d'autant plus que l'emprise géographique augmente.
 
-La compréhension de ces contextes locaux passe par la réalisation d'autocorrélation au niveau local, étape nécessaire pour continuer vers la GWR. Luc Anselin va développer le concept d'indicateur d'autocorrélation spatiale locale avec les **LISA (Local Indicators of Spatial Association)**.
+La compréhension de ces contextes locaux passe par la réalisation d'autocorrélation au niveau local, étape nécessaire pour continuer vers la GWR. Luc Anselin va développer le concept d'indicateur d'autocorrélation spatiale locale avec les **LISA (Local Indicators of Spatial Association)** [@Anselin_1995].
 
 D'après Luc Anselin, le LISA de chaque individu statistique indique l'intensité du regroupement spatial de valeurs similaires autour de cette individu. Autrement dit, un individu avec un LISA élevé va avoir une concentration autour de lui de voisins avec des valeurs similaires( pour nous par exemple un regroupement d'individus avec un prix particulièrement élevé ou à l'inverse particulièrement bas).
 
 Le LISA le plus utilisé est le **I de Moran Local**.
 
-L'idée est de faire appel ici au LISA pour compléter la compréhension du niveau global par une approche locale. On cherche à la fois à détecter des clusters qui correspondent à un regroupement significatif de valeurs identiques dans une zone particulière, et à repérer des zones de non stationnarité, c'est-à-dire qui ne suivent pas le processus global.
+L'idée est de faire appel ici au LISA pour compléter la compréhension du niveau global par une approche locale. On cherche à la fois à détecter des clusters qui correspondent à un regroupement significatif de valeurs identiques dans une zone particulière, et à repérer des zones de non stationnarité spatiale, c'est-à-dire qui ne suivent pas le processus global.
 
 
 <div class="alert alert-success" role="alert">
@@ -1337,7 +1337,7 @@ mod.gwr_g
 
 Cette visualisation des résultats nous propose d'abord un rappel complet du modèle linéaire classique. Puis viennent ensuite les informations concernant la GWR. Le premier indicateur à analyser est le $R^2 ajusté$ de la GWR, qui est nettement meilleur que celui de la régression linéaire multiple. On passe de $77\%$ de variance expliquée à $91\%$ avec la GWR. Ce $R^2$, pour la GWR, est en fait une moyenne calculée des $R^2$ de toutes les régressions locales réalisées par la GWR.
 
-La seconde information qui nous intéresse particulièrement est les coefficients associés aux VI. Nous voyons qu'ils ne sont pas présentés de la même manière que ceux de la régression linéaire. En effet, chaque VI va avoir des coefficients en fonction du minimum, maximum et des quartiles. Cela permet de rendre compte de la stationnarité de l'effet ou non. Dans notre cas on voit qu'il y a bien une variation et même dans certains cas une inversion des signes. Cela laisse supposer une non stationnarité des effets : un effet local peut être présent qui ne suivrait pas l'effet global.
+La seconde information qui nous intéresse particulièrement est les coefficients associés aux VI. Nous voyons qu'ils ne sont pas présentés de la même manière que ceux de la régression linéaire. En effet, chaque VI va avoir des coefficients en fonction du minimum, maximum et des quartiles. Cela permet de rendre compte de la stationnarité de l'effet ou non. Dans notre cas on voit qu'il y a bien une variation et même dans certains cas une inversion des signes. Cela laisse supposer une non stationnarité spatiale des effets : un effet local peut être présent qui ne suivrait pas l'effet global.
 
 Par exemple, pour le pourcentage de logement vacant avec un coefficient global (modèle linéaire) de $-287$, quand ce pourcentage augmente le prix médian baisse. En simplifiant le pourcentage baisse d'une unité le prix médian augmente de $287€$. Dans le cas de la densité de population on a un coefficient global positif donc une relation positive. La densité augmente donc le prix médian augmente. Ici, au global la densité augmente d'une unité le prix médian augmente de $173€$.
 
@@ -1428,7 +1428,7 @@ Cette carte ne présente pas de structure spatiale marquée et nous amène à pe
 
 ### Étude des coefficients
 
-Pour visualiser la non stationnarité des effets des VI la solution la plus efficace est la carte.
+Pour visualiser la non stationnarité spatiale des effets des VI la solution la plus efficace est la carte.
 
 ```{r}
 # On ajoute à data_immo les coefficients
