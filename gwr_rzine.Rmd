@@ -160,7 +160,7 @@ lapply(my_packages, library, character.only = TRUE)
 
 # Cheminement {-}
 
-Le schéma ci-dessous représente les différents cheminements possibles pour expliques les variations de Y. Les étapes suivies ici sont représentées en bleu.
+Le schéma ci-dessous (Frédéric Audard, 2024) représente les différents cheminements possibles pour expliques les variations de Y. Les étapes suivies ici sont représentées en bleu.
 
 ![Naviguer à vue dans le continuum statistique spatial](figures/xuenylom.jpg)
 
