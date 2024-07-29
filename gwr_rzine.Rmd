@@ -214,7 +214,7 @@ On parle aussi en statistique de **standardisation**. Cette transformation perme
 <hr>
 Lorsque l'on s'apprête à faire de la modélisation statistique, il est très recommandé de réaliser cette opération au moins sur les variables que vous utiliserez comme variables explicatives dans votre modèle.
 <hr>
-Sur R on peut facilement réaliser cette opération avec la fonction `scale()`. La standardisation peut aussi se faire "manuellement" : il suffit de soustraire chaque valeur par la moyenne puis de diviser par l'écart-type.</div>
+Sur R on peut facilement réaliser cette opération avec la fonction [scale()](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/scale). La standardisation peut aussi se faire "manuellement" : il suffit de soustraire chaque valeur par la moyenne puis de diviser par l'écart-type.</div>
 
 ## Chargement des données géographiques : les EPCI de France métropolitaine
 
