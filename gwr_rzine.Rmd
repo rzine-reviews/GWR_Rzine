@@ -885,7 +885,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#B6B6B4",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Résidus de régression linéaire classique")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 # réinitialisation du thème
@@ -900,7 +900,7 @@ La question de l'autocorrélation est centrale. Elle rend notre modèle linéair
 
 À ce stade, nous pouvons nous demander ce que traduit - au-delà d'un problème statistique - l'autocorrélation spatiale ? **Elle traduit statistiquement la dépendance spatiale, identifiée comme condition de validité précédemment.** Si une autocorrélation spatiale est constatée sur la VI, alors les conditions de validités minimales à l'application d'une régression linéaire ne sont pas remplies. L'autocorrélation spatiale mesure, dans les faits l'intensité de la relation entre la proximité des lieux et leur degré de ressemblance.
 
-Certains auteurs parlent d'effets spatiaux de premier ordre ou de deuxième ordre : La variation spatiale de premier ordre se produit lorsque les observations dans une région varient en fonction des propriétés locales de l'environnement. En revanche, la variation spatiale de second ordre résulte des interactions entre les observations ([@sullivan_2010]).
+Certains auteurs parlent d'effets spatiaux de premier ordre ou de deuxième ordre : La variation spatiale de premier ordre se produit lorsque les observations dans une région varient en fonction des propriétés locales de l'environnement. En revanche, la variation spatiale de second ordre résulte des interactions entre les observations [@sullivan_2010].
 
 Si l'autocorrélation spatiale est positive, mes données seront semblables à celles de mes voisins et dissemblables de celles des individus éloignés. À l'inverse si l'autocorrélation spatiale est négative, mes données seront différentes de celles de mes voisins et ressembleront davantage à celles des individus éloignés.
 
@@ -942,7 +942,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#34282C",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
 mf_credits("Sources: Notaires de France, IGN Admin Express")
 ```
@@ -1098,7 +1098,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "gray",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Carte des LISA du prix médian du logement (Moran local)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1139,7 +1139,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "gray",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Carte de significativité des LISA")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1167,7 +1167,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#34282C",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Regroupement des LISA")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1184,7 +1184,7 @@ Bien que l'analyse d'autocorrélation spatiale soit riche en enseignements sur n
 
 Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d'une part ; et d'autre part de traiter la relation de la VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
 
-Ces méthodes ne sont pas l'objet de la présente fiche et nous renvoyons les lecteurs et lectrices à d'autres références ([@elhorst_2014]).
+Ces méthodes ne sont pas l'objet de la présente fiche et nous renvoyons les lecteurs et lectrices à d'autres références [@elhorst_2014].
 
 Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que les VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
@@ -1199,7 +1199,7 @@ Attention, ce qui en théorie peut paraître assez tranché ne l'est souvent pas
 Pour réaliser une GWR sur R plusieurs packages reconnus existent. On peut citer notamment le [`package spgwr`](http://rspatial.r-forge.r-project.org/spgwr/index.html){target="_blank"} et le [`package GWmodel`](https://www.rdocumentation.org/packages/GWmodel/versions/2.2-9){target="_blank"}. Nous choisirons d'utiliser ici le `package GWmodel`.
 
 
-## Calcul de la matrice des distance
+## Calcul de la matrice des distances
 
 La première étape est de calculer la distance entre toutes les observations. Pour ce faire nous utiliserons la fonction `gw.dist()`.
 
@@ -1217,7 +1217,7 @@ dm.calib <- gw.dist(dp.locat = coordinates(data_immo_sp))
 
 **La bande passante est une distance au-delà de laquelle le poids des observations est considéré comme nul.** Le calcul de cette distance est très important car la valeur de la bande passante pourra fortement influencer notre modèle. La définition de la bande passante renvoie à quel type de pondération nous souhaitons appliquer. Heureusement la fonction `bw.gwr` va choisir pour nous le résultat optimal...
 
-Pour ce faire la fonction va se baser sur un critère statistique que l'utilisateur devra définir : le CV (validation croisée) ou le AIC (Akaike Information Criterion ou Critère d'information d'Akaike). Elle reposera aussi sur un type de noyau qu'il faudra également définir : Gaussien, Exponentiel, Bicarré, Tricube ou encore Boxcar. Enfin, il sera également nécessaire de savoir si ce noyau pourra être adaptatif ou fixe.
+Pour ce faire la fonction va se baser sur un critère statistique que l'utilisateur devra définir : le CV (Cross Validation ou validation croisée) ou le AIC (Akaike Information Criterion ou Critère d'information d'Akaike). Elle reposera aussi sur un type de noyau qu'il faudra également définir : Gaussien, Exponentiel, Bicarré, Tricube ou encore Boxcar. Enfin, il sera également nécessaire de savoir si ce noyau pourra être adaptatif ou fixe.
 
 Voici quelques informations pour guider nos choix :
 
@@ -1320,7 +1320,7 @@ Best_gwr <- cbind(
 Best_gwr
 ```
 
-Le modèle avec une forme qui a été définie au format gaussien explique un meilleur $R^2$ et le score d'$AIC$ est plus faible. Ce modèle est donc plus performant et dans notre situation c'est plutôt ce modèle qu'il faut privilégier.
+Le modèle utilisant un noyau gaussien a un meilleur pouvoir explicatif ($R^2$) et un meilleur score de qualité ($AIC$). Ce modèle est donc plus performant et dans notre situation c'est plutôt ce modèle qu'il faut privilégier.
 
 
 ## Interprétation des premiers résultats
@@ -1383,7 +1383,7 @@ names(mod.gwr_g$SDF@data)
 
 ### Étude des résidus
 
-Commençons par une étude des résidus afin de vérifier que cette fois ils n'ont pas de structure apparente.
+Commençons par une étude des résidus afin de vérifier que cette fois ils n'ont pas de structure spatiale apparente.
 
 ```{r}
 # on récupère les résidus dans data_immo
@@ -1419,7 +1419,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "gray",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Résidus de la GWR")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1518,8 +1518,8 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#736F6E",
-       lwd = 2)
-mf_title("Carte des variables contribuant le plus par EPCI")
+       lwd = 1.5)
+mf_title('variables contribuant le plus "localement" à l’explication de la variabilité des prix médian par EPCI')
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
@@ -1546,7 +1546,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "gray",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("R² locaux")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1576,8 +1576,8 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "gray",
-       lwd = 2)
-mf_title("Nombre de Betas significatifs par EPCI (t-value)")
+       lwd = 1.5)
+mf_title("Nombre de variables expliquant significativement la variabilité des prix médians par EPCI (t-value)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
@@ -1616,7 +1616,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "gray",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("Nombre des Betas significatifs par EPCI (p-value)")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1658,7 +1658,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#736F6E",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("P-value du coefficient de la part d'emploi agriculteurs")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
@@ -1687,7 +1687,7 @@ mf_map(x = region_sf,
        type = "base",
        col = NA,
        border = "#736F6E",
-       lwd = 2)
+       lwd = 1.5)
 mf_title("P-value du coefficient de la densité de population")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
@@ -1696,20 +1696,20 @@ Ces cartes des p-value sont particulièrement importantes car elles nous donnent
 
 # Conclusion {-}
 
-Nous avons donc réalisé une analyse du prix médian de l'immobilier en France métropolitaine. La GWR nous semble être une méthode particulièrement intéressante, à la croisée de la statistique et de la géographie, et qui peut s'avérer très utile globalement en SHS pour essayer d'appréhender la complexité des phénomènes qui sont étudiés. Une autre ressource présentant ces méthodes est également disponible et permettra d'éclairer les lecteurs et lectrices sur un cas d'application plus local ([@Feuillet_2021]).
+Nous avons donc réalisé une analyse du prix médian de l'immobilier en France métropolitaine. La GWR nous semble être une méthode particulièrement intéressante, à la croisée de la statistique et de la géographie, et qui peut s'avérer très utile globalement en SHS pour essayer d'appréhender la complexité des phénomènes qui sont étudiés. Une autre ressource présentant ces méthodes est également disponible et permettra d'éclairer les lecteurs et lectrices sur un cas d'application plus local [@Feuillet_2021].
 
 En effet, nous avons vu la limite des statistique dites "classiques" pour appréhender des phénomènes avec une structure spatiale. Dans ce cadre, la GWR nous permet de dépasser cette limite de l'indépendance tout en s'intéressant à la variabilité des effets des variables en fonction de l'espace. C'est là son principal intérêt : elle permet à la fois de visualiser l'hétérogénéité spatiale tout en prenant en compte dans le modèle des effets de structure. Elle ne doit, par contre, qu'être utilisée après une régression classique et une analyse d'autocorrélation spatiale permettant d'identifier l'existence d'une dépendance statistique.
 
-Nous invitons les lecteurs et lectrices à consulter des cas d'application pour approfondir ces méthodes et l'interprétation de résultats ([@Helbich_2013] ; [@Bulteau_2018]).
+Nous invitons les lecteurs et lectrices à consulter des cas d'application pour approfondir ces méthodes et l'interprétation de résultats [@Helbich_2013; @Bulteau_2018].
 
 Cette méthode présente également certaines faiblesses, qui constituent souvent des pistes d'amélioration pour l'avenir :
 
 - La non-stationnarité n'est prise en compte que partiellement pour l'instant par les méthodes existantes ou les packages déjà élaborés. Une méthode redéfinissant pour chaque point de l'espace un groupe de variables explicatives différent garantirait certainement à la fois une meilleure explication (un $R^2$ plus élevé) et une meilleure sobriété du modèle (un AIC plus faible).
-- La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l'espace présente une structure de la dépendance différente et qu'il soit pertinent de redéfinir, pour chaque point de l'espace, une forme de noyau et une bande passante différente ([@comber_2022]).
+- La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l'espace présente une structure de la dépendance différente et qu'il soit pertinent de redéfinir, pour chaque point de l'espace, une forme de noyau et une bande passante différente [@comber_2022].
 
 Les solutions qui permettraient de limiter les faiblesses de cette méthode nécessitent certainement de grosses capacités de calcul qui alourdiraient fortement la mise en œuvre des traitements statistiques.
 
-La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"}  ou la MGWR ([@Lu_2014]) qui peuvent également s'avérer extrêmement intéressantes et riches.
+La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"}  ou la MGWR [@Lu_2014] qui peuvent également s'avérer extrêmement intéressantes et riches.
 
 # Bibliographie {-}
 
