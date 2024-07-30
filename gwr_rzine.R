@@ -27,14 +27,14 @@ library(GWmodel)
 # 1 Présentation et préparation des données
 ###############################################################
 
-# 1.1 Chargement des données sur le prix de l’immobilier par EPCI
+# 1.1 Chargement des données sur le prix de l'immobilier par EPCI
 
 # On situe le dossier dans lequel se trouve nos données
 csv_path <- here("data", "donnees_standr.csv")
 # lecture du CSV dans un dataframe
 immo_df <- read.csv2(csv_path)
 # Pour visualiser les 10 1ères lignes
-datatable(head(immo_df, 10))
+datatable(immo_df)
 
 # 1.2 Chargement des données géographiques : les EPCI de France métropolitaine
 
@@ -44,7 +44,11 @@ epci_sf <- st_read(shp_path)
 # visualisation des données géographiques
 mf_map(x = epci_sf)
 # et la table attributaire correspondante
-datatable(head(epci_sf, 5))
+datatable(epci_sf)
+
+# chargement d'une couche de régions pour l'habillage des cartes
+shp_path <- here("data", "REGION.shp")
+region_sf <- st_read(shp_path, quiet = TRUE)
 
 # 1.3 Jointure des données géographiques et tabulaires
 
@@ -56,23 +60,43 @@ data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN"
 nrow(data_immo)
 # on peut filtrer les données de la jointure pour ne voir que les epci n'ayant pas de correspondance dans le tableau immo_df
 datatable(data_immo[is.na(data_immo$prix_med),])
-mf_map(x = data_immo[is.na(data_immo$prix_med),])
+plot(data_immo[is.na(data_immo$prix_med),]$geometry)
 # on refait la jointure en ne gardant que les EPCI ayant une correspondance dans le tableau de données
 data_immo <- merge(x = epci_sf, y = immo_df, by.x = "CODE_SIREN", by.y = "SIREN")
 nrow(data_immo)
+
 # carte du prix médian par EPCI
 mf_map(x = data_immo, 
        var = "prix_med", 
        type = "choro",
-       breaks = "quantile",
-       nbreaks = 7,
+       breaks = "jenks",
+       nbreaks = 9,
        pal = "Mint",
        lwd = 0.01,
-       leg_title = "Discrétisation par quantile",
-       leg_val_rnd = 0)
+       leg_title = "Discrétisation Jenks",
+       leg_box_border = NA,
+       leg_val_rnd = 0,
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#34282C",
+       lwd = 1)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
-mf_credits("Sources: Notaires de France, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, IGN Admin Express")
+
 # aperçu des données INSEE
+# correspondance entre le nom des variables et un intitulé plus lisible
+noms_variables <- list('perc_log_vac' = '% logements vacants',
+                       'perc_maison' = '% maisons',
+                       'perc_tiny_log' = '% petits logements',
+                       'dens_pop' = 'densité de population',
+                       'med_niveau_vis' = 'médiane niveau de vie',
+                       'part_log_suroccup' = '% logements suroccupés',
+                       'part_agri_nb_emploi' = '% agriculteurs',
+                       'part_cadre_profintellec_nbemploi' = '% cadres et professions intellectuelles')
+# les cartes
 par(mfrow = c(3,3))
 for (var in colnames(data_immo)[6:13]) {
   mf_map(x = data_immo,
@@ -83,9 +107,10 @@ for (var in colnames(data_immo)[6:13]) {
          pal = "Purples",
          lwd = 0.01,
          leg_pos = NA)
-  mf_title(var)
-  mf_credits('Sources: INSEE, IGN Admin Express')
+  mf_title(noms_variables[var])
+  mf_credits('Sources: INSEE 2019, IGN Admin Express 2021')
 }
+
 # conversion sf vers sp pour la suite
 data_immo_sp <- as(data_immo, "Spatial")
 
@@ -96,13 +121,13 @@ data_immo_sp <- as(data_immo, "Spatial")
 
 # Création de la liste des voisins : avec l'option queen = TRUE, 
 # sont considérés comme voisins 2 polygones possédant au moins 1 sommet commun
-#help(poly2nb)
 neighbours_epci <- poly2nb(data_immo, queen = TRUE)
 # Obtention des coordonnées des centroïdes
 coord <- st_coordinates(st_centroid(data_immo))
 # Faire un graphe de voisinage
 par(mfrow = c(1,1))
-plot(neighbours_epci, coord)
+par(mai = c(0, 0, 0, 0)) # pour réduire les marges de la figure
+plot.nb(x = neighbours_epci, coords = coord, points = FALSE)
 # si on prend le 1er élément de neighbours_epci, on voit qu'il a pour voisins les polygones 62, 74 etc.
 neighbours_epci[[1]]
 # ce qu'on peut vérifier sur la carte :
@@ -135,14 +160,14 @@ neighbours_epci_w[[3]][1]
 # Distribution de la variable dépendante :
 add_histogram(plot_ly(data_immo, x = ~prix_med))
 # Distribution des variables indépendantes :
-a <- add_histogram(plot_ly(data_immo, x = ~log(perc_log_vac), name = "perc_log_vac"))
-b <- add_histogram(plot_ly(data_immo, x = ~log(perc_maison), name = "perc_maison"))
-c <- add_histogram(plot_ly(data_immo, x = ~log(perc_tiny_log), name = "perc_tiny_log"))
-d <- add_histogram(plot_ly(data_immo, x = ~log(dens_pop), name = "dens_pop"))
-e <- add_histogram(plot_ly(data_immo, x = ~log(med_niveau_vis), name = "med_niveau_vis"))
-f <- add_histogram(plot_ly(data_immo, x = ~log(part_log_suroccup), name = "part_log_suroccup"))
-g <- add_histogram(plot_ly(data_immo, x = ~log(part_agri_nb_emploi), name = "part_agri_nb_emploi"))
-h <- add_histogram(plot_ly(data_immo, x = ~log(part_cadre_profintellec_nbemploi), name = "part_cadre_profintellec_nbemploi"))
+a <- add_histogram(plot_ly(data_immo, x = ~(perc_log_vac), name = "perc_log_vac"))
+b <- add_histogram(plot_ly(data_immo, x = ~(perc_maison), name = "perc_maison"))
+c <- add_histogram(plot_ly(data_immo, x = ~(perc_tiny_log), name = "perc_tiny_log"))
+d <- add_histogram(plot_ly(data_immo, x = ~(dens_pop), name = "dens_pop"))
+e <- add_histogram(plot_ly(data_immo, x = ~(med_niveau_vis), name = "med_niveau_vis"))
+f <- add_histogram(plot_ly(data_immo, x = ~(part_log_suroccup), name = "part_log_suroccup"))
+g <- add_histogram(plot_ly(data_immo, x = ~(part_agri_nb_emploi), name = "part_agri_nb_emploi"))
+h <- add_histogram(plot_ly(data_immo, x = ~(part_cadre_profintellec_nbemploi), name = "part_cadre_profintellec_nbemploi"))
 fig = subplot(a, b, c, d, e, f, g, h, nrows = 2)
 fig
 
@@ -160,7 +185,7 @@ mat_cor_comp <- summary(immo_cor, redundant = TRUE)
 # Nom des lignes = valeurs de la première colonne ("Parameter")
 rownames(mat_cor_comp ) <- mat_cor_comp[,1]
 # Transformation du data.frame en objet matrice (+ suppression première colonne)
-mat_cor<- as.matrix(mat_cor_comp[,-1])
+mat_cor <- as.matrix(mat_cor_comp[,-1])
 # Calcul du nombre total d'individus
 nb <- nrow(data_cor)
 # Calcul des matrices de p-values et des intervalles de confiance
@@ -185,8 +210,16 @@ corrplot(mat_cor,
 # 3.3 Régression linéaire ou Méthode des moindre carrés ordinaire (MCO)
 
 # Dans le fonctionnement sur R il est important de stocker la régression dans un objet.
-# Pour lancer la régression on va utiliser la fonction lm() dont les 2 lettres sont l'acronyme pour linear model
-mod.lm <- lm(formula = prix_med ~ perc_log_vac + perc_maison + perc_tiny_log + dens_pop + med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + part_cadre_profintellec_nbemploi, 
+# Pour lancer la régression on va utiliser la fonction lm() dont les 2 lettres sont l'acronyme de linear model
+mod.lm <- lm(formula = prix_med ~ 
+               perc_log_vac + 
+               perc_maison + 
+               perc_tiny_log + 
+               dens_pop + 
+               med_niveau_vis + 
+               part_log_suroccup + 
+               part_agri_nb_emploi + 
+               part_cadre_profintellec_nbemploi, 
              data = data_immo)
 # On affiche les principaux résultats avec la fonction summary
 summary(mod.lm)
@@ -209,16 +242,23 @@ score_vif <- vif(mod.lm)
 # création du graphique
 par(mar=c(3, 12, 3, 1), mgp=c(1, 0.4, 0)) # pour pouvoir lire les noms des variables
 x = barplot(height = score_vif, main = "VIF Values", horiz = TRUE, col = "steelblue", las = 1)
-#ajout du seuil de 4
+# ajout du seuil de 4
 abline(v = 4, lwd = 3, lty = 2)
 # et de la limite de 3
 abline(v = 3, lwd = 3, lty = 2)
 
 # pour retirer la variable avec le + fort VIF = % petits logements
-mod.lm2 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + 
-                med_niveau_vis + part_log_suroccup + part_agri_nb_emploi + 
-                part_cadre_profintellec_nbemploi, data = data_immo)
+mod.lm2 <- lm(formula = prix_med ~ 
+                perc_log_vac + 
+                perc_maison + 
+                dens_pop + 
+                med_niveau_vis + 
+                part_log_suroccup + 
+                part_agri_nb_emploi + 
+                part_cadre_profintellec_nbemploi, 
+              data = data_immo)
 summary(mod.lm2)
+vif(mod.lm2)
 mod.lm2 %>% tbl_regression(intercept = TRUE) %>% add_vif()
 GGally::ggcoef_model(mod.lm2)
 
@@ -227,15 +267,21 @@ GGally::ggcoef_model(mod.lm2)
 # régression pas à pas descendante et ascendante
 step(mod.lm2, direction = "both")
 # donc le nouveau modèle ne prend pas en compte part_agri_nb_emploi
-mod.lm3 <- lm(formula = prix_med ~ perc_log_vac + perc_maison + dens_pop + 
-                med_niveau_vis + part_log_suroccup + 
-                part_cadre_profintellec_nbemploi, data = data_immo)
+mod.lm3 <- lm(formula = prix_med ~ 
+                perc_log_vac + 
+                perc_maison + 
+                dens_pop + 
+                med_niveau_vis + 
+                part_log_suroccup + 
+                part_cadre_profintellec_nbemploi, 
+              data = data_immo)
 
 # 3.4.3 Analyser les résidus
 
 # pour obtenir les résidus 
 res_modlm <- mod.lm$residuals
-datatable(as.data.frame(res_modlm))
+datatable(cbind("Nom EPCI" = data_immo$NOM, data.frame("Résidu" = res_modlm))
+          %>% format(digits = 2, scientific = FALSE))
 # et pour les visualiser
 par(mfrow=c(1,3))
 # diagramme quantile-quantile qui permet de vérifier l'ajustement d'une distribution à un modèle théorique, ici la loi normale
@@ -266,12 +312,12 @@ qqPlot(mod.lmx)
 # Il est possible de comparer les deux modèles et les coefficients
 car::compareCoefs(mod.lm, mod.lmx, pvals = TRUE)
 
-# 3.4.4 L’autocorrélation des résidus
+# 3.4.4 L'autocorrélation des résidus
 
-# Test de Moran des résidus de la régression (H0 : pas d’autocorrélation spatiale)
+# Test de Moran des résidus de la régression (H0 : pas d'autocorrélation spatiale)
 lm.morantest(model = mod.lm, 
              listw = neighbours_epci_w)
-# Test de Geary (H0 pas d’autocorrélation)
+# Test de Geary (H0 pas d'autocorrélation)
 #  Attention : Pour avoir le  coefficient il faut faire 1-"Résultat test de Geary" (soit ici le coefficient est 0.67)
 # Le coefficient de Geary s'étend de 0 à 2, 1 étant le "0" et signifiant aucune corrélation
 # Par ailleurs, un score inférieur à 1 implique une corrélation positive et un score supérieur à 1 une corrélation négative.
@@ -287,7 +333,11 @@ data_immo$res_reg <- mod.lm$residuals
 # appel de la fonction discr pour les limites de classe
 source("discr.R")
 # valeur centrale 0, intervalle = écart-type/2, classes extrêmes regroupées
-res_residus <- discr(data_immo$res_reg, 0, "class_center", sd(data_immo$res_reg)*0.5, 10)
+res_residus <- discr(values = data_immo$res_reg, 
+                     center = 0, 
+                     pos_center = "class_center", 
+                     interval = sd(data_immo$res_reg)*0.5, 
+                     min_nb = 10)
 breaks_residus <- res_residus[[1]]
 nb_cl_sup0_res <- res_residus[[2]]
 nb_cl_inf0_res <- res_residus[[3]]
@@ -295,7 +345,9 @@ nb_cl_inf0_res <- res_residus[[3]]
 # on fonce légèrement la couleur de fond pour mieux voir la classe centrale
 mf_theme("default", bg = "#dedede")
 # création d'une palette divergente avec une couleur neutre centrale
-palette = mf_get_pal(n = c(nb_cl_inf0_res, nb_cl_sup0_res), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+palette = mf_get_pal(n = c(nb_cl_inf0_res, nb_cl_sup0_res), 
+                     pal = c("Teal", "Peach"), 
+                     neutral = "#f5f5f5")
 # la carte :
 par(mfrow = c(1,1))
 mf_map(x = data_immo, 
@@ -306,14 +358,21 @@ mf_map(x = data_immo,
        breaks = breaks_residus,
        pal = palette,
        leg_title = "Valeur centrale =  0\nIntervalle = σ / 2",
-       leg_val_rnd = 1
-       )
+       leg_box_border = NA,
+       leg_val_rnd = 0,
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#B6B6B4",
+       lwd = 1.5)
 mf_title("Résidus de régression linéaire classique")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 # réinitialisation du thème
 mf_theme("default")
 
-# 4 Analyse de l’autocorrélation spatiale
+# 4 Analyse de l'autocorrélation spatiale
 ###############################################################
 
 # 4.1 Niveau global
@@ -327,30 +386,43 @@ mf_map(x = data_immo,
        pal = "Mint",
        lwd = 0.01,
        leg_title = "Discrétisation par quantile",
-       leg_val_rnd = 0)
+       leg_box_border = NA,
+       leg_val_rnd = 0,
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#34282C",
+       lwd = 1.5)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
-mf_credits("Sources: Notaires de France, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, IGN Admin Express 2021")
 # Pour l'occasion on va standardiser notre prix médian
 # cela permettra par la suite de le comparer à d'autres variables 
 # si d'autres analyses d'autocorrélation spatiale sont réalisées
-data_immo$prix_med_z<- (data_immo$prix_med-mean(data_immo$prix_med))/sd(data_immo$prix_med)
+data_immo$prix_med_z <- (data_immo$prix_med-mean(data_immo$prix_med))/sd(data_immo$prix_med)
 
 # Geary
 # Attention à la lecture particulière des résultats de l'indice de Geary
-geary.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomisation = FALSE) 
-
+geary.test(data_immo$prix_med_z, 
+           neighbours_epci_w, 
+           zero.policy = TRUE, 
+           randomisation = FALSE) 
 # Moran
 # On indique dans un premier temps la variable que l'on souhaite analyser
 # Puis la matrice de voisinage
 # L'argument zero.policy=TRUE permet de préciser que l'on souhaite intégrer à l'analyse les entités spatiales qui n'auraient pas de voisins
 # L'argument randomisation=FALSE transmet l'instruction à la fonction que nous supposons que la distribution est normale
 # Dans le cas contraire on devrait partir sur une solution de type Monte-Carlo qui repose sur la randomisation
-moran.test(data_immo$prix_med_z, neighbours_epci_w, zero.policy = TRUE, randomisation = FALSE)
+moran.test(data_immo$prix_med_z, 
+           neighbours_epci_w, 
+           zero.policy = TRUE, 
+           randomisation = FALSE)
 # diagramme de Moran
-moran.plot(data_immo$prix_med_z,neighbours_epci_w, 
+moran.plot(data_immo$prix_med_z, neighbours_epci_w, 
            labels = TRUE, 
-           xlab="prix medians centrés réduits par epci" , 
-           ylab="moyenne du prix médian centré réduit par epci des voisins")
+           xlab = "prix medians centrés réduits par epci" , 
+           ylab = "moyenne du prix médian centré réduit par epci des voisins")
 
 # 4.2 Niveau local
 
@@ -367,18 +439,23 @@ lisa_colors <- lisa_colors(lisa)
 lisa_labels <- lisa_labels(lisa)
 lisa_clusters <- lisa_clusters(lisa)
 lisa_value <- lisa_values(lisa)
-lisa_pvalue<- lisa_pvalues(lisa)
+lisa_pvalue <- lisa_pvalues(lisa)
 
 # carte moran locaux
 # on récupère les moran locaux dans data_immo
 data_immo$moranlocalvalue <- lisa_values(lisa)
 # discrétisation standardisée avec des classes de un demi-écart-type
-res_moranloc <- discr(data_immo$moranlocalvalue, 0, "class_break", sd(data_immo$moranlocalvalue)/2, 10)
+res_moranloc <- discr(values = data_immo$moranlocalvalue, 
+                      center = 0, 
+                      pos_center = "class_break", 
+                      interval = sd(data_immo$moranlocalvalue)/2, 
+                      min_nb = 10)
 breaks_moranloc <- res_moranloc[[1]]
 nb_cl_sup0_moranloc <- res_moranloc[[2]]
 nb_cl_inf0_moranloc <- res_moranloc[[3]]
 # création d'une palette associée
-palette = mf_get_pal(n = c(nb_cl_inf0_moranloc, nb_cl_sup0_moranloc), pal = c("Teal", "Reds"))
+palette = mf_get_pal(n = c(nb_cl_inf0_moranloc, nb_cl_sup0_moranloc), 
+                     pal = c("Teal", "Reds"))
 # la carte
 mf_map(x = data_immo, 
        var = "moranlocalvalue", 
@@ -388,9 +465,17 @@ mf_map(x = data_immo,
        lwd = 0.2,
        pal = palette,
        leg_title = "Discrétisation standardisée\nvaleur centrale = 0\nintervalle = σ / 2", 
-       leg_val_rnd = 1)
+       leg_box_border = "gray",
+       leg_val_rnd = 1,
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 1.5)
 mf_title("Carte des LISA du prix médian du logement (Moran local)")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # Carte des p-value des moran locaux
 data_immo$moranlocalpvalue<- lisa_pvalues(lisa)
@@ -411,9 +496,17 @@ mf_map(x = data_immo,
        border = "grey3", 
        lwd = 0.08, 
        pal = mypal, 
-       leg_title = "P-value Local Moran")
+       leg_title = "p-value Moran local",
+       leg_box_border = "grey3",
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 1.5)
 mf_title("Carte de significativité des LISA")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # carte des LISA avec les 4 types de regroupements du diagramme de Moran
 # (High-High, Low-Low, High-Low et Low-High)
@@ -425,10 +518,17 @@ mf_map(x = data_immo,
        border = "black", 
        lwd = 0.1, 
        pal= colors,
-       val_order = c("Not significant","Low-Low","Low-High","High-Low","High-High"),
-       leg_title = "Lisa cluster")
-mf_title("LISA clusters")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+       val_order = c("Non significatif","Low-Low","Low-High","High-Low","High-High"),
+       leg_title = "Lisa cluster",
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#34282C",
+       lwd = 1.5)
+mf_title("Regroupement des LISA")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # 5 Régression géographiquement pondérée (GWR)
 ###############################################################
@@ -501,8 +601,10 @@ summary(mod.gwr_g)
 # Pour accéder aux résultats
 mod.gwr_g
 
-# L’ensemble des données est stocké dans le sous objet SDF de notre modèle
-datatable(mod.gwr_g$SDF@data)
+# L'ensemble des données est stocké dans le sous objet SDF de notre modèle
+# Pour voir à quoi il ressemble avec les noms des EPCI
+datatable(cbind("Nom EPCI" = data_immo$NOM, mod.gwr_g$SDF@data)
+          %>% format(digits = 2, scientific = FALSE))
 # Pour voir les variables qui le constituent
 names(mod.gwr_g$SDF@data)
 
@@ -512,12 +614,18 @@ names(mod.gwr_g$SDF@data)
 res_gwr <- mod.gwr_g$SDF$Stud_residual
 data_immo$res_gwr <- res_gwr
 # calcul des limites de classes avec la fonction discr, centrées sur 0
-res_resgwr <- discr(data_immo$res_gwr, 0, "class_center", sd(data_immo$res_gwr)*0.5, 10)
+res_resgwr <- discr(values = data_immo$res_gwr, 
+                    center = 0, 
+                    pos_center = "class_center", 
+                    interval = sd(data_immo$res_gwr)*0.5, 
+                    min_nb = 10)
 breaks_gwr <- res_resgwr[[1]]
 nb_cl_sup0_gwr <- res_resgwr[[2]]
 nb_cl_inf0_gwr <- res_resgwr[[3]]
 # création de la palette correspondante
-palette = mf_get_pal(n = c(nb_cl_inf0_gwr, nb_cl_sup0_gwr), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+palette = mf_get_pal(n = c(nb_cl_inf0_gwr, nb_cl_sup0_gwr), 
+                     pal = c("Teal", "Peach"), 
+                     neutral = "#f5f5f5")
 # la carte des résidus
 mf_map(x = data_immo, 
        var = "res_gwr", 
@@ -526,10 +634,18 @@ mf_map(x = data_immo,
        lwd = 0.2, 
        breaks = breaks_gwr,
        pal = palette, 
-       leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2", 
-       leg_val_rnd = 1)
-mf_title("Résidus GWR")
-mf_credits("Sources: Notaires de France, INSEE, IGN Admin Express")
+       leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2",
+       leg_box_border = "gray",
+       leg_val_rnd = 1,
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 1.5)
+mf_title("Résidus de la GWR")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # 5.4.2 Étude des coefficients
 
@@ -542,19 +658,34 @@ data_immo$logvac.coef <- mod.gwr_g$SDF$perc_log_vac
 data_immo$tinylog.coef <- mod.gwr_g$SDF$perc_tiny_log
 data_immo$suroccup.coef <- mod.gwr_g$SDF$part_log_suroccup
 data_immo$cadre.coef <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi
+# correspondance entre le nom des variables et un intitulé plus lisible
+noms_coefs <- list('agri.coef' = '% agriculteurs',
+                   'perc_maison.coef' = '% maisons',
+                   'dens_pop.coef' = 'densité de population',
+                   'med_vie.coef' = 'médiane niveau de vie',
+                   'logvac.coef' = '% logements vacants',
+                   'tinylog.coef' = '% petits logements',
+                   'suroccup.coef' = '% logements suroccupés',
+                   'cadre.coef' = '% cadres et professions intellectuelles')
 # les cartes
-par(mfrow = c(4, 2)) 
+par(mfrow = c(4, 2))
 for (var in colnames(data_immo)[22:29]) {
   # calcul des limites de classe
-  res <- discr(data.frame(data_immo)[, var], 0, "class_center", sd(data.frame(data_immo)[, var])*0.5, 10)
+  res <- discr(values = data.frame(data_immo)[, var], 
+               center = 0, 
+               pos_center = "class_center", 
+               interval = sd(data.frame(data_immo)[, var])*0.5, 
+               min_nb = 10)
   breaks <- res[[1]]
   # palette de couleurs
   nb_cl_sup0 <- res[[2]]
   nb_cl_inf0 <- res[[3]]
   if (nb_cl_inf0 > 0) {
-    palette = mf_get_pal(n = c(nb_cl_inf0, nb_cl_sup0), pal = c("Teal", "Peach"), neutral = "#f5f5f5")
+    palette = mf_get_pal(n = c(nb_cl_inf0, nb_cl_sup0), 
+                         pal = c("Teal", "Peach"), 
+                         neutral = "#f5f5f5")
   } else { # cas de la médiane du niveau de vie où la valeur min est supérieure à 0
-    palette = mf_get_pal(n = c(nb_cl_sup0), pal = c("Peach"))
+    palette = mf_get_pal(n = c(nb_cl_sup0), pal = c("Peach"), rev = TRUE)
   }
   # la carte
   mf_map(x = data_immo,
@@ -566,8 +697,9 @@ for (var in colnames(data_immo)[22:29]) {
          pal = palette,
          leg_pos = "left",
          leg_title = NA,
+         leg_box_border = "gray",
          leg_val_rnd = 0)
-  mf_title(var)
+  mf_title(noms_coefs[var])
 }
 
 # Pour voir par EPCI quelle variable sera la plus explicative dans la relation à notre VD
@@ -581,7 +713,8 @@ data_immo$suroccup.t <- mod.gwr_g$SDF$part_log_suroccup_TV
 data_immo$cadre.t <- mod.gwr_g$SDF$part_cadre_profintellec_nbemploi_TV     
 # Définir contrib max
 df <- as.data.frame(data_immo)
-# On passe les t-values en valeurs absolues pour voir la plus grande contribution dans un sens sens ou dans l'autre
+# On passe les t-values en valeurs absolues pour voir la plus grande 
+# contribution dans un sens sens ou dans l'autre
 data_immo$contribmax<- colnames(df[, c(30:37)])[max.col(abs(df[, c(30:37)]),ties.method="first")]
 # Carte
 par(mfrow = c(1, 1))
@@ -590,11 +723,29 @@ mf_map(x = data_immo,
        type = "typo", 
        pal = brewer.pal(6,'Set2'),
        border = "white",
-       lwd = 0.2)
-mf_title("Carte des variables contribuant le plus par epci")
+       lwd = 0.2,
+       leg_pos = NA)
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#736F6E",
+       lwd = 1.5)
+mf_legend(type = "typo",
+          val = c("Densité de population", 
+                  "% logements vacants", 
+                  "% maisons", 
+                  "médiane du niveau de vie",
+                  "% logements suroccupés",
+                  "% petits logements"),
+          title = "",
+          pal = brewer.pal(6,'Set2'),
+          box_border = "white")
+mf_title("Variables contribuant le plus à l’explication de la variabilité du prix médian au niveau de l'EPCI")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # cartographie des R2 locaux
-data_immo$r2local=mod.gwr_g$SDF$Local_R2
+data_immo$r2local <- mod.gwr_g$SDF$Local_R2
 mf_map(x = data_immo, 
        var = "r2local", 
        type = "choro",
@@ -603,8 +754,17 @@ mf_map(x = data_immo,
        pal= "Reds",
        border = "gray",
        lwd = 0.2,
-       leg_title = "Discrétisation par quantile")
+       leg_title = "Discrétisation par quantile",
+       leg_box_border = "gray",
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 1.5)
 mf_title("R² locaux")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # étudie de la significativité des effets sur le territoire à partir des t-value
 # Pour rappel si on a plus de 200 individus et le t-value > |1.96| 
@@ -616,8 +776,18 @@ mf_map(x = data_immo,
        type = "typo",
        pal = "Reds",
        border = "gray",
-       lwd = 0.2)
-mf_title("Nombre de Betas significatifs par EPCI (t-value)")
+       lwd = 0.2,
+       leg_box_border = "gray",
+       leg_title = "Nombre de variables",
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 1.5)
+mf_title("Nombre de variables expliquant significativement la variabilité des prix médians par EPCI (t-value)")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # ou avec les p-value
 # Les p-value ne sont pas fournis dans le modèle de la GWR
@@ -640,14 +810,24 @@ mf_map(x = data_immo,
        type = "typo",
        pal= "Reds",
        border = "gray",
-       lwd = 0.2,)
-mf_title("Nombre des Betas significatifs par EPCI (p-value)")
+       lwd = 0.2,
+       leg_title = "Nombre de betas",
+       leg_box_border = "gray",
+       leg_adj = c(0, 1.5))
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "gray",
+       lwd = 1.5)
+mf_title("Nombre des betas significatifs par EPCI (p-value)")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # Ici nous représenterons les p-value avec un découpage par classe de significativité
 # et seulement les p-value de 2 VI
 par(mfrow = c(1, 2))
 # Par exemple les p-value des coefficients de la variable part de l'emploi agriculteur
-data_immo<- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.002[",
+data_immo <- data_immo %>%  mutate(agri.p_fac = case_when(agri.p<= 0.002 ~ "[0;0.002[",
                                                          agri.p <= 0.01 ~ "[0.002;0.01[",
                                                          agri.p <= 0.05 ~ "[0.01;0.05[",
                                                          agri.p <= 0.1 ~ "[0.05;0.1[",
@@ -663,12 +843,21 @@ mf_map(x = data_immo,
        type = "typo", 
        border = "grey3", 
        lwd = 0.1, 
+       leg_box_border = "grey3",
        pal = mypal2, 
-       leg_title = "Classe P-value")
-mf_title("P-value du coefficient de la part d'emploi agriculteurs")
+       leg_title = "p-value",
+       leg_size = 0.8)
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#736F6E",
+       lwd = 1.5)
+mf_title("P-value du coefficient du % agriculteurs")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # Pour la densité de population
-data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0.002[",
+data_immo <- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0.002[",
                                                          dens.p <= 0.01 ~ "[0.002;0.01[",
                                                          dens.p <= 0.05 ~ "[0.01;0.05[",
                                                          dens.p <= 0.1 ~ "[0.05;0.1[",
@@ -684,6 +873,15 @@ mf_map(x = data_immo,
        type = "typo", 
        border = "grey3", 
        lwd = 0.1, 
+       leg_box_border = "grey3",
        pal=mypal2, 
-       leg_title = "Classe P-value")
+       leg_title = "p-value",
+       leg_size = 0.8)
+mf_map(x = region_sf, 
+       add = TRUE,
+       type = "base",
+       col = NA,
+       border = "#736F6E",
+       lwd = 1.5)
 mf_title("P-value du coefficient de la densité de population")
+mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
