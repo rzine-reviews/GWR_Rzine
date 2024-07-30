@@ -84,7 +84,7 @@ mf_map(x = region_sf,
        border = "#34282C",
        lwd = 1)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
-mf_credits("Sources: Notaires de France 2018, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, IGN Admin Express 2021")
 
 # aperçu des données INSEE
 # correspondance entre le nom des variables et un intitulé plus lisible
