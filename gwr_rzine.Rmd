@@ -286,7 +286,6 @@ mf_map(x = data_immo,
        leg_box_border = NA,
        leg_val_rnd = 0,
        leg_adj = c(0, 1.5))
-
 mf_map(x = region_sf, 
        add = TRUE,
        type = "base",
@@ -393,7 +392,6 @@ mf_label(x = neighbours1, var = "index", halo = TRUE)
 proj4string_2154 <- "+proj=lcc +lat_0=46.5 +lon_0=3 +lat_1=49 +lat_2=44 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs"
 neighbours_epci_sf <- spdep::nb2lines(neighbours_epci, coords=coord, proj4string=proj4string_2154, as_sf=T)
 mf_map(x = neighbours_epci_sf[neighbours_epci_sf$i == 1,], col = "grey30", add = TRUE)
-
 ```
 
 Nous précisons qu'un voisinage peut aussi tout à fait se calculer lorsque l'on n'a pas de polygones mais simplement des coordonnées (des points). Les matrices de distances sont alors souvent plus adaptées. Pour définir le voisinage il faut utiliser les fonctions `knearneigh()` et `knn2nb()`
@@ -502,7 +500,7 @@ mat_cor_comp <- summary(immo_cor, redundant = TRUE)
 # Nom des lignes = valeurs de la première colonne ("Parameter")
 rownames(mat_cor_comp ) <- mat_cor_comp[,1]
 # Transformation du data.frame en objet matrice (+ suppression première colonne)
-mat_cor<- as.matrix(mat_cor_comp[,-1])
+mat_cor <- as.matrix(mat_cor_comp[,-1])
 # Calcul du nombre total d'individus
 nb <- nrow(data_cor)
 # Calcul des matrices de p-values et des intervalles de confiance
@@ -549,7 +547,7 @@ Pour lancer le modèle de régression linéaire avec toutes les VI voici les lig
 ```{r}
 # Dans le fonctionnement sur R il est important de stocker la régression dans un objet.
 # Pour lancer la régression on va utiliser la fonction lm() 
-# dont les 2 lettres sont l'acronyme pour linear model
+# dont les 2 lettres sont l'acronyme de linear model
 mod.lm <- lm(formula = prix_med ~ 
                perc_log_vac + 
                perc_maison + 
@@ -637,8 +635,7 @@ score_vif
 # création du graphique
 par(mar=c(3, 12, 3, 1), mgp=c(1, 0.4, 0)) # pour pouvoir lire les noms des variables
 x = barplot(height = score_vif, main = "VIF Values", horiz = TRUE, col = "steelblue", las = 1)
-#axis(2, x, names(score_vif), las=1, tick=FALSE, mgp=c(10, 0.1, 0))
-#ajout du seuil de 4
+# ajout du seuil de 4
 abline(v = 4, lwd = 3, lty = 2)
 # et de la limite de 3
 abline(v = 3, lwd = 3, lty = 2)
@@ -947,7 +944,7 @@ mf_map(x = region_sf,
        border = "#34282C",
        lwd = 1.5)
 mf_title("Prix médian de l'immobilier au m² par EPCI")
-mf_credits("Sources: Notaires de France, IGN Admin Express")
+mf_credits("Sources: Notaires de France 2018, IGN Admin Express 2021")
 ```
 
 Une structure spatiale apparaît de manière assez prégnante, ce qui est vérifié par les indicateurs statistiques :
@@ -1004,10 +1001,10 @@ En bref, le calcul de l'autocorrélation vous permettra soit d'identifier et met
 Pour visualiser rapidement la structure spatiale on peut aussi réaliser un diagramme de Moran qui est complémentaire au test statistique.
 
 ```{r}
-moran.plot(data_immo$prix_med_z,neighbours_epci_w, 
+moran.plot(data_immo$prix_med_z, neighbours_epci_w, 
            labels = TRUE, 
-           xlab="prix medians centrés réduits par epci" , 
-           ylab="moyenne du prix médian centré réduit par epci des voisins")
+           xlab = "prix medians centrés réduits par epci" , 
+           ylab = "moyenne du prix médian centré réduit par epci des voisins")
 ```
 
 Comment lire ce diagramme ?
@@ -1064,7 +1061,7 @@ lisa_colors <- lisa_colors(lisa)
 lisa_labels <- lisa_labels(lisa)
 lisa_clusters <- lisa_clusters(lisa)
 lisa_value <- lisa_values(lisa)
-lisa_pvalue<- lisa_pvalues(lisa)
+lisa_pvalue <- lisa_pvalues(lisa)
 
 ```
 
@@ -1083,7 +1080,8 @@ breaks_moranloc <- res_moranloc[[1]]
 nb_cl_sup0_moranloc <- res_moranloc[[2]]
 nb_cl_inf0_moranloc <- res_moranloc[[3]]
 # création d'une palette associée
-palette = mf_get_pal(n = c(nb_cl_inf0_moranloc, nb_cl_sup0_moranloc), pal = c("Teal", "Reds"))
+palette = mf_get_pal(n = c(nb_cl_inf0_moranloc, nb_cl_sup0_moranloc), 
+                     pal = c("Teal", "Reds"))
 # la carte
 mf_map(x = data_immo, 
        var = "moranlocalvalue", 
@@ -1175,7 +1173,6 @@ mf_title("Regroupement des LISA")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
-
 Si on est en présence d'une autocorrélation spatiale au niveau global, les LISA pourront aussi servir d'indicateur d'instabilité locale. Ils indiquent à la fois des clusters locaux qui vont avoir un impact fort sur le processus spatial global (un score d'autocorrélation locale plus marqué que l'autocorrélation globale) ou à l'inverse des zones que se démarquent du processus global (plus faible autocorrélation).
 
 En revanche, s'il n'y a pas d'autocorrélation spatiale au niveau global les LISA vont nous permettre de détecter des zones où des valeurs semblables se regroupent de façon significative. Ils font émerger des structures au niveau local au sein desquelles les liens entre voisins seront particulièrement importants. On peut imaginer certaines configurations où l'autocorrélation spatiale globale ne paraisse pas significative, mais que ce score masque localement des clusters marqués qui restreignent la qualité des modèles de régression classique.
@@ -1241,30 +1238,7 @@ Sachant que sur la forme du noyau, il est tout à fait possible de comparer deux
 
 Ici, nous allons tester avec un noyau gaussien, ce qui sera justifié [un petit peu plus bas](#estimation-du-modèle).
 
-```{r}
-# Définition de la bande passante (bandwidth en anglais) :
-bw_g <- bw.gwr(data = data_immo_sp, 
-              approach = "AICc", 
-              kernel = "gaussian", 
-              adaptive = TRUE, 
-              dMat = dm.calib,
-              formula = prix_med ~ 
-                perc_log_vac + 
-                perc_maison + 
-                perc_tiny_log + 
-                dens_pop + 
-                med_niveau_vis + 
-                part_log_suroccup + 
-                part_agri_nb_emploi + 
-                part_cadre_profintellec_nbemploi)
-bw_g
-```
-
-La bande passante est donc ici de 19 voisins, ce qui implique que les EPCI au-delà de cette "distance" auront un poids ramené à 0 et ne joueront donc plus de rôle dans la description de la relation statistique.
-
-## Estimation du modèle
-
-Une fois la bande passante définie on peut lancer l'estimation du modèle de GWR. Pour éviter les répétitions la formule est stockée dans une variable au préalable.
+Pour éviter les répétitions la formule est stockée dans une variable au préalable.
 
 ```{r}
 formula <- prix_med ~ 
@@ -1277,6 +1251,23 @@ formula <- prix_med ~
   part_agri_nb_emploi + 
   part_cadre_profintellec_nbemploi
 ```
+
+```{r}
+# Définition de la bande passante (bandwidth en anglais) :
+bw_g <- bw.gwr(data = data_immo_sp, 
+              approach = "AICc", 
+              kernel = "gaussian", 
+              adaptive = TRUE, 
+              dMat = dm.calib,
+              formula = formula)
+bw_g
+```
+
+La bande passante est donc ici de 19 voisins, ce qui implique que les EPCI au-delà de cette "distance" auront un poids ramené à 0 et ne joueront donc plus de rôle dans la description de la relation statistique.
+
+## Estimation du modèle
+
+Une fois la bande passante définie on peut lancer l'estimation du modèle de GWR. 
 
 
 ```{r}
@@ -1361,13 +1352,10 @@ L'ensemble des données est stocké dans le sous objet SDF du modèle. Il contie
 On peut le convertir en un dataframe pour le visualiser plus facilement. À l'origine il est au format "SpatialPointsDataFrame".
 
 ```{r}
-# Pour visualiser ce fichier dans R
-#View(mod.gwr_g$SDF@data)
-
-# Pour voir à quoi il ressemble dans ce document
+# L'ensemble des données est stocké dans le sous objet SDF de notre modèle
+# Pour voir à quoi il ressemble avec les noms des EPCI
 datatable(cbind("Nom EPCI" = data_immo$NOM, mod.gwr_g$SDF@data)
           %>% format(digits = 2, scientific = FALSE))
-
 # Pour voir les variables qui le constituent
 names(mod.gwr_g$SDF@data)
 
@@ -1414,7 +1402,7 @@ mf_map(x = data_immo,
        lwd = 0.2, 
        breaks = breaks_gwr,
        pal = palette, 
-       leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2", 
+       leg_title = "Discrétisation standardisée :\nvaleur centrale = 0\nintervalle = σ / 2",
        leg_box_border = "gray",
        leg_val_rnd = 1,
        leg_adj = c(0, 1.5))
@@ -1550,7 +1538,7 @@ Au-delà de la non-stationnarité des VI, cette carte met en évidence un autre 
 Nous pouvons également cartographier les $R^2$ locaux, ce qui fournit une indication sur les zones où la variabilité est la mieux expliquée.
 
 ```{r}
-data_immo$r2local=mod.gwr_g$SDF$Local_R2
+data_immo$r2local <- mod.gwr_g$SDF$Local_R2
 
 mf_map(x = data_immo, 
        var = "r2local", 
@@ -1684,7 +1672,7 @@ mf_title("P-value du coefficient du % agriculteurs")
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 
 # Pour la densité de population
-data_immo<- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0.002[",
+data_immo <- data_immo %>%  mutate(dens.p_fac = case_when(dens.p <= 0.002 ~ "[0;0.002[",
                            dens.p <= 0.01 ~ "[0.002;0.01[",
                            dens.p <= 0.05 ~ "[0.01;0.05[",
                            dens.p <= 0.1 ~ "[0.05;0.1[",
