@@ -920,6 +920,8 @@ L'indice de Moran va considérer les variances et covariances en prenant compte 
 
 Plus concrètement, l'indice de Moran est une retranscription directe du coefficient de corrélation qu'on peut avoir entre une VI et une VP ; on opère simplement un remplacement de la VP par la valeur moyenne des voisins de la VI. Il s'interprète donc comme un coefficient de corrélation.
 
+Le nombre de voisins étant définis par une distance, il peut être variable en fonction des contextes. On appelle ça le biais de l'effet de bord [@Anselin_1995]. Le calcul présenté dans cet article prend en compte ce biais en standardisant la matrice de voisinage en ligne.
+
 Concernant l'indice de Geary, il met en rapport d'une part l'écart entre la VI et la moyenne des voisins et d'autre part l'écart entre la VI et la moyenne de l'ensemble des observations. Un indice proche de zéro traduit ainsi une autocorrélation positive, un score proche de deux une autocorrélation négative. Un score de 1 signifie qu'aucune autocorrélation n'est constatée.
 
 Pourquoi utiliser un indice plutôt qu'un autre ? Ils traduisent sensiblement la même chose, mais diffèrent dans leur construction : Moran est une agrégation de logique locale quand Geary se rapporte à des écarts au global. Cela dit le coût de réalisation n'est pas très élevé et rien n'empêche de faire l'un et l'autre pour voir si les résultats sont cohérents entre eux.
@@ -1720,7 +1722,7 @@ Cette méthode présente également certaines faiblesses, qui constituent souven
 
 Les solutions qui permettraient de limiter les faiblesses de cette méthode nécessitent certainement de grosses capacités de calcul qui alourdiraient fortement la mise en œuvre des traitements statistiques.
 
-La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales. Il existe également d'autres méthodes telles que la GWR Lasso (ref) ou la GWR Multiscalaire (MGWR) (ref).
+La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales. Il existe également d'autres méthodes telles que la GWR Lasso [@Wheeler_2009] ou la GWR Multiscalaire (MGWR) [@Fotheringam_2017].
 
 Dans un autre registre l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"}  ou la MGWR [@Lu_2014] peuvent également s'avérer extrêmement intéressantes et riches.
 
