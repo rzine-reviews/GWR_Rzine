@@ -69,7 +69,7 @@ Lorsque l'on souhaite dépasser la simple caractérisation d'attributs liés à 
 
 Le principe de la régression linéaire est de modéliser la variable que nous souhaitons étudier (aussi appelée variable dépendante, VD) comme une fonction linéaire des variables que nous aurons définies comme explicatives de la VD (aussi appelées variables indépendantes, VI). Lorsque l'on s'intéresse à un phénomène social observé sur une maille territoriale, la régression linéaire pose plusieurs problèmes :
 
-Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notés epsilon **ε**). Ces **β** représentent l'effet des VI sur la VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaire considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales. En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
+Le premier est empirique. La régression linéaire nous permet d'obtenir des coefficients (appelés betas **β**) et des résidus (notés epsilon **ε**). Ces **β** représentent l'effet des VI sur la VD. Ces **β** sont considérés comme globaux, sans variation. Autrement dit, les modèles de régression linéaire considèrent que les VI interviennent de la même manière et avec la même importance sur l'ensemble de notre jeu de données. Si cette hypothèse peut être validée sur des populations statistiques définies aléatoirement et sans effet de structure *a priori* des VI ou de la VD, elle n'est que rarement vérifiée sur des données spatiales (note de bas de page chapitre 8 livre Feuillet & co). En effet, les caractéristiques propres de chaque territoire (l'unicité de chaque lieu) impliquent que l'effet de structure constaté en un lieu n'est pas forcément valable en un autre lieu de l'espace.
 
 Les données sont ainsi structurées :
 
@@ -80,11 +80,12 @@ Les individus statistiques, représentés par des unités spatiales ne peuvent p
 
 Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet des VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non stationnarité**.
 
-Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Trois conditions doivent être validées pour qu'une régression linéaire puisse être effectuée sans que l'interprétation des résultats ne conduise à des raisonnements fallacieux :
+Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Trois conditions doivent être validées pour qu'une régression linéaire puisse être effectuée sans que l'interprétation des résultats ne conduise à des raisonnements fallacieux dus à des estimateurs qui seraient biaisés :
 
 - Les individus statistiques doivent être indépendants
 - Les résidus doivent suivre une distribution normale
 - Il ne peut pas y avoir plus de VI que d'individus statistiques
+- Les estimateurs doivent présenter une multicolinéarité limitée
 
 Si les deux dernières conditions ne trouvent pas de matérialisation spécifique sur des données spatiales, la première quant à elle concrétise un problème récurrent sur les données en géographie. Par leur nature même, les données spatiales ne peuvent pas remplir cette condition fondamentale pour une régression classique. La première loi de la géographie de Tobler : *"everything is related to everything else, but near things are more related than distant things"* en est une traduction tout à fait parlante. 
 
@@ -93,6 +94,11 @@ Le troisième problème est lié aux effets de contexte : on ne peut pas étudi
 Le quatrième problème est lié à la problématique du MAUP (Modifiable Area Unit Problem). Il concerne un problème d'échelle d'application de la régression et peut conduire à des observations erronées. Une corrélation constatée à une échelle peut être uniquement liée à l'agrégation réalisée à cette échelle, mais s'avérer erronée à une échelle plus fine, invalidant de fait la relation entre les phénomènes étudiés [@Mathian_2001]. Certaines agrégations peuvent également varier et cacher des relations entre individus [@Bailey_1995].
 
 La GWR ne répond pas à l'ensemble de ces problèmes mais va nous permettre de résoudre les deux premiers en intégrant la dimension spatiale des données tout en tenant compte de l'hétérogénéité (ou non stationnarité) de leur effet.
+
+Il existe d'autres méthodes en statistiques spatiales comme les régressions spatiales par exemple. Elles permettent de traiter entre autres les problèmes d'autocorrélation spatiale. Le schéma 1 permet de voir à quelles questions et quelle utilisation nous pouvons faire de ces différentes méthodes et leur combinaison éventuelle. Nous ne présentons dans cet article qu'un seul chemin dans ce continuum méthodologique : le but est de présenter ici uniquement la GWR. D'autres méthodes peuvent cependant y être associées.
+
+![Naviguer à vue dans le continuum statistique spatial](figures/schema_pour_H_mathian3.png)
+
 
 # Les packages {-}
 
@@ -159,11 +165,6 @@ lapply(my_packages, library, character.only = TRUE)
 
 ```
 
-# Cheminement {-}
-
-Le schéma ci-dessous (Frédéric Audard, 2024) représente les différents cheminements possibles pour expliquer les variations de Y. Les étapes suivies ici sont représentées en bleu.
-
-![Naviguer à vue dans le continuum statistique spatial](figures/xuenylom.jpg)
 
 # Présentation et préparation des données
 
@@ -475,11 +476,11 @@ La conception d'un modèle statistique doit absolument être le fruit d'une réf
 
 L'étude des corrélations peut donc apporter une aide précieuse dans cette réflexion. Elle pourra nous aider dans le choix des variables à intégrer au modèle mais dans le même temps de vérifier certaines des conditions de réalisation de notre régression.
 
-Ainsi, une analyse des corrélation pourra vérifier :
+Ainsi, une analyse des corrélations pourra vérifier :
 
 - l'existence d'un lien entre les variables indépendantes et la variable à étudier. En effet dans une régression linéaire, il est nécessaire d'avoir une relation linéaire entre la VD et les différentes VI.
 - la multicolinéarité des variables indépendantes. Les corrélations ne doivent pas être trop fortes entre les VI. Un coefficient > 0.7 en valeurs absolues doit entraîner la suppression des variables concernées. Cela peut aussi être vérifié très efficacement avec le VIF (Variance Inflation Factor) mais peut se faire seulement après avoir lancé le modèle.
-- L'absence de corrélation entre les variables explicatives du modèle et les variables externes. En effet, les variables d'influence doivent être incluses dans le modèle (sauf dans le cas où cela induirait une trop grande multicolinéarité).
+- que toutes les variables d'intérêt sont bien présentes dans le modèle (sauf dans le cas où cela induirait une trop grande multicolinéarité).
 
 
 Pour calculer une matrice de corrélation : 
@@ -892,7 +893,7 @@ mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021
 mf_theme("default")
 ```
 
-Sur cette carte on voit très clairement une spatialisation des résidus, sans même faire les tests nous aurions pu voir que la dimension spatiale jouait bien un rôle. Sans autocorrélation nous aurions eu une répartition aléatoire des résidus.
+La dimension spatiale semble jouer un rôle ; sans autocorrélation nous aurions eu une répartition aléatoire des résidus. Notre hypothèse repose sur l'existence d'une structure spatiale avec à la fois des effets des effets de situation (Île-de-France par exemple) et des effets de sites (les littoraux). Certains écarts relèvent d'une réalité certainement plus complexe, comme les zones de montagne (Alpes et Pyrénées) qui correspondent à la fois d'un effet de situation et de site.
 
 # Analyse de l'autocorrélation spatiale
 
@@ -1041,7 +1042,7 @@ L'idée est de faire appel ici au LISA pour compléter la compréhension du nive
 Le logiciel [GeoDa](http://geodacenter.github.io/){target="_blank"}, développé par Luc Anselin et son équipe pour étudier l'autocorrélation spatiale et les LISA, constitue une bonne solution logicielle en clic-boutons, avec une [documentation](http://geodacenter.github.io/documentation.html){target="_blank"} riche [@geoda].
 </div>
 
-Nous allons calculer le I de Moran local sur nos données, grâce au package `rgeoda` développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa :
+Nous allons calculer le I de Moran local sur nos données, grâce au package `rgeoda` développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa.
 
 ```{r}
 # calcul moran local
@@ -1592,8 +1593,7 @@ mf_title("Nombre de variables expliquant significativement la variabilité des p
 mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021")
 ```
 
-Il se peut que cela soit plus intéressant d'utiliser les p-value, notamment si vous avez moins de 200 individus.
-
+Il se peut que cela soit plus intéressant d'utiliser les p-value, notamment si vous avez moins de 200 individus. Dans le cas présent, les 2 cartes sont identiques puisque nous avons 1223 individus.
 
 ```{r}
 # Les p-value ne sont pas fournis dans le modèle de la GWR
@@ -1716,10 +1716,13 @@ Cette méthode présente également certaines faiblesses, qui constituent souven
 
 - La non-stationnarité n'est prise en compte que partiellement pour l'instant par les méthodes existantes ou les packages déjà élaborés. Une méthode redéfinissant pour chaque point de l'espace un groupe de variables explicatives différent garantirait certainement à la fois une meilleure explication (un $R^2$ plus élevé) et une meilleure sobriété du modèle (un AIC plus faible).
 - La structure de la dépendance spatiale peut également être sujette à discussion : on peut imaginer que chaque point de l'espace présente une structure de la dépendance différente et qu'il soit pertinent de redéfinir, pour chaque point de l'espace, une forme de noyau et une bande passante différente [@comber_2022].
+- L'autocorrélation spatiale n'est pour le moment pas prise en compte de manière concomitante avec la GWR. Il conviendrait de pouvoir coupler ces méthodes pour régler dans le même temps les différents problèmes liées aux structures spatiales des données (Schéma 1). Une des solutions pour répondre à ce problème serait de réaliser une GWR / MGWR de type SAR, SLX ou SDM en chaque point de l'espace. Cela permet d'associer les effets de dépendance spatiale à l'étude des effets de non-stationnarité. Ces méthodes ne sont pas encore implémentées et mériteraient de nouvelles investigations.
 
 Les solutions qui permettraient de limiter les faiblesses de cette méthode nécessitent certainement de grosses capacités de calcul qui alourdiraient fortement la mise en œuvre des traitements statistiques.
 
-La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales, il existe des modèle de régressions spatiales (SDEM, SDM, SAR...) mais également d'autres méthode comme l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"}  ou la MGWR [@Lu_2014] qui peuvent également s'avérer extrêmement intéressantes et riches.
+La GWR n'est bien sur pas la seule approche existante pour s'intéresser à l'aspect spatial de phénomènes et variables sociales. Il existe également d'autres méthodes telles que la GWR Lasso (ref) ou la GWR Multiscalaire (MGWR) (ref).
+
+Dans un autre registre l'[analyse territoriale multiscalaire (MTA)](https://rzine.fr/docs/20211101_ysebaert_grasland_MTA/index.html#content){target="_blank"}  ou la MGWR [@Lu_2014] peuvent également s'avérer extrêmement intéressantes et riches.
 
 # Bibliographie {-}
 
