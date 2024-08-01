@@ -1421,6 +1421,15 @@ mf_credits("Sources: Notaires de France 2018, INSEE 2019, IGN Admin Express 2021
 
 Cette carte ne présente pas de structure spatiale marquée et nous amène à penser que nous avons expliqué l'ensemble des phénomènes spatiaux liés aux questions de prix de l'immobilier.
 
+```{r}
+moran.test(data_immo$res_gwr,
+           neighbours_epci_w,
+           zero.policy = TRUE,
+           randomisation = FALSE)
+```
+
+Le I de Moran à 0,02 tend à confirmer cette explication. Les individus conservant des résidus marqués (forts ou faibles), sont des outliers pour lesquels le modèle ne peut pas trouver d'explication mais ne correspondent plus à un effet de structure. On s'aperçoit cependant que le modèle s'avère performant pour expliquer les valeurs les plus faibles constatées (diagonale du vide) mais se révèle inadapté pour les valeurs extrêmes fortes (Paris, stations de ski alpines, stations balnéaires). Les écarts au modèle apparaissent de manière beaucoup plus prononcée pour les valeurs extrêmes fortes que pour les valeurs extrêmes faibles.
+
 ### Étude des coefficients
 
 Pour visualiser la non stationnarité spatiale des effets des VI la solution la plus efficace est la carte.
