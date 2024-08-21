@@ -680,7 +680,7 @@ La fonction `step()` permet de réaliser une régression pas à pas descendante 
 Dans le cas d'une régression descendante, le modèle initial comprend toutes les variables, comme pour la régression standard mais cette fois l'algorithme va retirer la variable ayant la plus faible contribution au modèle si la variation du $R^2$ n'est pas significative en l'éliminant. La procédure va être répétée jusqu'à ce que toutes les variables conservées contribuent significativement à l'amélioration du $R^2$. La régression descendante va donc retirer les variables non significatives une à une. Ainsi, le dernier modèle proposé doit contenir toutes les variables ayant une contribution significative au $R^2$.
 
 ```{r}
-# L'argument "both" permeet d'utiliser les deux méthodes : ascendante et ascendante
+# L'argument "both" permet d'utiliser les deux méthodes : ascendante et ascendante
 step(mod.lm2, direction = "both")
 ```
 
@@ -1047,7 +1047,7 @@ Le logiciel [GeoDa](http://geodacenter.github.io/){target="_blank"}, développé
 Nous allons calculer le I de Moran local sur nos données, grâce au package `rgeoda` développé également par Luc Anselin pour réaliser sur R les traitements de GeoDa.
 
 ```{r}
-# calcul moran local
+# calcul Moran local
 
 # Pour utiliser la fonction local_moran du package rgeoda 2 pré-requis:
 
