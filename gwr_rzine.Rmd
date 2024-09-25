@@ -48,13 +48,13 @@ library(rzine)
 
 
 <div style="background-color: #dcdcdc ; border-color:navajowhite3; padding: 1em; font-size:115% ; color: CCCCCC">
-Cette fiche présente la réalisation d'une analyse de données à l'aide de la **régression géographique pondérée ou GWR** (*Geographical Weighted Regression*). La modélisation statistique dite “classique” présente des risques élevés lorsqu'on souhaite traiter des données spatiales. Des phénomènes de dépendance spatiale, des problèmes d'échelles d'application, des effets de contexte, ainsi qu'une forme d'hétérogénéité spatiale peuvent apparaître et compromettre les analyses effectuées, et engendrer des interprétations tronquées voire inexactes. Souvent ignorées, ces dimensions spatiales ne peuvent pas être considérées comme un simple aléa.
+Cet article présente la réalisation d'une analyse de données à l'aide de la **régression géographique pondérée ou GWR** (*Geographical Weighted Regression*). La modélisation statistique dite “classique” présente des risques élevés lorsqu'on souhaite traiter des données spatiales. Des phénomènes de dépendance spatiale, des problèmes d'échelles d'application, des effets de contexte, ainsi qu'une forme d'hétérogénéité spatiale peuvent apparaître et compromettre les analyses effectuées, et engendrer des interprétations tronquées voire inexactes. Souvent ignorées, ces dimensions spatiales ne peuvent pas être considérées comme un simple aléa.
 
-**L'objectif de cette fiche est de vous présenter des méthodes et leurs applications qui vous permettront d'étudier concrètement les effets des dimensions spatiales des données.** Il s'agira d'une part de caractériser la structure spatiale de données attributaires liées à des entités spatiales ; et d'autre part de mesurer l'effet statistique de l'information spatiale dans un modèle de régression visant à déterminer les facteurs explicatifs d'un phénomène.
+**L'objectif de cet article est de vous présenter des méthodes et leurs applications qui vous permettront d'étudier concrètement les effets des dimensions spatiales des données.** Il s'agira d'une part de caractériser la structure spatiale de données attributaires liées à des entités spatiales ; et d'autre part de mesurer l'effet statistique de l'information spatiale dans un modèle de régression visant à déterminer les facteurs explicatifs d'un phénomène.
 
 L'analyse présentée ici a pour objectif d'être reproductible : les données spatiales utilisées proviennent de la base ADMIN-EXPRESS de l'Institut national de l'information géographique et forestière (IGN) ; les données statistiques, quant à elles, ont été construites à partir de la base des notaires de France, complétées par des données de l'Institut national de la statistique et des études économiques (INSEE) pour les variables explicatives.
 
-Toutes les figures et cartes ont été produites dans le cadre de la rédaction de cette fiche, sauf mention contraire.
+Toutes les figures et cartes ont été produites dans le cadre de la rédaction de cet article, sauf mention contraire.
 </div>
 <br>
 
@@ -78,7 +78,7 @@ Les données sont ainsi structurées :
 
 Les individus statistiques, représentés par des unités spatiales, ne peuvent pas être envisagés comme indépendants et identiquement distribués.
 
-Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cette fiche, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet des VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non-stationnarité**.
+Concernant les prix des valeurs foncières que nous détaillerons par la suite dans cet article, on peut comprendre que la proximité au littoral, très prégnante en certains points de l'espace, ne joue absolument aucun rôle dans d'autres lieux. De même, certaines caractérisations du monde rural n'interviennent plus lorsqu'on se situe dans des milieux fortement urbanisés. Ainsi, les données spatialisées sont soumises à l'hétérogénéité spatiale : l'effet des VI va varier en fonction de l'espace. Un coefficient qui serait global et uniforme pour mesurer un effet paraît plus simple et donc tentant, mais non pertinent en géographie ; sur ce point nous pouvons nous référer à l'article de Brunsdon, Fotheringham et Charlton [@Brundson_1996]. **Ce concept d'hétérogénéité dans l'espace se traduit en statistique par celui de non-stationnarité**.
 
 Le deuxième problème est statistique : chaque méthode statistique doit répondre à un certain nombre de conditions de validité. La régression linéaire ne fait pas exception. Quatre conditions doivent être validées pour qu'une régression linéaire puisse être effectuée sans que l'interprétation des résultats ne conduise à des raisonnements fallacieux dus à des estimateurs qui seraient biaisés :
 
@@ -427,7 +427,7 @@ Traditionnellement cela passe par trois étapes :
 2. Analyse des corrélations
 3. Réalisation d'un modèle linéaire classique
 
-N'étant pas le sujet de la fiche nous passerons rapidement sur ces étapes et nous ne nous attarderons pas sur des considérations théoriques. Toutefois nous indiquerons des manières de les réaliser sur R et des éléments de lectures.
+N'étant pas le sujet de l'article nous passerons rapidement sur ces étapes et nous ne nous attarderons pas sur des considérations théoriques. Toutefois nous indiquerons des manières de les réaliser sur R et des éléments de lectures.
 
 ## Exploration des variables
 
@@ -530,7 +530,7 @@ corrplot(mat_cor,
 
 L'étude des corrélations nous permet ici de confirmer une relation entre la variable à expliquer et toutes les variables explicatives définies. Par exemple, elle est négativement corrélée avec le pourcentage de logements vacants.
 
-Elle met aussi à jour de très fortes multicolinéarités, ce qui pose problème. Par exemple, la part de logements suroccupés est fortement corrélée au pourcentage de petits logements. Dans le cadre de la définition d'un modèle linéaire classique, il faudrait sortir du modèle les variables explicatives qui sont trop fortement corrélées. Dans le cadre de cette fiche nous faisons le choix de conserver toutes les VI, cela fera sens au moment de la GWR.
+Elle met aussi à jour de très fortes multicolinéarités, ce qui pose problème. Par exemple, la part de logements suroccupés est fortement corrélée au pourcentage de petits logements. Dans le cadre de la définition d'un modèle linéaire classique, il faudrait sortir du modèle les variables explicatives qui sont trop fortement corrélées. Dans le cadre de cet article nous faisons le choix de conserver toutes les VI, cela fera sens au moment de la GWR.
 
 ## Régression linéaire ou méthode des moindres carrés ordinaire (MCO)
 
@@ -1191,7 +1191,7 @@ Bien que l'analyse d'autocorrélation spatiale soit riche en enseignements sur n
 
 Pour prendre en compte le phénomène de dépendance spatiale, on fait souvent appel aux régressions spatiales. Elles permettent à la fois de mieux comprendre la relation qui unit les variables explicatives à la variable étudiée d'une part ; et d'autre part de traiter la relation de la VD à son propre voisinage. Les régressions spatiales peuvent donc (en fonction du type de régression choisie) intégrer les caractéristiques du voisinage (de la VD ou des VI) pour expliquer la VD. 
 
-Ces méthodes ne sont pas l'objet de la présente fiche et nous renvoyons les lecteurs et lectrices à d'autres références [@elhorst_2014].
+Ces méthodes ne sont pas l'objet du présent article et nous renvoyons les lecteurs et lectrices à d'autres références [@elhorst_2014].
 
 Par ailleurs, l'hétérogénéité, qui renvoie à une instabilité, induit une variabilité spatiale de nos paramètres. L'idée est que les VI peuvent avoir un effet qui n'est pas le même partout dans l'espace. Dans ce cas nous optons pour la **régression géographiquement pondérée (GWR)**.
 
