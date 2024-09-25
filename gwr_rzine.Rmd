@@ -185,6 +185,12 @@ Les données spatiales (géométrie des EPCI) sont au format [shapefile](https:/
 
 ## Chargement des données sur le prix de l'immobilier par EPCI
 
+<br/>
+
+<p class="center">[<span style="font-size: 230%;" class="glyphicon glyphicon-download-alt"></span> <br/> Télécharger les données](https://rzine.fr/docs/20240930_gwr/data.zip)</p>
+
+Pour rejouer l'analyse, décompressez les données contenues dans l'archive [data.zip](https://rzine.fr/docs/20240930_gwr/data.zip) puis ouvrez le jeu de données ***donnees_standr.csv*** et la couche géographique ***EPCI.shp***.  La couche ***REGION.shp*** est utilisée à des fins d'habillage cartographique.
+
 ```{r}
 # On situe le dossier dans lequel se trouve nos données
 csv_path <- here("data", "donnees_standr.csv")
