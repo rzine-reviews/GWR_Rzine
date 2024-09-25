@@ -591,11 +591,11 @@ Pour interpréter les résultats, plusieurs éléments fournis par la commande `
 
 <p class="center"><img src="figures/resreg.png" width="500"/> </p>
 
-D'abord l'information fournie par `Adjusted R-squared`, il s'agit du $R^2$ qui est le coefficient de détermination. Il est ici de $0,77$ ce qui veut dire que 77 % de la variation du prix médian est expliqué par le modèle. Juste en-dessous, on a le p-value associé au modèle. S'il est inférieur à $0,05$ on peut considérer qu'il est statistiquement significatif.
+D'abord l'information fournie par `Adjusted R-squared`, il s'agit du $R^2$ qui est le coefficient de détermination. Il est ici de $0,77$ ce qui veut dire que 77 % de la variation du prix médian est expliqué par le modèle. Juste en-dessous, on a le *p-value* associé au modèle. S'il est inférieur à $0,05$ on peut considérer qu'il est statistiquement significatif.
 
 Ensuite, on peut regarder ce qu'il se passe au niveau des variables explicatives. La première colonne appelée *estimate* est le coefficient de régression associé à la variable explicative. Le signe va être très important car il va donner la direction de la relation (exactement comme pour les corrélations). Ici pour le pourcentage de logements vacants il est de $-287$, ce qui veut dire que lorsque ce pourcentage augmente d'une unité alors le prix médian baisse de $287€$.
 
-La colonne $Pr(>|t|)$ correspond à la p-value associée à ce résultat. Une fois encore s'il est inférieur à $0,05$ alors on peut considérer le résultat comme statistiquement significatif. Dans notre cas on peut dire que la part d'agriculteurs, de cadres et professions intellectuelles dans le nombre d'emplois n'a pas un effet significatif sur le prix médian du logement à l'échelle de l'EPCI.
+La colonne $Pr(>|t|)$ correspond à la *p-value* associée à ce résultat. Une fois encore s'il est inférieur à $0,05$ alors on peut considérer le résultat comme statistiquement significatif. Dans notre cas on peut dire que la part d'agriculteurs, de cadres et professions intellectuelles dans le nombre d'emplois n'a pas un effet significatif sur le prix médian du logement à l'échelle de l'EPCI.
 
 Nous allons tout de même conserver ces variables qui pourtant devraient être considérées comme non significatives ; les modèles de GWR utilisés par la suite montreront l'utilité de telles variables dont l'intérêt aurait pu être rejeté *a priori*, puisque leur significativité peut varier localement.
 
@@ -616,7 +616,7 @@ Pour aller au delà de ce raisonnement il faut intégrer des effets d'interactio
 
 ### Multicolinéarité
 
-Un des enjeux les plus importants dans le cadre de régression multiple est de vérifier la multicolinéarité entre les variables explicatives. Le risque d'une trop grande colinéarité est de biaiser le modèle et notamment les estimations des erreurs type des coefficients de régression (et donc les t-value et p-value).
+Un des enjeux les plus importants dans le cadre de régression multiple est de vérifier la multicolinéarité entre les variables explicatives. Le risque d'une trop grande colinéarité est de biaiser le modèle et notamment les estimations des erreurs type des coefficients de régression (et donc les *t-value* et *p-value*).
 
 La **VIF** ***(Variance Inflation Factor)*** est une très bonne méthode pour vérifier les risques de multicolinéarité. Elle suppose simplement d'avoir estimé un premier modèle pour être utilisée.
 
