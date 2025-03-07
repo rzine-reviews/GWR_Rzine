@@ -21,9 +21,9 @@ bibliography: biblio.bib
 nocite: |
   @*
 link-citations: true
-# github: "author/repository"
+github: "rzine-reviews/GWR_Rzine"
 # gitlab: "gitlab.huma-num.fr/author/repository"
-# doi: "xx.xxx/xxxx.xxxxxxx"
+doi: "10.48645/wk1m-hg05"
 licence: "by-sa"
 
 # Only Creative Commons Licence 
