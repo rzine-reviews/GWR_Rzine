@@ -1,7 +1,7 @@
 ---
 title: "La régression géographiquement pondérée : GWR"
 subtitle: "Comment prendre en compte l'effet local du spatial en statistique"
-date: "`r Sys.Date()`"
+date: "2024-09-25"
 author: 
  - name: Frédéric Audard
    affiliation: UMR LETG, Université Bretagne Occidentale
